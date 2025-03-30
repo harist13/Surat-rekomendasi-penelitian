@@ -116,6 +116,7 @@
                             </select>
                         </div>
 
+
                         <!-- Add the hidden no_pengajuan field -->
                         <div id="no_pengajuan_container" class="mt-4 hidden">
                             <label for="no_pengajuan" class="block mb-2 text-sm font-medium text-gray-700">Nomor Pengajuan</label>
@@ -126,6 +127,14 @@
                             <label for="nomor_surat" class="block mb-2 text-sm font-medium text-gray-700">Nomor surat</label>
                             <input type="text" id="nomor_surat" name="nomor_surat" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Masukkan nomor surat" required>
                         </div>
+
+                  
+                        <br>
+                        <div>
+                            <label for="menimbang" class="block mb-2 text-sm font-medium text-gray-700">menimbang</label>
+                            <textarea id="menimbang" name="menimbang" rows="4" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Masukkan pertimbangan untuk penerbitan surat ini"></textarea>
+                        </div>
+
                     </div>
                     
                     <!-- Identitas Pemohon (merged with Informasi Tambahan) -->
@@ -279,8 +288,8 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
         // Initialize data from backend
         const mahasiswaData = @json($approvedMahasiswa);
         const nonMahasiswaData = @json($approvedNonMahasiswa);
@@ -511,6 +520,7 @@
         const lokasiPenelitian = document.getElementById('lokasi_penelitian').value;
         const waktuPenelitian = document.getElementById('waktu_penelitian').value;
         const tujuanPenelitian = document.getElementById('tujuan_penelitian').value;
+        const menimbang = document.getElementById('menimbang').value;
         
         let isValid = true;
         let errorMessages = [];
@@ -624,6 +634,7 @@
         document.getElementById('anggota_penelitian').value = '';
         document.getElementById('no_hp').value = '';
         document.getElementById('no_pengajuan').value = '';
+        document.getElementById('menimbang').value = '';
         
         // Reset the additional fields
         document.getElementById('nim').value = '';
@@ -742,6 +753,6 @@
             opacity -= 0.1;
         }, 50);
     }
-    </script>
+</script>
 </body>
 @include('Staff.Layout.App.Footer')

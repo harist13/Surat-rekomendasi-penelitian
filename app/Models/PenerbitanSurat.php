@@ -15,6 +15,7 @@ class PenerbitanSurat extends Model
     protected $fillable = [
         'jenis_surat',
         'nomor_surat',
+        'menimbang',
         'status_penelitian',
         'status_surat',
         'posisi_surat',

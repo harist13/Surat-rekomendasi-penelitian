@@ -17,6 +17,30 @@
                 </div>
             </div>
 
+            <!-- Document Download Alert -->
+            @if(session('document_path'))
+            <div id="download-alert" class="flex items-center p-4 mb-4 text-green-800 border-t-4 border-green-500 bg-green-50" role="alert">
+                <svg class="flex-shrink-0 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zm-1 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path>
+                </svg>
+                <div class="ml-3 text-sm font-medium">
+                    Surat berhasil dibuat! Anda dapat mengunduh dokumen Word dengan klik tombol berikut:
+                    <a href="{{ route('penerbitan.download', ['id' => session('surat_id') ?? $penerbitanSurats->first()->id ?? 0]) }}" class="ml-2 inline-flex items-center px-3 py-1.5 text-white bg-green-700 rounded-md hover:bg-green-800 focus:ring-2 focus:ring-green-500">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                        </svg>
+                        Unduh Dokumen
+                    </a>
+                </div>
+                <button type="button" class="ml-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex h-8 w-8" data-dismiss-target="#download-alert" aria-label="Close">
+                    <span class="sr-only">Tutup</span>
+                    <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                    </svg>
+                </button>
+            </div>
+            @endif
+
             <!-- Alert Messages -->
             <div class="mb-6">
                 @if(session('success'))
@@ -113,6 +137,7 @@
                             <th class="px-4 py-3 border border-gray-300 w-40">Anggota Penelitian</th>
                             <th class="px-4 py-3 border border-gray-300 w-32">Status Penelitian</th>
                             <th class="px-4 py-3 border border-gray-300 w-32">Nomor Surat</th>
+                            <th class="px-4 py-3 border border-gray-300 w-32">Menimbang</th>
                             <th class="px-4 py-3 border border-gray-300 min-w-[120px]">Status surat</th>
                             <th class="px-4 py-3 border border-gray-300 min-w-[120px]">Posisi surat</th>
                             <th class="px-4 py-3 border border-gray-300 w-40">Aksi</th>
@@ -248,6 +273,18 @@
                             <td class="px-4 py-3 border border-gray-200">
                                 {{ $surat->nomor_surat }}
                             </td>
+                            <!-- Add this cell in the <tbody> section after the "Nomor Surat" cell in both tables -->
+                            <td class="px-4 py-3 border border-gray-200">
+                                @if($surat->menimbang)
+                                    <button type="button" class="text-blue-500 hover:text-blue-700" 
+                                            onclick="showMenimbangModal('{{ addslashes($surat->menimbang) }}', 
+                                            '{{ $surat->nomor_surat }}')">
+                                        Lihat Pertimbangan
+                                    </button>
+                                @else
+                                    <span class="text-gray-500">Tidak ada</span>
+                                @endif
+                            </td>
                             <td class="px-4 py-3 border border-gray-200">
                                 @if($surat->status_surat == 'draft')
                                     <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
@@ -297,7 +334,7 @@
                                         </button>
                                     </form>
                                    
-                                    <a href="#" class="text-green-500 hover:text-green-700 p-1" title="Lihat PDF">
+                                    <a href="{{ route('penerbitan.download', $surat->id) }}" class="text-green-500 hover:text-green-700 p-1" title="Unduh Word">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                         </svg>
@@ -307,7 +344,7 @@
                         </tr>
                         @empty
                         <tr class="bg-white">
-                            <td colspan="16" class="px-4 py-3 border border-gray-200 text-center text-gray-500">
+                            <td colspan="17" class="px-4 py-3 border border-gray-200 text-center text-gray-500">
                                 Belum ada data surat yang belum diterbitkan
                             </td>
                         </tr>
@@ -352,6 +389,7 @@
                             <th class="px-4 py-3 border border-gray-300 min-w-[150px]">Bidang Penelitian</th>
                             <th class="px-4 py-3 border border-gray-300 w-32">Status Penelitian</th>
                             <th class="px-4 py-3 border border-gray-300 w-32">Nomor Surat</th>
+                            <th class="px-4 py-3 border border-gray-300 w-32">Menimbang</th>
                             <th class="px-4 py-3 border border-gray-300 min-w-[120px]">Status surat</th>
                             <th class="px-4 py-3 border border-gray-300 min-w-[120px]">Posisi surat</th>
                             <th class="px-4 py-3 border border-gray-300 w-40">Aksi</th>
@@ -471,6 +509,17 @@
                                 {{ $surat->nomor_surat }}
                             </td>
                             <td class="px-4 py-3 border border-gray-200">
+                                @if($surat->menimbang)
+                                    <button type="button" class="text-blue-500 hover:text-blue-700" 
+                                            onclick="showMenimbangModal('{{ addslashes($surat->menimbang) }}', 
+                                            '{{ $surat->nomor_surat }}')">
+                                        Lihat Pertimbangan
+                                    </button>
+                                @else
+                                    <span class="text-gray-500">Tidak ada</span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3 border border-gray-200">
                                 <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
                                     Diterbitkan
                                 </span>
@@ -510,7 +559,7 @@
                                         </button>
                                     </form>
                                     
-                                    <a href="#" class="text-green-500 hover:text-green-700 p-1" title="Lihat PDF">
+                                    <a href="{{ route('penerbitan.download', $surat->id) }}" class="text-green-500 hover:text-green-700 p-1" title="Unduh Word">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                         </svg>
@@ -520,7 +569,7 @@
                         </tr>
                         @empty
                         <tr class="bg-white">
-                            <td colspan="14" class="px-4 py-3 border border-gray-200 text-center text-gray-500">
+                            <td colspan="16" class="px-4 py-3 border border-gray-200 text-center text-gray-500">
                                 Belum ada data surat yang diterbitkan
                             </td>
                         </tr>
@@ -528,6 +577,31 @@
                     </tbody>
                 </table>
             </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for Menimbang Details -->
+    <div id="menimbangModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
+        <div class="bg-white rounded-lg shadow-lg w-11/12 max-w-lg p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Pertimbangan Penerbitan Surat</h3>
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5" onclick="closeMenimbangModal()">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="mb-4">
+                <p class="text-sm text-gray-500">Nomor Surat: <span id="menimbang_nomor_surat" class="font-medium text-gray-700"></span></p>
+            </div>
+            <div class="bg-gray-50 p-4 rounded border border-gray-200 mb-4">
+                <div id="menimbangContent" class="text-gray-700 whitespace-pre-line"></div>
+            </div>
+            <div class="flex justify-end">
+                <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" onclick="closeMenimbangModal()">
+                    Tutup
+                </button>
             </div>
         </div>
     </div>
@@ -554,7 +628,7 @@
         </div>
     </div>
 
-        <!-- Modal for WhatsApp Notification -->
+    <!-- Modal for WhatsApp Notification -->
     <div id="whatsappModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
         <div class="bg-white rounded-lg shadow-lg w-11/12 max-w-md p-6">
             <div class="flex justify-between items-center mb-4">
@@ -609,208 +683,273 @@
         </div>
     </div>
 
-     <script>
-        // Function to show anggota penelitian modal
-        function showAnggotaModal(anggotaData, namaLengkap) {
-            const anggotaModal = document.getElementById('anggotaModal');
-            const anggotaList = document.getElementById('anggotaList');
-            const modalTitle = document.getElementById('modalTitle');
+    <script>
+    // Function to show anggota penelitian modal
+    function showAnggotaModal(anggotaData, namaLengkap) {
+        const anggotaModal = document.getElementById('anggotaModal');
+        const anggotaList = document.getElementById('anggotaList');
+        const modalTitle = document.getElementById('modalTitle');
+        
+        modalTitle.textContent = `Daftar Anggota Penelitian - ${namaLengkap}`;
+        anggotaList.innerHTML = '';
+        
+        try {
+            // Try to parse the data as JSON
+            let anggotaArray;
             
-            modalTitle.textContent = `Daftar Anggota Penelitian - ${namaLengkap}`;
-            anggotaList.innerHTML = '';
+            if (typeof anggotaData === 'string') {
+                // If it's already a string, try to parse it
+                anggotaArray = JSON.parse(anggotaData);
+            } else {
+                // If it's already an object, use it directly
+                anggotaArray = anggotaData;
+            }
             
-            try {
-                // Try to parse the data as JSON
-                let anggotaArray;
-                
-                if (typeof anggotaData === 'string') {
-                    // If it's already a string, try to parse it
-                    anggotaArray = JSON.parse(anggotaData);
+            // Check if it's an array
+            if (Array.isArray(anggotaArray)) {
+                if (anggotaArray.length === 0) {
+                    anggotaList.innerHTML = '<p class="text-gray-500">Tidak ada anggota penelitian.</p>';
                 } else {
-                    // If it's already an object, use it directly
-                    anggotaArray = anggotaData;
-                }
-                
-                // Check if it's an array
-                if (Array.isArray(anggotaArray)) {
-                    if (anggotaArray.length === 0) {
-                        anggotaList.innerHTML = '<p class="text-gray-500">Tidak ada anggota penelitian.</p>';
-                    } else {
-                        const ul = document.createElement('ul');
-                        ul.className = 'list-disc list-inside';
-                        
-                        anggotaArray.forEach((anggota, index) => {
-                            const li = document.createElement('li');
-                            li.className = 'py-1';
-                            li.textContent = typeof anggota === 'object' ? anggota.nama || JSON.stringify(anggota) : anggota;
-                            ul.appendChild(li);
-                        });
-                        
-                        anggotaList.appendChild(ul);
-                    }
-                } else if (typeof anggotaArray === 'string') {
-                    // If it's a string (not JSON), display it as is
-                    const p = document.createElement('p');
-                    p.textContent = anggotaArray;
-                    anggotaList.appendChild(p);
-                } else {
-                    // If it's another type of object, convert to string
-                    anggotaList.innerHTML = '<p>' + JSON.stringify(anggotaArray, null, 2).replace(/\\n/g, '<br>') + '</p>';
-                }
-            } catch (e) {
-                // If JSON parsing fails, treat it as a plain string
-                const p = document.createElement('p');
-                if (anggotaData.includes('\n')) {
-                    // If it contains newlines, split by newlines
-                    const lines = anggotaData.split('\n');
                     const ul = document.createElement('ul');
                     ul.className = 'list-disc list-inside';
                     
-                    lines.forEach(line => {
-                        if (line.trim()) {
-                            const li = document.createElement('li');
-                            li.className = 'py-1';
-                            li.textContent = line.trim();
-                            ul.appendChild(li);
-                        }
+                    anggotaArray.forEach((anggota, index) => {
+                        const li = document.createElement('li');
+                        li.className = 'py-1';
+                        li.textContent = typeof anggota === 'object' ? anggota.nama || JSON.stringify(anggota) : anggota;
+                        ul.appendChild(li);
                     });
                     
                     anggotaList.appendChild(ul);
-                } else {
-                    // Otherwise show as is
-                    p.textContent = anggotaData;
-                    anggotaList.appendChild(p);
                 }
+            } else if (typeof anggotaArray === 'string') {
+                // If it's a string (not JSON), display it as is
+                const p = document.createElement('p');
+                p.textContent = anggotaArray;
+                anggotaList.appendChild(p);
+            } else {
+                // If it's another type of object, convert to string
+                anggotaList.innerHTML = '<p>' + JSON.stringify(anggotaArray, null, 2).replace(/\\n/g, '<br>') + '</p>';
             }
-            
-            // Show the modal
-            anggotaModal.classList.remove('hidden');
-        }
-        
-        // Function to close anggota modal
-        function closeAnggotaModal() {
-            document.getElementById('anggotaModal').classList.add('hidden');
-        }
-        
-        // Function to open WhatsApp notification modal
-        function openWhatsAppModal(id, nama, nomor, judulPenelitian, nomorSurat) {
-            document.getElementById('whatsapp_surat_id').value = id;
-            document.getElementById('whatsapp_nomor').value = nomor;
-            
-            // Create a template message
-            const pesan = `Halo ${nama},\n\nDengan ini kami informasikan bahwa surat izin penelitian Anda dengan judul "${judulPenelitian}" telah diterbitkan dengan nomor surat: ${nomorSurat}.\n\nSilahkan datang ke kantor kami untuk mengambil surat tersebut pada jam kerja (Senin-Jumat, 08.00-16.00).\n\nTerima kasih.`;
-            
-            document.getElementById('whatsapp_pesan').value = pesan;
-            document.getElementById('whatsappModal').classList.remove('hidden');
-        }
-
-        // Function to close WhatsApp modal
-        function closeWhatsAppModal() {
-            document.getElementById('whatsappModal').classList.add('hidden');
-        }
-
-        function openConfirmStatusModal(id, nama, nomorSurat) {
-            const form = document.getElementById('statusUpdateForm');
-            // Use the correct route with parameter
-            form.action = "{{ url('staff/penerbitan') }}/" + id + "/update-status";
-            
-            document.getElementById('confirm_nama').textContent = nama;
-            document.getElementById('confirm_nomor_surat').textContent = nomorSurat;
-            
-            document.getElementById('confirmStatusModal').classList.remove('hidden');
-        }
-
-        // Function to close confirmation modal
-        function closeConfirmStatusModal() {
-            document.getElementById('confirmStatusModal').classList.add('hidden');
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Initialize alert auto-dismiss (only for success alerts)
-            initializeAlerts();
-            
-            // Handle entries per page selector
-            const entriesSelect = document.getElementById('entries-select');
-            if (entriesSelect) {
-                entriesSelect.addEventListener('change', function() {
-                    document.getElementById('per-page-input').value = this.value;
-                    document.querySelector('form').submit();
-                });
-            }
-            
-            // Add confirmation for delete actions with Indonesian messages
-            const deleteForms = document.querySelectorAll('form[action*="destroy"]');
-            deleteForms.forEach(form => {
-                form.addEventListener('submit', function(event) {
-                    event.preventDefault();
-                    
-                    // Get letter details for confirmation message
-                    const row = this.closest('tr');
-                    const nama = row.querySelector('td:nth-child(3)').textContent.trim();
-                    const nomorSurat = row.querySelector('td:nth-child(13)').textContent.trim();
-                    
-                    if (confirm(`Anda yakin ingin menghapus surat dengan nomor "${nomorSurat}" atas nama "${nama}"? Data yang sudah dihapus tidak dapat dikembalikan.`)) {
-                        this.submit();
+        } catch (e) {
+            // If JSON parsing fails, treat it as a plain string
+            const p = document.createElement('p');
+            if (anggotaData.includes('\n')) {
+                // If it contains newlines, split by newlines
+                const lines = anggotaData.split('\n');
+                const ul = document.createElement('ul');
+                ul.className = 'list-disc list-inside';
+                
+                lines.forEach(line => {
+                    if (line.trim()) {
+                        const li = document.createElement('li');
+                        li.className = 'py-1';
+                        li.textContent = line.trim();
+                        ul.appendChild(li);
                     }
                 });
+                
+                anggotaList.appendChild(ul);
+            } else {
+                // Otherwise show as is
+                p.textContent = anggotaData;
+                anggotaList.appendChild(p);
+            }
+        }
+        
+        // Show the modal
+        anggotaModal.classList.remove('hidden');
+    }
+    
+    // Function to close anggota modal
+    function closeAnggotaModal() {
+        document.getElementById('anggotaModal').classList.add('hidden');
+    }
+    
+    // Function to open WhatsApp notification modal
+    function openWhatsAppModal(id, nama, nomor, judulPenelitian, nomorSurat) {
+        document.getElementById('whatsapp_surat_id').value = id;
+        document.getElementById('whatsapp_nomor').value = nomor;
+        
+        // Create a template message
+        const pesan = `Halo ${nama},\n\nDengan ini kami informasikan bahwa surat izin penelitian Anda dengan judul "${judulPenelitian}" telah diterbitkan dengan nomor surat: ${nomorSurat}.\n\nSilahkan datang ke kantor kami untuk mengambil surat tersebut pada jam kerja (Senin-Jumat, 08.00-16.00).\n\nTerima kasih.`;
+        
+        document.getElementById('whatsapp_pesan').value = pesan;
+        document.getElementById('whatsappModal').classList.remove('hidden');
+    }
+
+    // Function to close WhatsApp modal
+    function closeWhatsAppModal() {
+        document.getElementById('whatsappModal').classList.add('hidden');
+    }
+
+    // Function to show menimbang modal
+    function showMenimbangModal(menimbangText, nomorSurat) {
+        const menimbangModal = document.getElementById('menimbangModal');
+        const menimbangContent = document.getElementById('menimbangContent');
+        const modalNomorSurat = document.getElementById('menimbang_nomor_surat');
+        
+        modalNomorSurat.textContent = nomorSurat;
+        menimbangContent.textContent = menimbangText;
+        
+        // Show the modal
+        menimbangModal.classList.remove('hidden');
+    }
+
+    // Function to close menimbang modal
+    function closeMenimbangModal() {
+        document.getElementById('menimbangModal').classList.add('hidden');
+    }
+
+    function openConfirmStatusModal(id, nama, nomorSurat) {
+        const form = document.getElementById('statusUpdateForm');
+        // Use the correct route with parameter
+        form.action = "{{ url('staff/penerbitan') }}/" + id + "/update-status";
+        
+        document.getElementById('confirm_nama').textContent = nama;
+        document.getElementById('confirm_nomor_surat').textContent = nomorSurat;
+        
+        document.getElementById('confirmStatusModal').classList.remove('hidden');
+    }
+
+    // Function to close confirmation modal
+    function closeConfirmStatusModal() {
+        document.getElementById('confirmStatusModal').classList.add('hidden');
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Auto-show document download alert if present
+        const downloadAlert = document.getElementById('download-alert');
+        if (downloadAlert) {
+            downloadAlert.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Auto-dismiss after 10 seconds
+            setTimeout(() => {
+                fadeOut(downloadAlert);
+            }, 10000);
+        }
+        
+        // Add event listener to close button
+        const closeDownloadAlert = downloadAlert?.querySelector('button[data-dismiss-target="#download-alert"]');
+        if (closeDownloadAlert) {
+            closeDownloadAlert.addEventListener('click', function() {
+                fadeOut(downloadAlert);
             });
-            
-            // Close modals when clicking outside of them
-            const modals = [
-                { id: 'anggotaModal', closeFn: closeAnggotaModal },
-                { id: 'whatsappModal', closeFn: closeWhatsAppModal },
-                { id: 'confirmStatusModal', closeFn: closeConfirmStatusModal }
-            ];
-            
-            modals.forEach(modal => {
-                document.getElementById(modal.id).addEventListener('click', function(event) {
+        }
+        
+        // Initialize alert auto-dismiss (only for success alerts)
+        initializeAlerts();
+        
+        // Handle entries per page selector
+        const entriesSelect = document.getElementById('entries-select');
+        if (entriesSelect) {
+            entriesSelect.addEventListener('change', function() {
+                document.getElementById('per-page-input').value = this.value;
+                document.querySelector('form').submit();
+            });
+        }
+        
+        // Add confirmation for delete actions with Indonesian messages
+        const deleteForms = document.querySelectorAll('form[action*="destroy"]');
+        deleteForms.forEach(form => {
+            form.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                // Get letter details for confirmation message
+                const row = this.closest('tr');
+                const nama = row.querySelector('td:nth-child(3)').textContent.trim();
+                const nomorSurat = row.querySelector('td:nth-child(13)').textContent.trim();
+                
+                if (confirm(`Anda yakin ingin menghapus surat dengan nomor "${nomorSurat}" atas nama "${nama}"? Data yang sudah dihapus tidak dapat dikembalikan.`)) {
+                    this.submit();
+                }
+            });
+        });
+        
+        // Close modals when clicking outside of them
+        const modals = [
+            { id: 'anggotaModal', closeFn: closeAnggotaModal },
+            { id: 'whatsappModal', closeFn: closeWhatsAppModal },
+            { id: 'confirmStatusModal', closeFn: closeConfirmStatusModal },
+            { id: 'menimbangModal', closeFn: closeMenimbangModal }
+        ];
+        
+        modals.forEach(modal => {
+            const modalElement = document.getElementById(modal.id);
+            if (modalElement) {
+                modalElement.addEventListener('click', function(event) {
                     if (event.target === this) {
                         modal.closeFn();
                     }
                 });
-            });
-            
-            // Add confirmation for status updates
-            const updateForm = document.getElementById('statusUpdateForm');
-            if (updateForm) {
-                updateForm.addEventListener('submit', function(event) {
-                    // Show loading on button
-                    const button = this.querySelector('button[type="submit"]');
-                    const originalHTML = button.innerHTML;
-                    button.disabled = true;
-                    button.innerHTML = `<svg class="animate-spin w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>`;
+            }
+        });
+        
+        // Add escape key handler for all modals
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                modals.forEach(modal => {
+                    const modalElement = document.getElementById(modal.id);
+                    if (modalElement && !modalElement.classList.contains('hidden')) {
+                        modal.closeFn();
+                    }
                 });
             }
         });
-
-        // Function to initialize alert dismiss functionality - only auto-dismiss success alerts
-        function initializeAlerts() {
-            // Auto-dismiss only success alerts after 5 seconds
-            setTimeout(() => {
-                const successAlerts = document.querySelectorAll('#success-alert');
-                successAlerts.forEach(alert => {
-                    if (alert) {
-                        fadeOut(alert);
-                    }
-                });
-            }, 5000);
+        
+        // Add confirmation for status updates
+        const updateForm = document.getElementById('statusUpdateForm');
+        if (updateForm) {
+            updateForm.addEventListener('submit', function(event) {
+                // Show loading on button
+                const button = this.querySelector('button[type="submit"]');
+                const originalHTML = button.innerHTML;
+                button.disabled = true;
+                button.innerHTML = `<svg class="animate-spin w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>`;
+            });
         }
+    });
 
-        // Function to fade out element
-        function fadeOut(element) {
-            let opacity = 1;
-            const timer = setInterval(() => {
-                if (opacity <= 0.1) {
-                    clearInterval(timer);
-                    element.style.display = 'none';
+    // Function to initialize alert dismiss functionality - only auto-dismiss success alerts
+    function initializeAlerts() {
+        // Auto-dismiss only success alerts after 5 seconds
+        setTimeout(() => {
+            const successAlerts = document.querySelectorAll('#success-alert');
+            successAlerts.forEach(alert => {
+                if (alert) {
+                    fadeOut(alert);
                 }
-                element.style.opacity = opacity;
-                opacity -= 0.1;
-            }, 50);
-        }
-    </script>
+            });
+        }, 5000);
+        
+        // Add click event to all close buttons
+        const closeButtons = document.querySelectorAll('[data-dismiss-target]');
+        closeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-dismiss-target');
+                const alert = document.querySelector(targetId);
+                if (alert) {
+                    fadeOut(alert);
+                }
+            });
+        });
+    }
+
+    // Function to fade out element
+    function fadeOut(element) {
+        let opacity = 1;
+        const timer = setInterval(() => {
+            if (opacity <= 0.1) {
+                clearInterval(timer);
+                element.style.display = 'none';
+            }
+            element.style.opacity = opacity;
+            opacity -= 0.1;
+        }, 50);
+    }
+</script>
 </body>
 @include('Staff.Layout.App.Footer')

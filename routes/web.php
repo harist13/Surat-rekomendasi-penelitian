@@ -57,4 +57,5 @@ Route::prefix('staff')->middleware(['auth', 'role:staff'])->group(function () {
     Route::put('/penerbitan/{id}/update-status', [StaffController::class, 'updateStatus'])->name('penerbitan.updateStatus');
     Route::delete('/penerbitan/{id}', [StaffController::class, 'destroy'])->name('penerbitan.destroy');
     Route::post('/send-whatsapp-notification', [NotificationController::class, 'sendWhatsAppNotification'])->name('send.whatsapp.notification');
+    Route::get('/penerbitan/{id}/download', [StaffController::class, 'downloadDocument'])->name('penerbitan.download');
 });

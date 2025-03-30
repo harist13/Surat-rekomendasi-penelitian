@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+
 use Illuminate\Http\Request;
 use App\Models\Mahasiswa;
 use App\Models\NonMahasiswa;
@@ -10,6 +11,10 @@ use App\Models\Notifikasi;
 use App\Models\StatusHistory;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpWord\PhpWord;
+use PhpOffice\PhpWord\TemplateProcessor;
+use PhpOffice\PhpWord\IOFactory;
+use Carbon\Carbon;
 
 class StaffController extends Controller
 { 
@@ -42,7 +47,7 @@ class StaffController extends Controller
         return response()->json($nonMahasiswa);
     }
 
-    public function storePenerbitan(Request $request)
+     public function storePenerbitan(Request $request)
     {
         try {
             // Validate the form input
@@ -50,6 +55,7 @@ class StaffController extends Controller
                 'jenis_surat' => 'required|in:mahasiswa,non_mahasiswa',
                 'pemohon_id' => 'required',
                 'nomor_surat' => 'required|string',
+                'menimbang' => 'nullable|string',
                 'status_penelitian' => 'required|in:baru,lanjutan,perpanjangan',
                 'status_surat' => 'required|string',
                 // Remove no_pengajuan from validation as it's only for display
@@ -67,6 +73,7 @@ class StaffController extends Controller
             $penerbitanSurat = new PenerbitanSurat();
             $penerbitanSurat->jenis_surat = $validatedData['jenis_surat'];
             $penerbitanSurat->nomor_surat = $validatedData['nomor_surat'];
+            $penerbitanSurat->menimbang = $validatedData['menimbang'] ?? null;
             $penerbitanSurat->status_penelitian = $validatedData['status_penelitian'];
             $penerbitanSurat->status_surat = $validatedData['status_surat'];
             $penerbitanSurat->posisi_surat = 'aktif';
@@ -74,9 +81,12 @@ class StaffController extends Controller
             // Remove the line that tries to save no_pengajuan
 
             // Associate with either mahasiswa or non_mahasiswa based on jenis
+            $peneliti = null;
+            
             if ($validatedData['jenis_surat'] === 'mahasiswa') {
                 $penerbitanSurat->mahasiswa_id = $validatedData['pemohon_id'];
                 $penerbitanSurat->non_mahasiswa_id = null;
+                $peneliti = Mahasiswa::findOrFail($validatedData['pemohon_id']);
                 
                 // Add status history entry
                 $this->addStatusHistory(
@@ -88,6 +98,7 @@ class StaffController extends Controller
             } else {
                 $penerbitanSurat->non_mahasiswa_id = $validatedData['pemohon_id'];
                 $penerbitanSurat->mahasiswa_id = null;
+                $peneliti = NonMahasiswa::findOrFail($validatedData['pemohon_id']);
                 
                 // Add status history entry
                 $this->addStatusHistory(
@@ -99,8 +110,17 @@ class StaffController extends Controller
             }
 
             $penerbitanSurat->save();
+            
+            // Generate Word document
+            $documentPath = $this->generateSuratPenelitian($penerbitanSurat->id);
+            
+            // Store the document path in the session
+            session(['generated_document' => $documentPath]);
 
-            return redirect()->route('datasurat')->with('success', 'Data surat berhasil diterbitkan');
+            return redirect()->route('datasurat')->with([
+                'success' => 'Data surat berhasil diterbitkan',
+                'document_path' => $documentPath
+            ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             // Handle validation errors
             return redirect()->back()->withErrors($e->validator)->withInput();
@@ -117,6 +137,264 @@ class StaffController extends Controller
         } catch (\Exception $e) {
             // Handle general errors
             return redirect()->back()->with('error', 'Gagal menerbitkan surat: ' . $e->getMessage())->withInput();
+        }
+    }
+
+     /**
+     * Generate a Word document for Surat Keterangan Penelitian
+     * 
+     * @param int $suratId
+     * @return string Path to the generated document
+     */
+    private function generateSuratPenelitian($suratId) 
+    {
+        // Get the PenerbitanSurat data with relations
+        $surat = PenerbitanSurat::with(['mahasiswa', 'nonMahasiswa', 'user'])->findOrFail($suratId);
+        
+        // Determine if it's mahasiswa or non-mahasiswa
+        if ($surat->jenis_surat === 'mahasiswa') {
+            $peneliti = $surat->mahasiswa;
+            $kategori = 'Mahasiswa';
+            $jabatan = 'Mahasiswa';
+            $nim = $peneliti->nim;
+            $bidang = $peneliti->jurusan;
+        } else {
+            $peneliti = $surat->nonMahasiswa;
+            $kategori = 'Non-Mahasiswa';
+            $jabatan = $peneliti->jabatan;
+            $nim = '-';
+            $bidang = $peneliti->bidang;
+        }
+        
+        // Format dates
+        $tanggalSurat = Carbon::now()->locale('id')->isoFormat('D MMMM Y');
+        $waktuPenelitian = $peneliti->tanggal_mulai . ' s.d ' . $peneliti->tanggal_selesai;
+        
+        // Create a new PHPWord instance
+        $phpWord = new PhpWord();
+        
+        // Set default font
+        $phpWord->setDefaultFontName('Times New Roman');
+        $phpWord->setDefaultFontSize(12);
+        
+        // Add a section
+        $section = $phpWord->addSection();
+        
+        // Header with logo and institution name
+        $header = $section->addHeader();
+        $table = $header->addTable();
+        $table->addRow();
+        
+        $cell1 = $table->addCell(2000);
+        $cell1->addImage(public_path('assets/images/logo.png'), ['width' => 80, 'height' => 80, 'alignment' => 'center']);
+        
+        $cell2 = $table->addCell(9000);
+        $cell2->addText("PEMERINTAH PROVINSI KALIMANTAN TIMUR", ['bold' => true, 'size' => 14, 'alignment' => 'center']);
+        $cell2->addText("BADAN KESATUAN BANGSA DAN POLITIK", ['bold' => true, 'size' => 14, 'alignment' => 'center']);
+        $cell2->addText("Jalan Jenderal Sudirman Nomor 1, Samarinda, Kalimantan Timur 75121", ['size' => 11, 'alignment' => 'center']);
+        $cell2->addText("Telepon (0541) 733333; Faksimile (0541) 733453", ['size' => 11, 'alignment' => 'center']);
+        $cell2->addText("Pos-el kesbangpol.kaltim@gmail.com; Laman http://kesbangpol.kaltimprov.go.id", ['size' => 11, 'alignment' => 'center']);
+        
+        // Add horizontal line
+        $section->addText('', [], ['borderBottomSize' => 3, 'borderBottomColor' => '000000']);
+        
+        // Title
+        $section->addText('SURAT KETERANGAN PENELITIAN', ['bold' => true, 'alignment' => 'center'], ['alignment' => 'center', 'spaceAfter' => 0]);
+        $section->addText('Nomor: ' . $surat->nomor_surat, ['alignment' => 'center'], ['alignment' => 'center', 'spaceAfter' => 200]);
+        
+        // Dasar
+        $section->addText('a. Dasar', ['bold' => true]);
+        $section->addText('    1. Peraturan Menteri Dalam Negeri Nomor 3 Tahun 2018 tentang Penerbitan Surat Keterangan Penelitian (Berita Negara Republik Indonesia Tahun 2018 Nomor 122);');
+        $section->addText('    2. Peraturan Gubernur Kalimantan Timur Nomor 43 Tahun 2023 tentang Kedudukan, Susunan Organisasi, Tugas, Fungsi, dan Tata Kerja Perangkat Daerah (Berita Daerah Provinsi Kalimantan Timur Tahun 2023 Nomor 46);');
+        
+        // Menimbang
+        if ($surat->menimbang) {
+            $section->addText('b. Menimbang', ['bold' => true]);
+            $section->addText('    ' . $surat->menimbang);
+        } else {
+            $section->addText('b. Menimbang', ['bold' => true]);
+            $section->addText('    1. Surat a.n Dekan, Wakil Dekan Bidang Akademik, Kemahasiswaan dan Alumni, ' . $peneliti->nama_instansi . ' tentang Surat Pengantar Penelitian.');
+        }
+        
+        // Rekomendasi
+        $section->addText('Kepala Badan Kesbang dan Politik Prov. Kaltim, memberikan rekomendasi kepada :', ['bold' => true, 'spaceAfter' => 200]);
+        
+        // Informasi peneliti dalam format tabel
+        $infoTable = $section->addTable(['borderSize' => 0, 'cellMargin' => 80]);
+        
+        // Nama
+        $infoTable->addRow();
+        $infoTable->addCell(3000)->addText('Nama');
+        $infoTable->addCell(500)->addText(':');
+        $infoTable->addCell(6000)->addText($peneliti->nama_lengkap);
+        
+        // Jabatan
+        $infoTable->addRow();
+        $infoTable->addCell(3000)->addText('Jabatan');
+        $infoTable->addCell(500)->addText(':');
+        $infoTable->addCell(6000)->addText($jabatan);
+        
+        // NIM/ID jika mahasiswa
+        if ($surat->jenis_surat === 'mahasiswa') {
+            $infoTable->addRow();
+            $infoTable->addCell(3000)->addText('NIM');
+            $infoTable->addCell(500)->addText(':');
+            $infoTable->addCell(6000)->addText($peneliti->nim);
+        }
+        
+        // Tempat Tinggal
+        $infoTable->addRow();
+        $infoTable->addCell(3000)->addText('Tempat Tinggal');
+        $infoTable->addCell(500)->addText(':');
+        $infoTable->addCell(6000)->addText($peneliti->alamat_peneliti);
+        
+        // Nama Lembaga dan Alamat
+        $infoTable->addRow();
+        $infoTable->addCell(3000)->addText('Nama Lembaga / Alamat');
+        $infoTable->addCell(500)->addText(':');
+        $infoTable->addCell(6000)->addText($peneliti->nama_instansi . '/' . $peneliti->alamat_instansi);
+        
+        // Judul Proposal
+        $infoTable->addRow();
+        $infoTable->addCell(3000)->addText('Judul Proposal');
+        $infoTable->addCell(500)->addText(':');
+        $infoTable->addCell(6000)->addText($peneliti->judul_penelitian);
+        
+        // Bidang Penelitian
+        $infoTable->addRow();
+        $infoTable->addCell(3000)->addText('Bidang Penelitian');
+        $infoTable->addCell(500)->addText(':');
+        $infoTable->addCell(6000)->addText($bidang);
+        
+        // Status Penelitian
+        $infoTable->addRow();
+        $infoTable->addCell(3000)->addText('Status Penelitian');
+        $infoTable->addCell(500)->addText(':');
+        $infoTable->addCell(6000)->addText(ucfirst($surat->status_penelitian));
+        
+        // Anggota peneliti
+        if (!empty($peneliti->anggota_peneliti)) {
+            $anggotaText = '';
+            try {
+                $anggota = json_decode($peneliti->anggota_peneliti);
+                if (is_array($anggota)) {
+                    foreach ($anggota as $index => $nama) {
+                        $anggotaText .= ($index + 1) . '. ' . $nama . "\n";
+                    }
+                } else {
+                    $anggotaText = $peneliti->anggota_peneliti;
+                }
+            } catch (\Exception $e) {
+                $anggotaText = $peneliti->anggota_peneliti;
+            }
+            
+            if (!empty($anggotaText)) {
+                $infoTable->addRow();
+                $infoTable->addCell(3000)->addText('Anggota');
+                $infoTable->addCell(500)->addText(':');
+                $infoTable->addCell(6000)->addText($anggotaText);
+            }
+        }
+        
+        // Lokasi Penelitian
+        $infoTable->addRow();
+        $infoTable->addCell(3000)->addText('Lokasi Penelitian');
+        $infoTable->addCell(500)->addText(':');
+        $infoTable->addCell(6000)->addText($peneliti->lokasi_penelitian);
+        
+        // Waktu/Lama Penelitian
+        $infoTable->addRow();
+        $infoTable->addCell(3000)->addText('Waktu/Lama Penelitian');
+        $infoTable->addCell(500)->addText(':');
+        $infoTable->addCell(6000)->addText($waktuPenelitian);
+        
+        // Tujuan Peneliti
+        $infoTable->addRow();
+        $infoTable->addCell(3000)->addText('Tujuan Peneliti');
+        $infoTable->addCell(500)->addText(':');
+        $infoTable->addCell(6000)->addText($peneliti->tujuan_penelitian);
+        
+        $section->addText('');
+        
+        // Ketentuan
+        $section->addText('Dengan Ketentuan', ['bold' => true]);
+        $section->addText('1. Yang bersangkutan berkewajiban menghormati dan mentaati peraturan dan tata tertib yang berlaku diwilayah kegiatan;');
+        $section->addText('2. Tidak dibenarkan melakukan penelitian yang tidak sesuai/tidak ada kaitannya dengan judul penelitian dimaksud;');
+        $section->addText('3. Setelah selesai penelitian agar menyampaikan 1 (satu) Eksemplar laporan kepada Gubernur Kalimantan Timur Cq. Kepala Badan Kesatuan Bangsa dan Politik Provinsi Kalimantan Timur.');
+        
+        $section->addText('Demikian rekomendasi ini dibuat untuk dipergunakan seperlunya.');
+        
+        $section->addText('');
+        $section->addText('');
+        
+        // Signature and footer
+        $dateTable = $section->addTable(['borderSize' => 0]);
+        $dateTable->addRow();
+        $dateTable->addCell(6000);
+        $dateCell = $dateTable->addCell(4000);
+        $dateCell->addText('Samarinda, ' . $tanggalSurat);
+        
+        $signTable = $section->addTable(['borderSize' => 0]);
+        $signTable->addRow();
+        $signTable->addCell(6000);
+        $sigCell = $signTable->addCell(4000);
+        $sigCell->addText('a.n. Kepala');
+        $sigCell->addText('Badan Kewaspadaan Nasional');
+        $sigCell->addText('dan Penanganan Konflik');
+        $sigCell->addText('');
+        $sigCell->addText('');
+        $sigCell->addText('');
+        $sigCell->addText('');
+        $sigCell->addText('Wildan Taufik, S.Pd, M.Si');
+        $sigCell->addText('Pembina IV/b');
+        $sigCell->addText('NIP. 19750412200212 1 005');
+        
+        // Tembusan
+        $section->addText('');
+        $section->addText('Tembusan Yth:', ['bold' => true]);
+        $section->addText('1. Gubernur Kalimantan Timur (sebagai laporan)');
+        $section->addText('2. Kepala Balitbangda Prov. Kaltim');
+        $section->addText('3. Kepala Badan Kesbangpol. Kota Samarinda');
+        $section->addText('4. Yang Bersangkutan');
+        
+        // Save the document
+        $fileName = 'surat_penelitian_' . $surat->nomor_surat . '_' . time() . '.docx';
+        $filePath = 'documents/surat_penelitian/' . $fileName;
+        
+        // Pastikan direktori ada dengan izin penuh
+        $directory = storage_path('app/public/documents/surat_penelitian');
+        if (!file_exists($directory)) {
+            mkdir($directory, 0777, true);
+        }
+        
+        // Save the document
+        $objWriter = IOFactory::createWriter($phpWord, 'Word2007');
+        $objWriter->save(storage_path('app/public/' . $filePath));
+        
+        return $filePath;
+    }
+
+    /**
+     * Download the generated document
+     * 
+     * @param string $fileName
+     * @return \Illuminate\Http\Response
+     */
+    public function downloadDocument($id)
+    {
+        try {
+            $surat = PenerbitanSurat::findOrFail($id);
+            
+            // Generate a new document or use the stored one
+            $filePath = $this->generateSuratPenelitian($id);
+            
+            // Prepare the file for download
+            $fileName = basename($filePath);
+            
+            // Return the file as a download
+            return Storage::download('public/' . $filePath, $fileName);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengunduh dokumen: ' . $e->getMessage());
         }
     }
     
