@@ -19,6 +19,7 @@ class PenerbitanSurat extends Model
         'status_penelitian',
         'status_surat',
         'posisi_surat',
+        'file_path',
         'user_id',
         'mahasiswa_id',
         'non_mahasiswa_id',

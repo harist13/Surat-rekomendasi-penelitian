@@ -397,6 +397,98 @@ class StaffController extends Controller
             return redirect()->back()->with('error', 'Gagal mengunduh dokumen: ' . $e->getMessage());
         }
     }
+
+    /**
+     * Update surat dengan file yang diunggah
+     * 
+     * @param Request $request
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function updateSuratFile(Request $request, $id)
+    {
+        try {
+            // Validasi request
+            $request->validate([
+                'file_surat' => 'required|file|mimes:doc,docx,pdf|max:5120', // Max 5MB
+            ], [
+                'file_surat.required' => 'File surat harus diunggah',
+                'file_surat.file' => 'Upload harus berupa file',
+                'file_surat.mimes' => 'Format file harus doc, docx, atau pdf',
+                'file_surat.max' => 'Ukuran file maksimal 5MB',
+            ]);
+
+            // Ambil data surat
+            $surat = PenerbitanSurat::findOrFail($id);
+            
+            // Upload file
+            if ($request->hasFile('file_surat')) {
+                // Tentukan direktori penyimpanan
+                $directory = 'documents/surat_penelitian';
+                
+                // Pastikan direktori ada
+                if (!file_exists(public_path('storage/' . $directory))) {
+                    mkdir(public_path('storage/' . $directory), 0777, true);
+                }
+                
+                // Simpan file
+                $file = $request->file('file_surat');
+                $fileName = 'surat_penelitian_' . $surat->nomor_surat . '_' . time() . '.' . $file->getClientOriginalExtension();
+                
+                // Gunakan move untuk menghindari masalah izin
+                $file->move(public_path('storage/' . $directory), $fileName);
+                $filePath = $directory . '/' . $fileName;
+                
+                // Simpan path file ke database
+                $surat->file_path = $filePath;
+                $surat->save();
+                
+                // Add status history entry
+                if ($surat->mahasiswa_id) {
+                    $this->addStatusHistory(
+                        'mahasiswa', 
+                        $surat->mahasiswa_id, 
+                        'surat_diupdate', 
+                        'File surat dengan nomor ' . $surat->nomor_surat . ' telah diperbarui'
+                    );
+                } else {
+                    $this->addStatusHistory(
+                        'non_mahasiswa', 
+                        $surat->non_mahasiswa_id, 
+                        'surat_diupdate', 
+                        'File surat dengan nomor ' . $surat->nomor_surat . ' telah diperbarui'
+                    );
+                }
+                
+                return redirect()->route('datasurat')->with('success', 'File surat berhasil diperbarui');
+            }
+            
+            return redirect()->route('datasurat')->with('error', 'Tidak ada file yang diunggah');
+        } catch (\Exception $e) {
+            return redirect()->route('datasurat')->with('error', 'Gagal mengupload file surat: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Download uploaded surat file
+     * 
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function downloadUploadedFile($id)
+    {
+        try {
+            $surat = PenerbitanSurat::findOrFail($id);
+            
+            if (!$surat->file_path || !file_exists(public_path('storage/' . $surat->file_path))) {
+                return redirect()->back()->with('error', 'File surat tidak ditemukan');
+            }
+            
+            return response()->download(public_path('storage/' . $surat->file_path));
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengunduh file: ' . $e->getMessage());
+        }
+    }
     
     public function datasurat(Request $request)
     {

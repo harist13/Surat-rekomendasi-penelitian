@@ -16,6 +16,7 @@ class CreatePenerbitansuratTable extends Migration
             $table->enum('status_penelitian', ['baru', 'lanjutan', 'lama']);
             $table->enum('status_surat', ['draft', 'diterbitkan'])->default('draft');
             $table->string('posisi_surat', 100);
+            $table->string('file_path')->nullable();
             $table->foreignId('user_id')->constrained('user')->onDelete('cascade');
             $table->foreignId('mahasiswa_id')->nullable()->constrained('mahasiswa')->onDelete('set null');
             $table->foreignId('non_mahasiswa_id')->nullable()->constrained('non_mahasiswa')->onDelete('set null');

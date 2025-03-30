@@ -58,4 +58,8 @@ Route::prefix('staff')->middleware(['auth', 'role:staff'])->group(function () {
     Route::delete('/penerbitan/{id}', [StaffController::class, 'destroy'])->name('penerbitan.destroy');
     Route::post('/send-whatsapp-notification', [NotificationController::class, 'sendWhatsAppNotification'])->name('send.whatsapp.notification');
     Route::get('/penerbitan/{id}/download', [StaffController::class, 'downloadDocument'])->name('penerbitan.download');
+    // Route untuk upload file surat
+    Route::post('/penerbitan/{id}/update-file', [StaffController::class, 'updateSuratFile'])->name('penerbitan.updateFile');
+    // Route untuk download file yang diupload
+    Route::get('/penerbitan/{id}/download-file', [StaffController::class, 'downloadUploadedFile'])->name('penerbitan.downloadFile');
 });

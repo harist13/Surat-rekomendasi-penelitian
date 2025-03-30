@@ -339,6 +339,24 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                         </svg>
                                     </a>
+                                    
+                                    <!-- Tombol Upload File Surat -->
+                                    <button type="button" class="text-purple-500 hover:text-purple-700 p-1" 
+                                            onclick="openFileUploadModal('{{ $surat->id }}', '{{ $surat->nomor_surat }}')"
+                                            title="Unggah File Surat">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                                        </svg>
+                                    </button>
+                                    
+                                    <!-- Tombol Download File yang Diupload (hanya muncul jika ada file) -->
+                                    @if(isset($surat->file_path) && !empty($surat->file_path))
+                                    <a href="{{ route('penerbitan.downloadFile', $surat->id) }}" class="text-blue-500 hover:text-blue-700 p-1" title="Unduh File Surat Terupload">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                    </a>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -564,6 +582,24 @@
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
                                         </svg>
                                     </a>
+                                    
+                                    <!-- Tombol Upload File Surat -->
+                                    <button type="button" class="text-purple-500 hover:text-purple-700 p-1" 
+                                            onclick="openFileUploadModal('{{ $surat->id }}', '{{ $surat->nomor_surat }}')"
+                                            title="Unggah File Surat">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
+                                        </svg>
+                                    </button>
+                                    
+                                    <!-- Tombol Download File yang Diupload (hanya muncul jika ada file) -->
+                                    @if(isset($surat->file_path) && !empty($surat->file_path))
+                                    <a href="{{ route('penerbitan.downloadFile', $surat->id) }}" class="text-blue-500 hover:text-blue-700 p-1" title="Unduh File Surat Terupload">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                        </svg>
+                                    </a>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -678,6 +714,57 @@
                 <div class="flex justify-end">
                     <button type="button" class="mr-2 px-4 py-2 bg-gray-300 text-gray-700 rounded-md" onclick="closeConfirmStatusModal()">Batal</button>
                     <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-md">Terbitkan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal for File Upload -->
+    <div id="fileUploadModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
+        <div class="bg-white rounded-lg shadow-lg w-11/12 max-w-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Unggah File Surat</h3>
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5" onclick="closeFileUploadModal()">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <form id="fileUploadForm" method="POST" enctype="multipart/form-data">
+                @csrf
+                <div class="mb-4">
+                    <p class="text-sm text-gray-700 mb-2">Nomor Surat: <span id="upload_nomor_surat" class="font-medium text-gray-900"></span></p>
+                    <p class="text-sm text-gray-700 mb-4">Unggah file surat yang telah diproses atau ditandatangani</p>
+                    
+                    <div class="border-2 border-dashed border-gray-300 rounded-lg p-4 mb-3">
+                        <label for="file_surat" class="flex flex-col items-center justify-center cursor-pointer">
+                            <svg class="w-8 h-8 text-gray-400 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path>
+                            </svg>
+                            <span class="text-sm text-gray-500">Klik atau seret file ke sini</span>
+                            <input type="file" name="file_surat" id="file_surat" class="hidden" accept=".doc,.docx,.pdf">
+                        </label>
+                    </div>
+                    
+                    <div id="file_preview" class="hidden mt-2 p-2 bg-gray-50 rounded-md">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            <span id="file_name" class="text-sm text-gray-700"></span>
+                            <button type="button" id="remove_file" class="ml-auto text-red-500 hover:text-red-700">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <p class="mt-1 text-xs text-gray-500">Format yang diterima: .doc, .docx, .pdf (Maks. 5MB)</p>
+                </div>
+                <div class="flex justify-end">
+                    <button type="button" class="mr-2 px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400" onclick="closeFileUploadModal()">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700">Unggah</button>
                 </div>
             </form>
         </div>
@@ -816,8 +903,59 @@
     function closeConfirmStatusModal() {
         document.getElementById('confirmStatusModal').classList.add('hidden');
     }
+    
+    function openFileUploadModal(id, nomorSurat) {
+        const form = document.getElementById('fileUploadForm');
+        form.action = `/staff/penerbitan/${id}/update-file`;
+        
+        document.getElementById('upload_nomor_surat').textContent = nomorSurat;
+        document.getElementById('fileUploadModal').classList.remove('hidden');
+    }
+
+    // Function to close file upload modal
+    function closeFileUploadModal() {
+        document.getElementById('fileUploadModal').classList.add('hidden');
+        document.getElementById('file_surat').value = '';
+        document.getElementById('file_preview').classList.add('hidden');
+    }
 
     document.addEventListener('DOMContentLoaded', function() {
+        // File preview and handling
+        const fileInput = document.getElementById('file_surat');
+        const filePreview = document.getElementById('file_preview');
+        const fileName = document.getElementById('file_name');
+        const removeFile = document.getElementById('remove_file');
+        
+        if (fileInput && filePreview && fileName && removeFile) {
+            fileInput.addEventListener('change', function(event) {
+                if (this.files && this.files[0]) {
+                    const file = this.files[0];
+                    fileName.textContent = file.name;
+                    filePreview.classList.remove('hidden');
+                    
+                    // Validasi ukuran file
+                    if (file.size > 5 * 1024 * 1024) { // 5MB
+                        alert('Ukuran file terlalu besar. Maksimal 5MB.');
+                        this.value = '';
+                        filePreview.classList.add('hidden');
+                    }
+                    
+                    // Validasi tipe file
+                    const allowedTypes = ['application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/pdf'];
+                    if (!allowedTypes.includes(file.type)) {
+                        alert('Format file tidak didukung. Gunakan .doc, .docx, atau .pdf');
+                        this.value = '';
+                        filePreview.classList.add('hidden');
+                    }
+                }
+            });
+            
+            removeFile.addEventListener('click', function() {
+                fileInput.value = '';
+                filePreview.classList.add('hidden');
+            });
+        }
+        
         // Auto-show document download alert if present
         const downloadAlert = document.getElementById('download-alert');
         if (downloadAlert) {
@@ -871,7 +1009,8 @@
             { id: 'anggotaModal', closeFn: closeAnggotaModal },
             { id: 'whatsappModal', closeFn: closeWhatsAppModal },
             { id: 'confirmStatusModal', closeFn: closeConfirmStatusModal },
-            { id: 'menimbangModal', closeFn: closeMenimbangModal }
+            { id: 'menimbangModal', closeFn: closeMenimbangModal },
+            { id: 'fileUploadModal', closeFn: closeFileUploadModal }
         ];
         
         modals.forEach(modal => {
@@ -910,6 +1049,71 @@
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>`;
             });
+        }
+        
+        // Form validation for file upload
+        const uploadForm = document.getElementById('fileUploadForm');
+        if (uploadForm) {
+            uploadForm.addEventListener('submit', function(e) {
+                if (!fileInput.files || fileInput.files.length === 0) {
+                    e.preventDefault();
+                    alert('Silakan pilih file terlebih dahulu');
+                    return false;
+                }
+                
+                // Show loading state
+                const submitBtn = this.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `
+                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Mengunggah...
+                `;
+            });
+        }
+        
+        // Drag and drop functionality
+        const dropArea = document.querySelector('.border-dashed');
+        
+        if (dropArea) {
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                dropArea.classList.add('border-blue-400', 'bg-blue-50');
+            }
+            
+            function unhighlight() {
+                dropArea.classList.remove('border-blue-400', 'bg-blue-50');
+            }
+            
+            dropArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                fileInput.files = files;
+                
+                // Trigger change event
+                const event = new Event('change', { bubbles: true });
+                fileInput.dispatchEvent(event);
+            }
         }
     });
 
