@@ -10,7 +10,7 @@ class CreateUserTable extends Migration
     {
         Schema::create('user', function (Blueprint $table) {
             $table->id();
-            $table->string('nip', 50)->unique()->nullable();
+            $table->bigInteger('nip')->unique()->nullable();
             $table->string('username', 100)->unique();
             $table->string('password');
             $table->string('no_telp', 20);

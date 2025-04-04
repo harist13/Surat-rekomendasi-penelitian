@@ -36,6 +36,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::delete('/akun/{id}', [AdminController::class, 'deleteUser'])->name('akun.delete');
     Route::get('/akun/data', [AdminController::class, 'getUsersData'])->name('akun.data');
     Route::get('/akun/{id}', [AdminController::class, 'getUserById'])->name('akun.show');
+    Route::get('/datasurat', [AdminController::class, 'datasurats'])->name('admin.datasurat');
 });
 
 // Staff routes
@@ -62,4 +63,7 @@ Route::prefix('staff')->middleware(['auth', 'role:staff'])->group(function () {
     Route::post('/penerbitan/{id}/update-file', [StaffController::class, 'updateSuratFile'])->name('penerbitan.updateFile');
     // Route untuk download file yang diupload
     Route::get('/penerbitan/{id}/download-file', [StaffController::class, 'downloadUploadedFile'])->name('penerbitan.downloadFile');
+    Route::put('/penerbitan/{id}/update', [StaffController::class, 'updateSurat'])->name('penerbitan.update');
+    Route::post('/send-email-notification', [NotificationController::class, 'sendEmailNotification'])->name('send.email.notification');
+    Route::post('/send-approval-email-notification', [NotificationController::class, 'sendApprovalEmailNotification'])->name('send.approval.email.notification');
 });

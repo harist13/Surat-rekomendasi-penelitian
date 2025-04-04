@@ -192,12 +192,25 @@
                 <!-- Status Check -->
                 <div class="bg-white rounded-lg shadow-md p-6">
                     <h3 class="text-lg font-semibold text-[#004aad] mb-4">CEK STATUS PENGAJUAN</h3>
-                    <div class="flex gap-2">
-                        <input type="text" placeholder="Nomor Registrasi" class="flex-1 p-2 border rounded-md">
-                        <button class="bg-[#004aad] text-white px-4 py-2 rounded-md hover:bg-[#003b8a] transition">
+                    <form method="POST" action="{{ route('pantau.cek') }}" class="flex gap-2">
+                        @csrf
+                        <input 
+                            type="text" 
+                            name="no_pengajuan" 
+                            placeholder="Nomor Registrasi" 
+                            class="flex-1 p-2 border rounded-md"
+                            required
+                        >
+                        <button 
+                            type="submit" 
+                            class="bg-[#004aad] text-white px-4 py-2 rounded-md hover:bg-[#003b8a] transition"
+                        >
                             CEK
                         </button>
-                    </div>
+                    </form>
+                    @if(session('error'))
+                        <div class="mt-2 text-red-500 text-sm">{{ session('error') }}</div>
+                    @endif
                 </div>
             </div>
         </div>

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - PERIKOMNAS KALTIM</title>
+    <title>Login - SIRPENA KALTIM</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Heroicons -->
     <script src="https://unpkg.com/@heroicons/v2.0.18/24/outline/index.js"></script>
@@ -14,7 +14,7 @@
             <!-- Logo -->
             <div class="text-center mb-8">
                 <img src="{{ asset('assets/kaltim.png')}}" alt="Logo" class="h-20 w-20 mx-auto mb-4">
-                <h2 class="text-3xl font-bold text-[#004aad]">PERIKOMNAS KALTIM</h2>
+                <h2 class="text-3xl font-bold text-[#004aad]">SIRPENA KALTIM</h2>
                 <p class="text-gray-600 mt-2">Silakan masuk ke akun Anda</p>
             </div>
 

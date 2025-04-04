@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulir Penelitian - PTSP MAN IC Lombok Timur</title>
+    <title>Formulir Penelitian</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Heroicons -->
     <script src="https://unpkg.com/@heroicons/v2.0.18/24/outline/index.js"></script>
@@ -26,7 +26,7 @@
             <div class="flex justify-between items-center h-16">
                 <div class="flex items-center space-x-2">
                     <img src="{{ asset('assets/kaltim.png')}}" alt="Logo" class="h-10 w-9">
-                    <span class="text-xl font-bold">PERIKOMNAS KALTIM</span>
+                    <span class="text-xl font-bold">SIRPENA KALTIM</span>
                 </div>
                 <div class="hidden md:flex space-x-6">
                     <a href="{{ route('home') }}" class="hover:text-blue-200 transition">BERANDA</a>

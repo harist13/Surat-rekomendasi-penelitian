@@ -18,7 +18,6 @@ class PenerbitanSurat extends Model
         'menimbang',
         'status_penelitian',
         'status_surat',
-        'posisi_surat',
         'file_path',
         'user_id',
         'mahasiswa_id',

@@ -139,7 +139,6 @@
                             <th class="px-4 py-3 border border-gray-300 w-32">Nomor Surat</th>
                             <th class="px-4 py-3 border border-gray-300 w-32">Menimbang</th>
                             <th class="px-4 py-3 border border-gray-300 min-w-[120px]">Status surat</th>
-                            <th class="px-4 py-3 border border-gray-300 min-w-[120px]">Posisi surat</th>
                             <th class="px-4 py-3 border border-gray-300 w-40">Aksi</th>
                         </tr>
                     </thead>
@@ -301,11 +300,6 @@
                                 @endif
                             </td>
                             <td class="px-4 py-3 border border-gray-200">
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                    {{ $surat->posisi_surat }}
-                                </span>
-                            </td>
-                            <td class="px-4 py-3 border border-gray-200">
                                 <div class="flex space-x-2 justify-center">
                                     @if($surat->status_surat == 'draft')
                                         <button type="button" class="text-green-500 hover:text-green-700 p-1" 
@@ -318,11 +312,13 @@
                                             </svg>
                                         </button>
                                     @endif
-                                    <a href="#" class="text-blue-500 hover:text-blue-700 p-1" title="Edit">
+                                     <button type="button" class="text-blue-500 hover:text-blue-700 p-1" 
+                                        onclick="openEditSuratModal('{{ $surat->id }}', '{{ $surat->nomor_surat }}', '{{ addslashes($surat->menimbang ?? '') }}', {{ isset($surat->file_path) ? 'true' : 'false' }})" 
+                                        title="Edit Surat">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
                                         </svg>
-                                    </a>
+                                    </button>
 
                                     <form action="{{ route('penerbitan.destroy', $surat->id) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus surat ini?');">
                                         @csrf
@@ -340,14 +336,6 @@
                                         </svg>
                                     </a>
                                     
-                                    <!-- Tombol Upload File Surat -->
-                                    <button type="button" class="text-purple-500 hover:text-purple-700 p-1" 
-                                            onclick="openFileUploadModal('{{ $surat->id }}', '{{ $surat->nomor_surat }}')"
-                                            title="Unggah File Surat">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
-                                        </svg>
-                                    </button>
                                     
                                     <!-- Tombol Download File yang Diupload (hanya muncul jika ada file) -->
                                     @if(isset($surat->file_path) && !empty($surat->file_path))
@@ -409,7 +397,6 @@
                             <th class="px-4 py-3 border border-gray-300 w-32">Nomor Surat</th>
                             <th class="px-4 py-3 border border-gray-300 w-32">Menimbang</th>
                             <th class="px-4 py-3 border border-gray-300 min-w-[120px]">Status surat</th>
-                            <th class="px-4 py-3 border border-gray-300 min-w-[120px]">Posisi surat</th>
                             <th class="px-4 py-3 border border-gray-300 w-40">Aksi</th>
                         </tr>
                     </thead>
@@ -543,29 +530,31 @@
                                 </span>
                             </td>
                             <td class="px-4 py-3 border border-gray-200">
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                    {{ $surat->posisi_surat }}
-                                </span>
-                            </td>
-                            <td class="px-4 py-3 border border-gray-200">
                                 <div class="flex space-x-2 justify-center">
+                                    <button type="button" 
+                                            onclick="openWhatsAppModal('{{ $surat->id }}', '{{ $surat->jenis_surat === 'mahasiswa' ? $surat->mahasiswa->nama_lengkap : $surat->nonMahasiswa->nama_lengkap }}', '{{ $surat->jenis_surat === 'mahasiswa' ? $surat->mahasiswa->no_hp : $surat->nonMahasiswa->no_hp }}', '{{ $surat->jenis_surat === 'mahasiswa' ? $surat->mahasiswa->judul_penelitian : $surat->nonMahasiswa->judul_penelitian }}', '{{ $surat->nomor_surat }}', '{{ $surat->jenis_surat === 'mahasiswa' ? $surat->mahasiswa->no_pengajuan : $surat->nonMahasiswa->no_pengajuan }}')" 
+                                            class="text-green-500 hover:text-green-700 p-1" 
+                                            title="Kirim Notifikasi WhatsApp">
+                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                                        </svg>
+                                    </button>
+
+                                    <!-- Email button - Add right after the WhatsApp button -->
+                                    <!-- Add this after the WhatsApp notification button -->
                                     <button type="button" class="text-blue-500 hover:text-blue-700 p-1" 
-                                            onclick="openWhatsAppModal('{{ $surat->id }}', 
+                                            onclick="openEmailModal('{{ $surat->id }}', 
                                             '{{ $surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa ? $surat->mahasiswa->nama_lengkap : ($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa ? $surat->nonMahasiswa->nama_lengkap : 'Tidak tersedia') }}',
-                                            '{{ $surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa ? $surat->mahasiswa->no_hp : ($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa ? $surat->nonMahasiswa->no_hp : '') }}',
+                                            '{{ $surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa ? $surat->mahasiswa->email : ($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa ? $surat->nonMahasiswa->email : '') }}',
                                             '{{ $surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa ? addslashes($surat->mahasiswa->judul_penelitian) : ($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa ? addslashes($surat->nonMahasiswa->judul_penelitian) : '') }}',
                                             '{{ $surat->nomor_surat }}')"
-                                            title="Kirim Notifikasi WhatsApp">
+                                            title="Kirim Notifikasi Email">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                                         </svg>
                                     </button>
                                     
-                                    <a href="#" class="text-blue-500 hover:text-blue-700 p-1" title="Edit">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
-                                        </svg>
-                                    </a>
+                                    
                                     
                                     <form action="{{ route('penerbitan.destroy', $surat->id) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus surat ini?');">
                                         @csrf
@@ -583,14 +572,7 @@
                                         </svg>
                                     </a>
                                     
-                                    <!-- Tombol Upload File Surat -->
-                                    <button type="button" class="text-purple-500 hover:text-purple-700 p-1" 
-                                            onclick="openFileUploadModal('{{ $surat->id }}', '{{ $surat->nomor_surat }}')"
-                                            title="Unggah File Surat">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path>
-                                        </svg>
-                                    </button>
+                                    
                                     
                                     <!-- Tombol Download File yang Diupload (hanya muncul jika ada file) -->
                                     @if(isset($surat->file_path) && !empty($surat->file_path))
@@ -614,6 +596,142 @@
                 </table>
             </div>
             </div>
+        </div>
+    </div>
+    
+    <!-- Email Notification Modal -->
+    <!-- Modal for Email Notification -->
+    <div id="emailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
+        <div class="bg-white rounded-lg shadow-lg w-11/12 max-w-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+                    <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                    </svg>
+                    Kirim Notifikasi Email
+                </h3>
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5" onclick="closeEmailModal()">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <form action="{{ route('send.approval.email.notification') }}" method="POST">
+                @csrf
+                <input type="hidden" name="surat_id" id="email_surat_id">
+                <div class="mb-4">
+                    <label for="email_alamat" class="block text-sm font-medium text-gray-700 mb-1">Alamat Email</label>
+                    <input type="email" id="email_alamat" name="email" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm" required>
+                </div>
+                <input type="hidden" name="nama" id="email_nama">
+                <input type="hidden" name="judul_penelitian" id="email_judul_penelitian">
+                <input type="hidden" name="nomor_surat" id="email_nomor_surat">
+                <div class="mb-4">
+                    <p class="text-sm text-gray-600 mb-2">Informasi Surat Terbit:</p>
+                    <div class="p-3 bg-gray-50 rounded-md text-sm mb-4">
+                        <p class="mb-1"><span class="font-medium">Nama:</span> <span id="display_email_nama"></span></p>
+                        <p class="mb-1"><span class="font-medium">Judul Penelitian:</span> <span id="display_email_judul_penelitian"></span></p>
+                        <p class="mb-1"><span class="font-medium">Nomor Surat:</span> <span id="display_email_nomor_surat"></span></p>
+                    </div>
+                    <label for="email_pesan" class="block text-sm font-medium text-gray-700">Pesan</label>
+                    <textarea id="email_pesan" name="pesan_email" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm" rows="6" required></textarea>
+                </div>
+                <div class="flex justify-end">
+                    <button type="button" class="mr-2 px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400" onclick="closeEmailModal()">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                        </svg>
+                        Kirim
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal for Edit Surat -->
+    <div id="editSuratModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
+        <div class="bg-white rounded-lg shadow-lg w-11/12 max-w-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900">Edit Data Surat</h3>
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5" onclick="closeEditSuratModal()">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <form id="editSuratForm" method="POST" enctype="multipart/form-data">
+                @csrf
+                @method('PUT')
+                <div class="space-y-4">
+                    <!-- Nomor Surat -->
+                    <div>
+                        <label for="edit_nomor_surat" class="block text-sm font-medium text-gray-700">Nomor Surat</label>
+                        <input type="text" id="edit_nomor_surat" name="nomor_surat" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" required>
+                    </div>
+                    
+                    <!-- Menimbang -->
+                    <div>
+                        <label for="edit_menimbang" class="block text-sm font-medium text-gray-700">Menimbang</label>
+                        <textarea id="edit_menimbang" name="menimbang" rows="4" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Masukkan pertimbangan untuk penerbitan surat ini"></textarea>
+                    </div>
+                    
+                    <!-- File Upload -->
+                    <div>
+                        <label for="edit_file_surat" class="block text-sm font-medium text-gray-700">Unggah File Surat</label>
+                        <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                            <div class="space-y-1 text-center">
+                                <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                    <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                </svg>
+                                <div class="flex text-sm text-gray-600">
+                                    <label for="edit_file_surat" class="relative cursor-pointer bg-white rounded-md font-medium text-blue-600 hover:text-blue-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-blue-500">
+                                        <span>Unggah file</span>
+                                        <input id="edit_file_surat" name="file_surat" type="file" class="sr-only" accept=".doc,.docx,.pdf">
+                                    </label>
+                                    <p class="pl-1">atau seret dan letakkan</p>
+                                </div>
+                                <p class="text-xs text-gray-500">
+                                    DOC, DOCX, PDF hingga 5MB
+                                </p>
+                            </div>
+                        </div>
+                        <div id="edit_file_preview" class="hidden mt-2 p-2 bg-gray-50 rounded-md">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 text-gray-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                </svg>
+                                <span id="edit_file_name" class="text-sm text-gray-700"></span>
+                                <button type="button" id="edit_remove_file" class="ml-auto text-red-500 hover:text-red-700">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">File surat yang sudah ada akan diganti jika Anda mengunggah file baru.</p>
+                    </div>
+                    
+                    <!-- File Status -->
+                    <div id="existing_file_info" class="bg-blue-50 p-3 rounded-md hidden">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 text-blue-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            <span class="text-sm text-blue-700">File surat sudah ada. Unggah file baru hanya jika ingin mengganti file yang ada.</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-5 flex justify-end">
+                    <button type="button" class="mr-2 py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500" onclick="closeEditSuratModal()">
+                        Batal
+                    </button>
+                    <button type="submit" class="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                        Simpan Perubahan
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -664,31 +782,51 @@
         </div>
     </div>
 
-    <!-- Modal for WhatsApp Notification -->
-    <div id="whatsappModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
-        <div class="bg-white rounded-lg shadow-lg w-11/12 max-w-md p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-gray-900">Kirim Notifikasi WhatsApp</h3>
-                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5" onclick="closeWhatsAppModal()">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+    <!-- WhatsApp Notification Modal -->
+    <div id="whatsappModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md relative">
+            <div class="flex justify-between items-center bg-green-600 text-white p-4 rounded-t-lg">
+                <h3 class="text-xl font-semibold flex items-center">
+                    <svg class="w-6 h-6 mr-2" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                    </svg>
+                    Kirim Notifikasi WhatsApp
+                </h3>
+                <button type="button" class="text-white hover:text-gray-200 focus:outline-none" onclick="closeWhatsAppModal()">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
             </div>
-            <form action="{{ route('send.whatsapp.notification') }}" method="POST">
+            
+            <form id="whatsappForm" method="POST" action="{{ route('send.whatsapp.notification') }}">
                 @csrf
                 <input type="hidden" name="surat_id" id="whatsapp_surat_id">
-                <div class="mb-4">
-                    <label for="whatsapp_nomor" class="block text-sm font-medium text-gray-700">Nomor Telepon</label>
-                    <input type="text" id="whatsapp_nomor" name="nomor" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50" readonly>
+                <div class="p-6">
+                    <div class="mb-4">
+                        <label for="whatsapp_nomor" class="block text-sm font-medium text-gray-700 mb-2">Nomor Telepon:</label>
+                        <div class="flex items-center border border-gray-300 rounded-lg overflow-hidden">
+                            <span class="bg-gray-100 px-3 py-2 text-gray-600 text-sm border-r">+62</span>
+                            <input type="text" id="whatsapp_nomor" name="nomor" class="w-full border-0 p-2 text-sm focus:ring-green-500 focus:border-green-500 focus:outline-none" readonly>
+                        </div>
+                    </div>
+                    <div class="mb-2">
+                        <label for="whatsapp_pesan" class="block text-sm font-medium text-gray-700 mb-2">Pesan:</label>
+                        <textarea id="whatsapp_pesan" name="pesan" rows="12" class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-green-500 focus:border-green-500"></textarea>
+                        <p class="mt-2 text-xs text-gray-500">Pesan akan dikirim melalui WhatsApp ke nomor yang tercantum.</p>
+                    </div>
                 </div>
-                <div class="mb-4">
-                    <label for="whatsapp_pesan" class="block text-sm font-medium text-gray-700">Pesan</label>
-                    <textarea id="whatsapp_pesan" name="pesan" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring focus:ring-opacity-50" rows="4" required></textarea>
-                </div>
-                <div class="flex justify-end">
-                    <button type="button" class="mr-2 px-4 py-2 bg-gray-300 text-gray-700 rounded-md" onclick="closeWhatsAppModal()">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md">Kirim</button>
+                
+                <div class="border-t p-4 flex justify-end space-x-3">
+                    <button type="button" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 focus:ring-offset-2" onclick="closeWhatsAppModal()">
+                        Batal
+                    </button>
+                    <button type="submit" class="px-4 py-2 bg-green-600 text-white rounded-lg font-medium hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 flex items-center">
+                        <svg class="w-4 h-4 mr-2" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+                        </svg>
+                        Kirim Pesan
+                    </button>
                 </div>
             </form>
         </div>
@@ -769,6 +907,202 @@
             </form>
         </div>
     </div>
+
+
+    <script>
+        // Function to open Email notification modal
+        function openEmailModal(id, nama, email, judulPenelitian, nomorSurat) {
+            document.getElementById('email_surat_id').value = id;
+            document.getElementById('email_alamat').value = email;
+            document.getElementById('email_nama').value = nama;
+            document.getElementById('email_judul_penelitian').value = judulPenelitian;
+            document.getElementById('email_nomor_surat').value = nomorSurat;
+            
+            // Display values in the modal
+            document.getElementById('display_email_nama').textContent = nama;
+            document.getElementById('display_email_judul_penelitian').textContent = judulPenelitian;
+            document.getElementById('display_email_nomor_surat').textContent = nomorSurat;
+            
+            // Create a template message
+            const pesan = `Halo ${nama},
+
+        Dengan ini kami informasikan bahwa surat izin penelitian Anda dengan judul "${judulPenelitian}" telah diterbitkan dengan nomor surat: ${nomorSurat} dan siap untuk diambil.
+
+        Silahkan datang ke kantor kami untuk mengambil surat tersebut pada jam kerja (Senin-Jumat, 08.00-16.00).
+
+        Terima kasih.
+
+        Hormat kami,
+        Badan Kesatuan Bangsa dan Politik
+        Pemerintah Provinsi Kalimantan Timur`;
+            
+            document.getElementById('email_pesan').value = pesan;
+            document.getElementById('emailModal').classList.remove('hidden');
+        }
+
+        // Function to close Email modal
+        function closeEmailModal() {
+            document.getElementById('emailModal').classList.add('hidden');
+        }
+
+        // Add this to modals array in the existing DOMContentLoaded event
+        // { id: 'emailModal', closeFn: closeEmailModal },
+    </script>
+
+    <script>
+        // Function to open edit surat modal
+        function openEditSuratModal(id, nomorSurat, menimbang, hasFile) {
+            const form = document.getElementById('editSuratForm');
+            form.action = `/staff/penerbitan/${id}/update`;
+            
+            // Set form values
+            document.getElementById('edit_nomor_surat').value = nomorSurat;
+            document.getElementById('edit_menimbang').value = menimbang;
+            
+            // Show file status if a file exists
+            const existingFileInfo = document.getElementById('existing_file_info');
+            if (hasFile) {
+                existingFileInfo.classList.remove('hidden');
+            } else {
+                existingFileInfo.classList.add('hidden');
+            }
+            
+            // Reset file upload field
+            document.getElementById('edit_file_surat').value = '';
+            document.getElementById('edit_file_preview').classList.add('hidden');
+            
+            // Show the modal
+            document.getElementById('editSuratModal').classList.remove('hidden');
+        }
+
+        // Function to close edit surat modal
+        function closeEditSuratModal() {
+            document.getElementById('editSuratModal').classList.add('hidden');
+        }
+
+        // File preview for edit modal
+        document.addEventListener('DOMContentLoaded', function() {
+            const editFileInput = document.getElementById('edit_file_surat');
+            const editFilePreview = document.getElementById('edit_file_preview');
+            const editFileName = document.getElementById('edit_file_name');
+            const editRemoveFile = document.getElementById('edit_remove_file');
+            
+            if (editFileInput && editFilePreview && editFileName && editRemoveFile) {
+                editFileInput.addEventListener('change', function(event) {
+                    if (this.files && this.files[0]) {
+                        const file = this.files[0];
+                        editFileName.textContent = file.name;
+                        editFilePreview.classList.remove('hidden');
+                        
+                        // Validate file size
+                        if (file.size > 5 * 1024 * 1024) { // 5MB
+                            alert('Ukuran file terlalu besar. Maksimal 5MB.');
+                            this.value = '';
+                            editFilePreview.classList.add('hidden');
+                        }
+                        
+                        // Validate file type
+                        const allowedTypes = ['application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/pdf'];
+                        if (!allowedTypes.includes(file.type)) {
+                            alert('Format file tidak didukung. Gunakan .doc, .docx, atau .pdf');
+                            this.value = '';
+                            editFilePreview.classList.add('hidden');
+                        }
+                    }
+                });
+                
+                editRemoveFile.addEventListener('click', function() {
+                    editFileInput.value = '';
+                    editFilePreview.classList.add('hidden');
+                });
+            }
+            
+            // Add edit modal to the list of modals that can be closed with ESC key
+            const modals = document.querySelectorAll('[id$="Modal"]');
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    modals.forEach(modal => {
+                        if (!modal.classList.contains('hidden')) {
+                            if (modal.id === 'editSuratModal') {
+                                closeEditSuratModal();
+                            } else if (modal.id === 'fileUploadModal') {
+                                closeFileUploadModal();
+                            } else if (modal.id === 'whatsappModal') {
+                                closeWhatsAppModal();
+                            } else if (modal.id === 'confirmStatusModal') {
+                                closeConfirmStatusModal();
+                            } else if (modal.id === 'menimbangModal') {
+                                closeMenimbangModal();
+                            } else if (modal.id === 'anggotaModal') {
+                                closeAnggotaModal();
+                            }
+                        }
+                    });
+                }
+            });
+            
+            // Adding drag and drop functionality for edit modal
+            const editDropArea = document.querySelector('#editSuratModal .border-dashed');
+            
+            if (editDropArea) {
+                ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                    editDropArea.addEventListener(eventName, preventDefaults, false);
+                });
+                
+                function preventDefaults(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                
+                ['dragenter', 'dragover'].forEach(eventName => {
+                    editDropArea.addEventListener(eventName, function() {
+                        editDropArea.classList.add('border-blue-400', 'bg-blue-50');
+                    }, false);
+                });
+                
+                ['dragleave', 'drop'].forEach(eventName => {
+                    editDropArea.addEventListener(eventName, function() {
+                        editDropArea.classList.remove('border-blue-400', 'bg-blue-50');
+                    }, false);
+                });
+                
+                editDropArea.addEventListener('drop', function(e) {
+                    const dt = e.dataTransfer;
+                    const files = dt.files;
+                    editFileInput.files = files;
+                    
+                    // Trigger change event
+                    const event = new Event('change', { bubbles: true });
+                    editFileInput.dispatchEvent(event);
+                }, false);
+            }
+            
+            // Form validation for edit surat form
+            const editSuratForm = document.getElementById('editSuratForm');
+            if (editSuratForm) {
+                editSuratForm.addEventListener('submit', function(e) {
+                    const nomorSurat = document.getElementById('edit_nomor_surat').value;
+                    
+                    if (!nomorSurat.trim()) {
+                        e.preventDefault();
+                        alert('Nomor surat tidak boleh kosong');
+                        return false;
+                    }
+                    
+                    // Show loading state
+                    const submitBtn = this.querySelector('button[type="submit"]');
+                    submitBtn.disabled = true;
+                    submitBtn.innerHTML = `
+                        <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline-block" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                        Menyimpan...
+                    `;
+                });
+            }
+        });
+    </script>
 
     <script>
     // Function to show anggota penelitian modal
@@ -854,18 +1188,35 @@
     }
     
     // Function to open WhatsApp notification modal
-    function openWhatsAppModal(id, nama, nomor, judulPenelitian, nomorSurat) {
+    // Function to open WhatsApp notification modal for issued letters
+    function openWhatsAppModal(id, nama, nomor, judulPenelitian, nomorSurat, noPengajuan) {
         document.getElementById('whatsapp_surat_id').value = id;
         document.getElementById('whatsapp_nomor').value = nomor;
         
-        // Create a template message
-        const pesan = `Halo ${nama},\n\nDengan ini kami informasikan bahwa surat izin penelitian Anda dengan judul "${judulPenelitian}" telah diterbitkan dengan nomor surat: ${nomorSurat}.\n\nSilahkan datang ke kantor kami untuk mengambil surat tersebut pada jam kerja (Senin-Jumat, 08.00-16.00).\n\nTerima kasih.`;
+        // Create a template message with nomor pengajuan included
+        const pesan = `Halo ${nama},
+
+    Dengan hormat kami informasikan bahwa surat izin penelitian Anda dengan:
+
+    Nomor Pengajuan: ${noPengajuan}
+    Judul Penelitian: "${judulPenelitian}"
+    Nomor Surat: ${nomorSurat}
+
+    Telah diterbitkan dan siap untuk diambil. Silakan datang ke kantor kami untuk mengambil surat tersebut pada jam kerja (Senin-Jumat, 08.00-16.00 WIB).
+
+    Jika ada pertanyaan, silakan hubungi kami melalui kontak yang tertera di website.
+
+    Terima kasih atas perhatiannya.
+
+    Hormat kami,
+    Tim Badan Kesatuan Bangsa dan Politik
+    Pemerintah Provinsi Kalimantan Timur`;
         
         document.getElementById('whatsapp_pesan').value = pesan;
         document.getElementById('whatsappModal').classList.remove('hidden');
     }
 
-    // Function to close WhatsApp modal
+    // Function to close WhatsApp notification modal
     function closeWhatsAppModal() {
         document.getElementById('whatsappModal').classList.add('hidden');
     }
@@ -988,6 +1339,7 @@
         }
         
         // Add confirmation for delete actions with Indonesian messages
+        // Add confirmation for delete actions with Indonesian messages
         const deleteForms = document.querySelectorAll('form[action*="destroy"]');
         deleteForms.forEach(form => {
             form.addEventListener('submit', function(event) {
@@ -998,7 +1350,7 @@
                 const nama = row.querySelector('td:nth-child(3)').textContent.trim();
                 const nomorSurat = row.querySelector('td:nth-child(13)').textContent.trim();
                 
-                if (confirm(`Anda yakin ingin menghapus surat dengan nomor "${nomorSurat}" atas nama "${nama}"? Data yang sudah dihapus tidak dapat dikembalikan.`)) {
+                if (confirm(`PERHATIAN: Anda akan menghapus surat dengan nomor "${nomorSurat}" atas nama "${nama}" DAN JUGA menghapus data peneliti terkait beserta semua berkas dokumennya dari sistem. Tindakan ini tidak dapat dibatalkan. Apakah Anda yakin ingin melanjutkan?`)) {
                     this.submit();
                 }
             });
@@ -1010,7 +1362,8 @@
             { id: 'whatsappModal', closeFn: closeWhatsAppModal },
             { id: 'confirmStatusModal', closeFn: closeConfirmStatusModal },
             { id: 'menimbangModal', closeFn: closeMenimbangModal },
-            { id: 'fileUploadModal', closeFn: closeFileUploadModal }
+            { id: 'fileUploadModal', closeFn: closeFileUploadModal },
+            { id: 'emailModal', closeFn: closeEmailModal }
         ];
         
         modals.forEach(modal => {

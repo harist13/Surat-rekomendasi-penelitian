@@ -13,7 +13,7 @@
             <div class="flex justify-between items-center mb-8">
                 <h1 class="text-2xl font-bold text-gray-800">Penerbitan Surat</h1>
                 <div class="text-gray-600">
-                    Selamat Datang Staff, <span class="font-semibold text-blue-600">Harist</span>
+                    Selamat Datang Staff, <span class="font-semibold text-blue-600">{{ Auth::user()->username }}</span>
                 </div>
             </div>
 
@@ -147,13 +147,13 @@
                                 <!-- Nama -->
                                 <div>
                                     <label for="nama_lengkap" class="block mb-2 text-sm font-medium text-gray-700">Nama Lengkap</label>
-                                    <input type="text" id="nama_lengkap" name="nama_lengkap" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Masukkan nama lengkap" required>
+                                    <input type="text" id="nama_lengkap" name="nama_lengkap" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Masukkan nama lengkap" readonly>
                                 </div>
                                 
                                 <!-- Jabatan -->
                                 <div>
                                     <label for="jabatan" class="block mb-2 text-sm font-medium text-gray-700">Jabatan</label>
-                                    <input type="text" id="jabatan" name="jabatan" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Masukkan jabatan">
+                                    <input type="text" id="jabatan" name="jabatan" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Masukkan jabatan" readonly>
                                 </div>
                                 
                                 <!-- Mahasiswa specific fields (hidden by default) -->
@@ -182,7 +182,7 @@
                                 <!-- Contact Information -->
                                 <div>
                                     <label for="no_hp" class="block mb-2 text-sm font-medium text-gray-700">Nomor HP</label>
-                                    <input type="text" id="no_hp" name="no_hp" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Masukkan nomor HP">
+                                    <input type="text" id="no_hp" name="no_hp" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Masukkan nomor HP" readonly>
                                 </div>
                                 
                                 <!-- Hidden inputs for specific types -->
@@ -192,7 +192,7 @@
                                 <!-- Nama Lembaga -->
                                 <div>
                                     <label for="instansi" class="block mb-2 text-sm font-medium text-gray-700">Nama Lembaga</label>
-                                    <input type="text" id="instansi" name="instansi" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Masukkan nama lembaga" required>
+                                    <input type="text" id="instansi" name="instansi" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Masukkan nama lembaga" readonly>
                                 </div>
                             </div>
                             
@@ -201,13 +201,13 @@
                                 <!-- Tempat Tinggal -->
                                 <div>
                                     <label for="tempat_tinggal" class="block mb-2 text-sm font-medium text-gray-700">Tempat Tinggal</label>
-                                    <textarea id="tempat_tinggal" name="tempat_tinggal" rows="3" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Masukkan alamat lengkap tempat tinggal" required></textarea>
+                                    <textarea id="tempat_tinggal" name="tempat_tinggal" rows="3" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Masukkan alamat lengkap tempat tinggal" readonly></textarea>
                                 </div>
                                 
                                 <!-- Alamat Lembaga -->
                                 <div>
                                     <label for="alamat_instansi" class="block mb-2 text-sm font-medium text-gray-700">Alamat Lembaga</label>
-                                    <textarea id="alamat_instansi" name="alamat_instansi" rows="3" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Masukkan alamat lembaga" required></textarea>
+                                    <textarea id="alamat_instansi" name="alamat_instansi" rows="3" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Masukkan alamat lembaga" readonly></textarea>
                                 </div>
                             </div>
                         </div>
@@ -226,7 +226,7 @@
                                     <select id="status_penelitian" name="status_penelitian" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                                         <option selected disabled>Pilih Status</option>
                                         <option value="baru">Baru</option>
-                                        <option value="lanjutan">Lanjutan</option>
+                                        <option value="lama">Lama</option>
                                         <option value="perpanjangan">Perpanjangan</option>
                                     </select>
                                 </div>
@@ -234,7 +234,7 @@
                                 <!-- Lokasi Penelitian -->
                                 <div>
                                     <label for="lokasi_penelitian" class="block mb-2 text-sm font-medium text-gray-700">Lokasi Penelitian</label>
-                                    <input type="text" id="lokasi_penelitian" name="lokasi_penelitian" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Masukkan lokasi penelitian" required>
+                                    <input type="text" id="lokasi_penelitian" name="lokasi_penelitian" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Masukkan lokasi penelitian" readonly>
                                 </div>
                             </div>
                             
@@ -243,7 +243,7 @@
                                 <!-- Waktu Penelitian (combined field) -->
                                 <div>
                                     <label for="waktu_penelitian" class="block mb-2 text-sm font-medium text-gray-700">Waktu Penelitian</label>
-                                    <input type="text" id="waktu_penelitian" name="waktu_penelitian" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Contoh: 1 Jan 2025 - 30 Jun 2025" required>
+                                    <input type="text" id="waktu_penelitian" name="waktu_penelitian" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Contoh: 1 Jan 2025 - 30 Jun 2025" readonly>
                                 </div>
                             </div>
                             
@@ -252,13 +252,13 @@
                                 <!-- Judul Proposal -->
                                 <div>
                                     <label for="judul_proposal" class="block mb-2 text-sm font-medium text-gray-700">Judul Proposal</label>
-                                    <input type="text" id="judul_proposal" name="judul_proposal" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Masukkan judul proposal" required>
+                                    <input type="text" id="judul_proposal" name="judul_proposal" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Masukkan judul proposal" readonly>
                                 </div>
                                 
                                 <!-- Tujuan Penelitian -->
                                 <div>
                                     <label for="tujuan_penelitian" class="block mb-2 text-sm font-medium text-gray-700">Tujuan Penelitian</label>
-                                    <textarea id="tujuan_penelitian" name="tujuan_penelitian" rows="4" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Jelaskan tujuan penelitian secara detail" required></textarea>
+                                    <textarea id="tujuan_penelitian" name="tujuan_penelitian" rows="4" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Jelaskan tujuan penelitian secara detail" readonly></textarea>
                                 </div>
                             </div>
                         </div>
@@ -270,7 +270,7 @@
                         
                         <div>
                             <label for="anggota_penelitian" class="block mb-2 text-sm font-medium text-gray-700">Daftar Anggota Penelitian</label>
-                            <textarea id="anggota_penelitian" name="anggota_penelitian" rows="4" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Masukkan daftar anggota penelitian (pisahkan dengan koma atau baris baru)"></textarea>
+                            <textarea id="anggota_penelitian" name="anggota_penelitian" rows="4" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Masukkan daftar anggota penelitian (pisahkan dengan koma atau baris baru)" readonly></textarea>
                         </div>
                     </div>
                     

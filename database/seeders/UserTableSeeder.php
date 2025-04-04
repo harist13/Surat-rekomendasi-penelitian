@@ -18,7 +18,7 @@ class UserTableSeeder extends Seeder
 
          // Create admin user
         $admin = User::create([
-            'nip' => 'A001',
+            'nip' => '001',
             'username' => 'admin',
             'password' => Hash::make('password'),
             'no_telp' => '08123456789',
@@ -28,7 +28,7 @@ class UserTableSeeder extends Seeder
 
         // Create staff user
         $staff = User::create([
-            'nip' => 'S001',
+            'nip' => '002',
             'username' => 'staff',
             'password' => Hash::make('password'),
             'no_telp' => '08987654321',

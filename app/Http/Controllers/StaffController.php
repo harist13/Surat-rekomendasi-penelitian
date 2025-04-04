@@ -9,6 +9,7 @@ use App\Models\NonMahasiswa;
 use App\Models\PenerbitanSurat;
 use App\Models\Notifikasi;
 use App\Models\StatusHistory;
+use App\Models\User;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use PhpOffice\PhpWord\PhpWord;
@@ -20,7 +21,70 @@ class StaffController extends Controller
 { 
     public function index()
     {
-        return view('staff.index');
+        // Count total users
+        $totalUsers = User::count();
+        
+        // Count pending requests (both mahasiswa and non-mahasiswa)
+        $pendingMahasiswa = Mahasiswa::whereNotIn('status', ['diterima', 'ditolak'])->count();
+        $pendingNonMahasiswa = NonMahasiswa::whereNotIn('status', ['diterima', 'ditolak'])->count();
+        $totalPending = $pendingMahasiswa + $pendingNonMahasiswa;
+        
+        // Count approved documents
+        $approvedDocuments = PenerbitanSurat::where('status_surat', 'diterbitkan')->count();
+        
+        // Get monthly statistics for chart
+        $monthlyStats = $this->getMonthlyStatistics();
+        
+        return view('staff.index', compact('totalUsers', 'totalPending', 'approvedDocuments', 'monthlyStats'));
+    }
+    
+    /**
+     * Get monthly statistics for the dashboard chart
+     */
+    private function getMonthlyStatistics()
+    {
+        // Get data for the last 6 months
+        $endDate = Carbon::now();
+        $startDate = Carbon::now()->subMonths(5)->startOfMonth();
+        
+        $months = [];
+        $currentDate = $startDate->copy();
+        
+        while ($currentDate->lte($endDate)) {
+            $months[] = $currentDate->format('M Y');
+            $currentDate->addMonth();
+        }
+        
+        // Initialize statistics arrays
+        $userStats = [];
+        $requestStats = [];
+        $documentStats = [];
+        
+        // For each month, get the counts
+        foreach ($months as $index => $month) {
+            $monthStart = $startDate->copy()->addMonths($index)->startOfMonth();
+            $monthEnd = $startDate->copy()->addMonths($index)->endOfMonth();
+            
+            // Users created in this month
+            $userStats[] = User::whereBetween('created_at', [$monthStart, $monthEnd])->count();
+            
+            // Requests created in this month (both types)
+            $mahasiswaRequests = Mahasiswa::whereBetween('created_at', [$monthStart, $monthEnd])->count();
+            $nonMahasiswaRequests = NonMahasiswa::whereBetween('created_at', [$monthStart, $monthEnd])->count();
+            $requestStats[] = $mahasiswaRequests + $nonMahasiswaRequests;
+            
+            // Documents published in this month
+            $documentStats[] = PenerbitanSurat::where('status_surat', 'diterbitkan')
+                                ->whereBetween('created_at', [$monthStart, $monthEnd])
+                                ->count();
+        }
+        
+        return [
+            'months' => $months,
+            'userStats' => $userStats,
+            'requestStats' => $requestStats,
+            'documentStats' => $documentStats
+        ];
     }
 
     public function penerbitan()
@@ -47,7 +111,7 @@ class StaffController extends Controller
         return response()->json($nonMahasiswa);
     }
 
-     public function storePenerbitan(Request $request)
+    public function storePenerbitan(Request $request)
     {
         try {
             // Validate the form input
@@ -69,6 +133,27 @@ class StaffController extends Controller
                 'status_surat.required' => 'Status surat harus diisi',
             ]);
 
+            // Check for duplicate entries
+            if ($validatedData['jenis_surat'] === 'mahasiswa') {
+                $existingLetter = PenerbitanSurat::where('jenis_surat', 'mahasiswa')
+                    ->where('mahasiswa_id', $validatedData['pemohon_id'])
+                    ->first();
+                
+                if ($existingLetter) {
+                    $mahasiswa = Mahasiswa::findOrFail($validatedData['pemohon_id']);
+                    return redirect()->back()->with('error', 'Surat untuk mahasiswa "' . $mahasiswa->nama_lengkap . '" sudah pernah diterbitkan dengan nomor ' . $existingLetter->nomor_surat . '. Silakan periksa kembali data surat yang ada.')->withInput();
+                }
+            } else { // non_mahasiswa
+                $existingLetter = PenerbitanSurat::where('jenis_surat', 'non_mahasiswa')
+                    ->where('non_mahasiswa_id', $validatedData['pemohon_id'])
+                    ->first();
+                
+                if ($existingLetter) {
+                    $nonMahasiswa = NonMahasiswa::findOrFail($validatedData['pemohon_id']);
+                    return redirect()->back()->with('error', 'Surat untuk non-mahasiswa "' . $nonMahasiswa->nama_lengkap . '" sudah pernah diterbitkan dengan nomor ' . $existingLetter->nomor_surat . '. Silakan periksa kembali data surat yang ada.')->withInput();
+                }
+            }
+
             // Create new PenerbitanSurat record
             $penerbitanSurat = new PenerbitanSurat();
             $penerbitanSurat->jenis_surat = $validatedData['jenis_surat'];
@@ -76,7 +161,6 @@ class StaffController extends Controller
             $penerbitanSurat->menimbang = $validatedData['menimbang'] ?? null;
             $penerbitanSurat->status_penelitian = $validatedData['status_penelitian'];
             $penerbitanSurat->status_surat = $validatedData['status_surat'];
-            $penerbitanSurat->posisi_surat = 'aktif';
             $penerbitanSurat->user_id = auth()->id();
             // Remove the line that tries to save no_pengajuan
 
@@ -535,6 +619,89 @@ class StaffController extends Controller
         return view('staff.datasurat', compact('penerbitanSurats', 'search', 'perPage'));
     }
 
+    
+    /**
+     * Update surat data
+     * 
+     * @param Request $request
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function updateSurat(Request $request, $id)
+    {
+        try {
+            // Validate the request
+            $request->validate([
+                'nomor_surat' => 'required|string',
+                'menimbang' => 'nullable|string',
+                'file_surat' => 'nullable|file|mimes:doc,docx,pdf|max:5120', // Max 5MB
+            ], [
+                'nomor_surat.required' => 'Nomor surat harus diisi',
+                'file_surat.file' => 'Upload harus berupa file',
+                'file_surat.mimes' => 'Format file harus doc, docx, atau pdf',
+                'file_surat.max' => 'Ukuran file maksimal 5MB',
+            ]);
+
+            // Get the surat data
+            $surat = PenerbitanSurat::findOrFail($id);
+            
+            // Update basic data
+            $surat->nomor_surat = $request->nomor_surat;
+            $surat->menimbang = $request->menimbang;
+            
+            // Handle file upload if a new file is provided
+            if ($request->hasFile('file_surat')) {
+                // Define storage directory
+                $directory = 'documents/surat_penelitian';
+                
+                // Ensure directory exists
+                if (!file_exists(public_path('storage/' . $directory))) {
+                    mkdir(public_path('storage/' . $directory), 0777, true);
+                }
+                
+                // Delete old file if it exists
+                if ($surat->file_path && file_exists(public_path('storage/' . $surat->file_path))) {
+                    unlink(public_path('storage/' . $surat->file_path));
+                }
+                
+                // Save the new file
+                $file = $request->file('file_surat');
+                $fileName = 'surat_penelitian_' . $surat->nomor_surat . '_' . time() . '.' . $file->getClientOriginalExtension();
+                
+                // Use move to avoid permission issues
+                $file->move(public_path('storage/' . $directory), $fileName);
+                $filePath = $directory . '/' . $fileName;
+                
+                // Update file path in database
+                $surat->file_path = $filePath;
+                
+                // Add status history entry
+                if ($surat->mahasiswa_id) {
+                    $this->addStatusHistory(
+                        'mahasiswa', 
+                        $surat->mahasiswa_id, 
+                        'surat_diupdate', 
+                        'File surat dengan nomor ' . $surat->nomor_surat . ' telah diperbarui'
+                    );
+                } else {
+                    $this->addStatusHistory(
+                        'non_mahasiswa', 
+                        $surat->non_mahasiswa_id, 
+                        'surat_diupdate', 
+                        'File surat dengan nomor ' . $surat->nomor_surat . ' telah diperbarui'
+                    );
+                }
+            }
+            
+            // Save changes
+            $surat->save();
+            
+            return redirect()->route('datasurat')->with('success', 'Data surat berhasil diperbarui');
+        } catch (\Exception $e) {
+            return redirect()->route('datasurat')->with('error', 'Gagal memperbarui data surat: ' . $e->getMessage());
+        }
+    }
+
     public function updateStatus($id)
     {
         try {
@@ -587,6 +754,24 @@ class StaffController extends Controller
                     ->delete();
             }
             
+            // Delete generated Word document if it exists
+            if ($penerbitanSurat->file_path) {
+                $filePath = public_path('storage/' . $penerbitanSurat->file_path);
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+            
+            // Also check for any generated documents with pattern matching the nomor_surat
+            $documentPattern = public_path('storage/documents/surat_penelitian/surat_penelitian_' . $penerbitanSurat->nomor_surat . '_*.docx');
+            $matchingFiles = glob($documentPattern);
+            
+            foreach ($matchingFiles as $file) {
+                if (file_exists($file)) {
+                    unlink($file);
+                }
+            }
+            
             // Now it's safe to delete the penerbitan surat record
             $penerbitanSurat->delete();
             
@@ -617,7 +802,20 @@ class StaffController extends Controller
             });
         }
 
+        // Get list of mahasiswa IDs that already have associated letters
+        $mahasiswaIdsWithLetters = PenerbitanSurat::where('jenis_surat', 'mahasiswa')
+            ->whereNotNull('mahasiswa_id')
+            ->pluck('mahasiswa_id')
+            ->toArray();
+
+        // Get paginated mahasiswa data
         $mahasiswas = $mahasiswasQuery->paginate($perPage);
+        
+        // Attach has_letter flag to each mahasiswa
+        $mahasiswas->getCollection()->transform(function ($mahasiswa) use ($mahasiswaIdsWithLetters) {
+            $mahasiswa->has_letter = in_array($mahasiswa->id, $mahasiswaIdsWithLetters);
+            return $mahasiswa;
+        });
         
         // Query for rejected applications
         $ditolakMahasiswasQuery = Mahasiswa::with('notifikasis')
@@ -712,19 +910,45 @@ class StaffController extends Controller
                 ->delete();
                 
             // Delete related penerbitan surat records
-            PenerbitanSurat::where('mahasiswa_id', $id)->delete();
+            $penerbitanSurat = PenerbitanSurat::where('mahasiswa_id', $id)->first();
+            if ($penerbitanSurat) {
+                // Delete the generated document if it exists
+                if ($penerbitanSurat->file_path) {
+                    $filePath = public_path('storage/' . $penerbitanSurat->file_path);
+                    if (file_exists($filePath)) {
+                        unlink($filePath);
+                    }
+                }
+                
+                // Delete the record
+                $penerbitanSurat->delete();
+            }
             
             // Delete the associated files from storage
             if ($mahasiswa->surat_pengantar_instansi) {
-                Storage::delete($mahasiswa->surat_pengantar_instansi);
+                // Delete from storage/app/public
+                Storage::delete('public/' . $mahasiswa->surat_pengantar_instansi);
+                // Also delete from public/storage/uploads if it exists
+                $uploadPath = public_path('storage/uploads/' . basename($mahasiswa->surat_pengantar_instansi));
+                if (file_exists($uploadPath)) {
+                    unlink($uploadPath);
+                }
             }
             
             if ($mahasiswa->proposal_penelitian) {
-                Storage::delete($mahasiswa->proposal_penelitian);
+                Storage::delete('public/' . $mahasiswa->proposal_penelitian);
+                $uploadPath = public_path('storage/uploads/' . basename($mahasiswa->proposal_penelitian));
+                if (file_exists($uploadPath)) {
+                    unlink($uploadPath);
+                }
             }
             
             if ($mahasiswa->ktp) {
-                Storage::delete($mahasiswa->ktp);
+                Storage::delete('public/' . $mahasiswa->ktp);
+                $uploadPath = public_path('storage/uploads/' . basename($mahasiswa->ktp));
+                if (file_exists($uploadPath)) {
+                    unlink($uploadPath);
+                }
             }
             
             // Now it's safe to delete the mahasiswa record
@@ -757,7 +981,20 @@ class StaffController extends Controller
             });
         }
 
+        // Get list of non_mahasiswa IDs that already have associated letters
+        $nonMahasiswaIdsWithLetters = PenerbitanSurat::where('jenis_surat', 'non_mahasiswa')
+            ->whereNotNull('non_mahasiswa_id')
+            ->pluck('non_mahasiswa_id')
+            ->toArray();
+
+        // Get paginated non-mahasiswa data
         $nonMahasiswas = $nonMahasiswasQuery->paginate($perPage);
+        
+        // Attach has_letter flag to each non-mahasiswa
+        $nonMahasiswas->getCollection()->transform(function ($nonMahasiswa) use ($nonMahasiswaIdsWithLetters) {
+            $nonMahasiswa->has_letter = in_array($nonMahasiswa->id, $nonMahasiswaIdsWithLetters);
+            return $nonMahasiswa;
+        });
         
         // Query for rejected applications
         $ditolakNonMahasiswasQuery = NonMahasiswa::with('notifikasis')
@@ -852,31 +1089,67 @@ class StaffController extends Controller
                 ->delete();
                 
             // Delete related penerbitan surat records
-            PenerbitanSurat::where('non_mahasiswa_id', $id)->delete();
+            $penerbitanSurat = PenerbitanSurat::where('non_mahasiswa_id', $id)->first();
+            if ($penerbitanSurat) {
+                // Delete the generated document if it exists
+                if ($penerbitanSurat->file_path) {
+                    $filePath = public_path('storage/' . $penerbitanSurat->file_path);
+                    if (file_exists($filePath)) {
+                        unlink($filePath);
+                    }
+                }
+                
+                // Delete the record
+                $penerbitanSurat->delete();
+            }
             
             // Delete the associated files from storage
             if ($nonMahasiswa->surat_pengantar_instansi) {
-                Storage::delete($nonMahasiswa->surat_pengantar_instansi);
+                Storage::delete('public/' . $nonMahasiswa->surat_pengantar_instansi);
+                $uploadPath = public_path('storage/uploads/' . basename($nonMahasiswa->surat_pengantar_instansi));
+                if (file_exists($uploadPath)) {
+                    unlink($uploadPath);
+                }
             }
             
             if ($nonMahasiswa->akta_notaris_lembaga) {
-                Storage::delete($nonMahasiswa->akta_notaris_lembaga);
+                Storage::delete('public/' . $nonMahasiswa->akta_notaris_lembaga);
+                $uploadPath = public_path('storage/uploads/' . basename($nonMahasiswa->akta_notaris_lembaga));
+                if (file_exists($uploadPath)) {
+                    unlink($uploadPath);
+                }
             }
             
             if ($nonMahasiswa->surat_terdaftar_kemenkumham) {
-                Storage::delete($nonMahasiswa->surat_terdaftar_kemenkumham);
+                Storage::delete('public/' . $nonMahasiswa->surat_terdaftar_kemenkumham);
+                $uploadPath = public_path('storage/uploads/' . basename($nonMahasiswa->surat_terdaftar_kemenkumham));
+                if (file_exists($uploadPath)) {
+                    unlink($uploadPath);
+                }
             }
             
             if ($nonMahasiswa->ktp) {
-                Storage::delete($nonMahasiswa->ktp);
+                Storage::delete('public/' . $nonMahasiswa->ktp);
+                $uploadPath = public_path('storage/uploads/' . basename($nonMahasiswa->ktp));
+                if (file_exists($uploadPath)) {
+                    unlink($uploadPath);
+                }
             }
             
             if ($nonMahasiswa->proposal_penelitian) {
-                Storage::delete($nonMahasiswa->proposal_penelitian);
+                Storage::delete('public/' . $nonMahasiswa->proposal_penelitian);
+                $uploadPath = public_path('storage/uploads/' . basename($nonMahasiswa->proposal_penelitian));
+                if (file_exists($uploadPath)) {
+                    unlink($uploadPath);
+                }
             }
             
             if ($nonMahasiswa->lampiran_rincian_lokasi) {
-                Storage::delete($nonMahasiswa->lampiran_rincian_lokasi);
+                Storage::delete('public/' . $nonMahasiswa->lampiran_rincian_lokasi);
+                $uploadPath = public_path('storage/uploads/' . basename($nonMahasiswa->lampiran_rincian_lokasi));
+                if (file_exists($uploadPath)) {
+                    unlink($uploadPath);
+                }
             }
             
             // Now it's safe to delete the non-mahasiswa record
@@ -921,4 +1194,6 @@ class StaffController extends Controller
             return false;
         }
     }
+
+
 }

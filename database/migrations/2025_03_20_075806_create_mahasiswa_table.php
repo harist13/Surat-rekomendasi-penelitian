@@ -12,9 +12,9 @@ class CreateMahasiswaTable extends Migration
             $table->id();
             $table->string('no_pengajuan')->unique();
             $table->string('nama_lengkap', 255);
-            $table->string('nim', 50)->unique();
+            $table->bigInteger('nim')->unique();
             $table->string('email', 100)->unique();
-            $table->string('no_hp', 20);
+            $table->bigInteger('no_hp')->unique();
             $table->text('alamat_peneliti');
             $table->string('nama_instansi', 255);
             $table->text('alamat_instansi');

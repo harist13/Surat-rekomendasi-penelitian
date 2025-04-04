@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Mahasiswa;
 use App\Models\NonMahasiswa;
 use App\Models\StatusHistory;
+use App\Http\Requests\PengajuanMahasiswaRequest;
+use App\Http\Requests\PengajuanNonMahasiswaRequest;
 use Illuminate\Support\Facades\Storage;
 
 class FormPengajuanController extends Controller
@@ -15,30 +17,8 @@ class FormPengajuanController extends Controller
         return view('pengajuan_mahasiswa');
     }
 
-    public function store(Request $request)
+     public function store(PengajuanMahasiswaRequest $request)
     {
-        $validatedData = $request->validate([
-            'nama_lengkap' => 'required|string|max:255',
-            'nim' => 'required|string|max:20|unique:mahasiswa',
-            'email' => 'required|email|max:255|unique:mahasiswa',
-            'no_hp' => 'required|string|max:15',
-            'alamat_peneliti' => 'required|string',
-            'nama_instansi' => 'required|string|max:255',
-            'alamat_instansi' => 'required|string',
-            'jurusan' => 'required|string|max:255',
-            'judul_penelitian' => 'required|string',
-            'lama_penelitian' => 'required|string',
-            'tanggal_mulai' => 'required|date',
-            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
-            'lokasi_penelitian' => 'required|string',
-            'tujuan_penelitian' => 'required|string',
-            'anggota_peneliti' => 'required|string',
-            'surat_pengantar_instansi' => 'required|file|mimes:pdf,jpeg,png|max:2048',
-            'proposal_penelitian' => 'required|file|mimes:pdf,jpeg,png|max:2048',
-            'ktp' => 'required|file|mimes:pdf,jpeg,png|max:2048',
-            'status' => 'required|string',
-        ]);
-
         try {
             // Generate unique application number (no_pengajuan)
             $prefix = 'PGN';
@@ -54,25 +34,25 @@ class FormPengajuanController extends Controller
             // Store the data in the database
             $mahasiswa = Mahasiswa::create([
                 'no_pengajuan' => $noPengajuan,
-                'nama_lengkap' => $validatedData['nama_lengkap'],
-                'nim' => $validatedData['nim'],
-                'email' => $validatedData['email'],
-                'no_hp' => $validatedData['no_hp'],
-                'alamat_peneliti' => $validatedData['alamat_peneliti'],
-                'nama_instansi' => $validatedData['nama_instansi'],
-                'alamat_instansi' => $validatedData['alamat_instansi'],
-                'jurusan' => $validatedData['jurusan'],
-                'judul_penelitian' => $validatedData['judul_penelitian'],
-                'lama_penelitian' => $validatedData['lama_penelitian'],
-                'tanggal_mulai' => $validatedData['tanggal_mulai'],
-                'tanggal_selesai' => $validatedData['tanggal_selesai'],
-                'lokasi_penelitian' => $validatedData['lokasi_penelitian'],
-                'tujuan_penelitian' => $validatedData['tujuan_penelitian'],
-                'anggota_peneliti' => $validatedData['anggota_peneliti'],
+                'nama_lengkap' => $request->nama_lengkap,
+                'nim' => $request->nim,
+                'email' => $request->email,
+                'no_hp' => $request->no_hp,
+                'alamat_peneliti' => $request->alamat_peneliti,
+                'nama_instansi' => $request->nama_instansi,
+                'alamat_instansi' => $request->alamat_instansi,
+                'jurusan' => $request->jurusan,
+                'judul_penelitian' => $request->judul_penelitian,
+                'lama_penelitian' => $request->lama_penelitian,
+                'tanggal_mulai' => $request->tanggal_mulai,
+                'tanggal_selesai' => $request->tanggal_selesai,
+                'lokasi_penelitian' => $request->lokasi_penelitian,
+                'tujuan_penelitian' => $request->tujuan_penelitian,
+                'anggota_peneliti' => $request->anggota_peneliti,
                 'surat_pengantar_instansi' => $suratPengantarPath,
                 'proposal_penelitian' => $proposalPath,
                 'ktp' => $ktpPath,
-                'status' => $validatedData['status'],
+                'status' => $request->status,
             ]);
             
             // Add initial status history
@@ -94,33 +74,8 @@ class FormPengajuanController extends Controller
         return view('pengajuan_non_mahasiswa');
     }
 
-    public function storeNonMahasiswa(Request $request)
+     public function storeNonMahasiswa(PengajuanNonMahasiswaRequest $request)
     {
-        $validatedData = $request->validate([
-            'nama_lengkap' => 'required|string|max:255',
-            'jabatan' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:non_mahasiswa',
-            'no_hp' => 'required|string|max:15',
-            'alamat_peneliti' => 'required|string',
-            'nama_instansi' => 'required|string|max:255',
-            'alamat_instansi' => 'required|string',
-            'bidang' => 'required|string|max:255',
-            'judul_penelitian' => 'required|string',
-            'lama_penelitian' => 'required|string',
-            'tanggal_mulai' => 'required|date',
-            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
-            'lokasi_penelitian' => 'required|string',
-            'tujuan_penelitian' => 'required|string',
-            'anggota_peneliti' => 'required|string',
-            'surat_pengantar_instansi' => 'required|file|mimes:pdf,jpeg,png|max:2048',
-            'akta_notaris_lembaga' => 'required|file|mimes:pdf,jpeg,png|max:2048',
-            'surat_terdaftar_kemenkumham' => 'required|file|mimes:pdf,jpeg,png|max:2048',
-            'ktp' => 'required|file|mimes:pdf,jpeg,png|max:2048',
-            'proposal_penelitian' => 'required|file|mimes:pdf,jpeg,png|max:2048',
-            'lampiran_rincian_lokasi' => 'required|file|mimes:pdf,jpeg,png|max:2048',
-            'status' => 'required|string',
-        ]);
-
         try {
             // Generate unique application number (no_pengajuan)
             $prefix = 'PGN';
@@ -139,28 +94,28 @@ class FormPengajuanController extends Controller
             // Store the data in the database
             $nonMahasiswa = NonMahasiswa::create([
                 'no_pengajuan' => $noPengajuan,
-                'nama_lengkap' => $validatedData['nama_lengkap'],
-                'jabatan' => $validatedData['jabatan'],
-                'email' => $validatedData['email'],
-                'no_hp' => $validatedData['no_hp'],
-                'alamat_peneliti' => $validatedData['alamat_peneliti'],
-                'nama_instansi' => $validatedData['nama_instansi'],
-                'alamat_instansi' => $validatedData['alamat_instansi'],
-                'bidang' => $validatedData['bidang'],
-                'judul_penelitian' => $validatedData['judul_penelitian'],
-                'lama_penelitian' => $validatedData['lama_penelitian'],
-                'tanggal_mulai' => $validatedData['tanggal_mulai'],
-                'tanggal_selesai' => $validatedData['tanggal_selesai'],
-                'lokasi_penelitian' => $validatedData['lokasi_penelitian'],
-                'tujuan_penelitian' => $validatedData['tujuan_penelitian'],
-                'anggota_peneliti' => $validatedData['anggota_peneliti'],
+                'nama_lengkap' => $request->nama_lengkap,
+                'jabatan' => $request->jabatan,
+                'email' => $request->email,
+                'no_hp' => $request->no_hp,
+                'alamat_peneliti' => $request->alamat_peneliti,
+                'nama_instansi' => $request->nama_instansi,
+                'alamat_instansi' => $request->alamat_instansi,
+                'bidang' => $request->bidang,
+                'judul_penelitian' => $request->judul_penelitian,
+                'lama_penelitian' => $request->lama_penelitian,
+                'tanggal_mulai' => $request->tanggal_mulai,
+                'tanggal_selesai' => $request->tanggal_selesai,
+                'lokasi_penelitian' => $request->lokasi_penelitian,
+                'tujuan_penelitian' => $request->tujuan_penelitian,
+                'anggota_peneliti' => $request->anggota_peneliti,
                 'surat_pengantar_instansi' => $suratPengantarPath,
                 'akta_notaris_lembaga' => $aktaNotarisPath,
                 'surat_terdaftar_kemenkumham' => $suratTerdaftarPath,
                 'ktp' => $ktpPath,
                 'proposal_penelitian' => $proposalPath,
                 'lampiran_rincian_lokasi' => $lampiranPath,
-                'status' => $validatedData['status'],
+                'status' => $request->status,
             ]);
             
             // Add initial status history

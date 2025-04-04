@@ -6,7 +6,7 @@
                     <h3 class="text-xl font-bold mb-4">Kontak Kami</h3>
                     <p class="mb-2">Jl. Pendidikan No. 123</p>
                     <p class="mb-2">Kalimantan Timur</p>
-                    <p class="mb-2">Email: info@perikomnas-kaltim.sch.id</p>
+                    <p class="mb-2">Email: info@SIRPENA-kaltim.sch.id</p>
                     <p>Telp: (0541) 123456</p>
                 </div>
                 
@@ -51,7 +51,7 @@
             </div>
             
             <div class="border-t border-gray-700 mt-8 pt-8 text-center">
-                <p>&copy; 2024 PERIKOMNAS KALTIM. All rights reserved.</p>
+                <p>&copy; 2024 SIRPENA KALTIM. All rights reserved.</p>
             </div>
         </div>
     </footer>
