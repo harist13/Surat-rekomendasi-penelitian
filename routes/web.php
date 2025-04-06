@@ -21,6 +21,8 @@ Route::post('/pengajuannonmahasiswa', [FormPengajuanController::class, 'storeNon
 Route::get('/pantau', [HomeController::class, 'pantau'])->name('pantau');
 Route::post('/pantau/cek', [HomeController::class, 'cekStatus'])->name('pantau.cek');
 Route::get('/pantau/{no_pengajuan}', [HomeController::class, 'showStatus'])->name('pantau.show');
+Route::get('/layanan', [HomeController::class, 'layanan'])->name('layanan');
+
 // Authentication routes
 Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.authenticate');

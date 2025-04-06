@@ -59,4 +59,9 @@ class HomeController extends Controller
 
         return view('pantau', compact('data', 'tipe', 'penerbitan', 'notifikasis', 'statusHistories'));
     }
+
+    public function layanan()
+    {
+        return view('layanan');
+    }
 }

@@ -58,6 +58,22 @@
                             <span class="block sm:inline">{{ session('success') }}</span>
                         </div>
                 @endif
+
+                @if(session('error'))
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                        <span class="block sm:inline">{{ session('error') }}</span>
+                    </div>
+                @endif
+
+                @if ($errors->any())
+                    <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                        <ul class="list-disc pl-5">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
                  <div class="overflow-x-auto rounded-lg border border-gray-200">
                     <table class="w-full text-sm text-left border-collapse">
                         <thead class="text-gray-700 bg-gray-100">
@@ -160,8 +176,8 @@
                                         <div class="flex space-x-2 justify-center">
                                             
                                             <!-- Checkmark icon (Terima) -->
-                                            @if($nonMahasiswa->status != 'diterima')
-                                                <form action="{{ route('Non-Mahasiswa.proses', $nonMahasiswa->id) }}" method="POST">
+                                           @if($nonMahasiswa->status != 'diterima')
+                                                <form action="{{ route('Non-Mahasiswa.proses', $nonMahasiswa->id) }}" method="POST" onsubmit="return confirm('Apakah anda ingin menyetujui berkas ini?');">
                                                     @csrf
                                                     @method('PUT')
                                                     <button type="submit" class="text-green-500 hover:text-green-700 p-1" title="Terima Pengajuan">
@@ -279,16 +295,6 @@
                                         <td class="px-4 py-3 border border-gray-200">{{ $nonMahasiswa->updated_at->format('d-m-Y') }}</td>
                                         <td class="px-4 py-3 border border-gray-200">
                                             <div class="flex space-x-2 justify-center">
-                                                <!-- Proses kembali button -->
-                                                <form action="{{ route('Non-Mahasiswa.proses', $nonMahasiswa->id) }}" method="POST">
-                                                    @csrf
-                                                    @method('PUT')
-                                                    <button type="submit" class="text-green-500 hover:text-green-700 p-1" title="Proses Kembali">
-                                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                                        </svg>
-                                                    </button>
-                                                </form>
 
                                                 <button type="button" 
                                                     onclick="openNotificationModal('{{ $nonMahasiswa->id }}', '{{ $nonMahasiswa->nama_lengkap }}', '{{ $nonMahasiswa->no_hp }}', '{{ $nonMahasiswa->judul_penelitian }}', '{{ $notifikasi ? $notifikasi->alasan_penolakan : 'Tidak ada alasan yang dicatat' }}', '{{ $nonMahasiswa->no_pengajuan }}')" 

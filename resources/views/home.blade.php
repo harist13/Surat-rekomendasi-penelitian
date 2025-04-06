@@ -25,11 +25,11 @@
                     Layanan Terpadu Pengajuan Surat Rekomendasi Penelitian untuk Mahasiswa dan Peneliti
                 </p>
                 <div class="flex flex-col sm:flex-row justify-center gap-4">
-                    <a href="#" class="bg-white text-[#004aad] px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-50 transition-transform transform hover:scale-105">
+                    <a href="{{ route('layanan') }}" class="bg-white text-[#004aad] px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-50 transition-transform transform hover:scale-105">
                         Ajukan Sekarang
                     </a>
-                    <a href="#" class="border-2 border-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-white hover:text-[#004aad] transition-transform transform hover:scale-105">
-                        Lihat Persyaratan
+                    <a href="{{ route('tentang') }}" class="border-2 border-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-white hover:text-[#004aad] transition-transform transform hover:scale-105">
+                        Selengkapnya
                     </a>
                 </div>
             </div>
@@ -70,10 +70,10 @@
                         </svg>
                     </div>
                     <h3 class="text-xl font-semibold mb-2">Penelitian Non-Mahasiswa</h3>
-                    <p class="text-gray-600 mb-4">Layanan pengajuan untuk peneliti independen, lembaga, atau instansi pemerintah/swasta</p>
+                    <p class="text-gray-600 mb-4">Layanan pengajuan untuk peneliti seperti dosen, lembaga, atau instansi pemerintah/swasta</p>
                     <ul class="text-gray-600 list-disc pl-5">
                         <li>Peneliti individu/organisasi</li>
-                        <li>Penelitian terapan</li>
+                        <li>Penelitian lembaga survei</li>
                         <li>Kerjasama institusi</li>
                     </ul>
                 </div>
@@ -94,29 +94,29 @@
                     <div class="w-16 h-16 bg-[#004aad] rounded-full flex items-center justify-center mx-auto mb-4">
                         <span class="text-white font-bold text-xl">1</span>
                     </div>
-                    <h3 class="font-semibold mb-2">Registrasi Online</h3>
-                    <p class="text-sm text-gray-600">Buat akun dan lengkapi profil</p>
+                    <h3 class="font-semibold mb-2">Memilih Jenis penelitian</h3>
+                    <p class="text-sm text-gray-600">Peneliti Memilih jenis penelitian mahasiswa atau non mahasiswa</p>
                 </div>
                 <div class="text-center p-4">
                     <div class="w-16 h-16 bg-[#004aad] rounded-full flex items-center justify-center mx-auto mb-4">
                         <span class="text-white font-bold text-xl">2</span>
                     </div>
-                    <h3 class="font-semibold mb-2">Upload Dokumen</h3>
-                    <p class="text-sm text-gray-600">Upload proposal dan persyaratan</p>
+                    <h3 class="font-semibold mb-2">Mengisi Formulir</h3>
+                    <p class="text-sm text-gray-600">Peneliti mengisi formulir pendaftaran dan mengupload dokumen persyaratan</p>
                 </div>
                 <div class="text-center p-4">
                     <div class="w-16 h-16 bg-[#004aad] rounded-full flex items-center justify-center mx-auto mb-4">
                         <span class="text-white font-bold text-xl">3</span>
                     </div>
-                    <h3 class="font-semibold mb-2">Verifikasi Admin</h3>
-                    <p class="text-sm text-gray-600">Proses verifikasi 1-3 hari kerja</p>
+                    <h3 class="font-semibold mb-2">Verifikasi Berkas Dan Pembuatan Surat</h3>
+                    <p class="text-sm text-gray-600">Proses verifikasi dan Pembuatan Surat 1-3 hari kerja</p>
                 </div>
                 <div class="text-center p-4">
                     <div class="w-16 h-16 bg-[#004aad] rounded-full flex items-center justify-center mx-auto mb-4">
                         <span class="text-white font-bold text-xl">4</span>
                     </div>
-                    <h3 class="font-semibold mb-2">Download Surat</h3>
-                    <p class="text-sm text-gray-600">Cetak surat rekomendasi resmi</p>
+                    <h3 class="font-semibold mb-2">Penerbitan surat</h3>
+                    <p class="text-sm text-gray-600">Surat telah diterbitkan dan siap diambil langsung ke kantor</p>
                 </div>
             </div>
         </div>
@@ -128,8 +128,8 @@
             <h2 class="text-3xl font-bold mb-6">Ajukan Surat Rekomendasi Sekarang!</h2>
             <p class="text-xl mb-8 max-w-2xl mx-auto">Dapatkan kemudahan pengajuan surat rekomendasi penelitian secara online melalui sistem terintegrasi kami</p>
             <div class="flex justify-center space-x-4">
-                <a href="#" class="bg-white text-[#004aad] px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-50 transition">Ajukan Online</a>
-                <a href="#" class="border-2 border-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-white hover:text-[#004aad] transition">Cek Status</a>
+                <a href="{{ route('layanan') }}" class="bg-white text-[#004aad] px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-50 transition">Ajukan Online</a>
+                <a href="{{ route('pantau') }}" class="border-2 border-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-white hover:text-[#004aad] transition">Cek Status</a>
             </div>
         </div>
     </div>

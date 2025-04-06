@@ -177,7 +177,7 @@ class StaffController extends Controller
                     'mahasiswa', 
                     $validatedData['pemohon_id'], 
                     'surat_dibuat', 
-                    'Surat penelitian telah dibuat dengan nomor ' . $validatedData['nomor_surat']
+                    'Surat penelitian telah dibuat dengan nomor ' . $validatedData['nomor_surat'] . ' dan sedang menunggu tanda tangan kepala bidang kewaspadaan nasional dan penanganan konflik'
                 );
             } else {
                 $penerbitanSurat->non_mahasiswa_id = $validatedData['pemohon_id'];
@@ -189,7 +189,7 @@ class StaffController extends Controller
                     'non_mahasiswa', 
                     $validatedData['pemohon_id'], 
                     'surat_dibuat', 
-                    'Surat penelitian telah dibuat dengan nomor ' . $validatedData['nomor_surat']
+                    'Surat penelitian telah dibuat dengan nomor ' . $validatedData['nomor_surat'] . ' dan sedang menunggu tanda tangan kepala bidang kewaspadaan nasional dan penanganan konflik'
                 );
             }
 
@@ -202,7 +202,7 @@ class StaffController extends Controller
             session(['generated_document' => $documentPath]);
 
             return redirect()->route('datasurat')->with([
-                'success' => 'Data surat berhasil diterbitkan',
+                'success' => 'Data surat berhasil dibuat',
                 'document_path' => $documentPath
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -716,14 +716,14 @@ class StaffController extends Controller
                     'mahasiswa', 
                     $penerbitanSurat->mahasiswa_id, 
                     'surat_diterbitkan', 
-                    'Surat penelitian dengan nomor ' . $penerbitanSurat->nomor_surat . ' telah diterbitkan'
+                    'Surat penelitian dengan nomor ' . $penerbitanSurat->nomor_surat . ' telah diterbitkan dan siap untuk diambil'
                 );
             } else {
                 $this->addStatusHistory(
                     'non_mahasiswa', 
                     $penerbitanSurat->non_mahasiswa_id, 
                     'surat_diterbitkan', 
-                    'Surat penelitian dengan nomor ' . $penerbitanSurat->nomor_surat . ' telah diterbitkan'
+                    'Surat penelitian dengan nomor ' . $penerbitanSurat->nomor_surat . ' telah diterbitkan dan siap untuk diambil'
                 );
             }
             
@@ -880,7 +880,7 @@ class StaffController extends Controller
                 'mahasiswa', 
                 $mahasiswa->id, 
                 'diterima', 
-                'Pengajuan diterima kembali untuk diproses'
+                'Berkas pengajuan telah diterima dan sedang diproses lebih lanjut'
             );
             
             return redirect()->route('datapengajuanmahasiswa')->with('success', 'Status pengajuan berhasil diubah menjadi Diterima');
@@ -1059,7 +1059,7 @@ class StaffController extends Controller
                 'non_mahasiswa', 
                 $nonMahasiswa->id, 
                 'diterima', 
-                'Pengajuan diterima kembali untuk diproses'
+                'Berkas pengajuan telah diterima dan sedang diproses lebih lanjut'
             );
             
             return redirect()->route('datapengajuannonmahasiswa')->with('success', 'Status pengajuan berhasil diubah menjadi Diterima');
