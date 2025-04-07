@@ -16,6 +16,7 @@ use PhpOffice\PhpWord\PhpWord;
 use PhpOffice\PhpWord\TemplateProcessor;
 use PhpOffice\PhpWord\IOFactory;
 use Carbon\Carbon;
+use PDF;
 
 class StaffController extends Controller
 { 
@@ -113,6 +114,9 @@ class StaffController extends Controller
 
     public function storePenerbitan(Request $request)
     {
+        // Start database transaction
+        DB::beginTransaction();
+        
         try {
             // Validate the form input
             $validatedData = $request->validate([
@@ -120,7 +124,7 @@ class StaffController extends Controller
                 'pemohon_id' => 'required',
                 'nomor_surat' => 'required|string',
                 'menimbang' => 'nullable|string',
-                'status_penelitian' => 'required|in:baru,lanjutan,perpanjangan',
+                'status_penelitian' => 'required|in:baru,lama,perpanjangan',
                 'status_surat' => 'required|string',
                 // Remove no_pengajuan from validation as it's only for display
             ], [
@@ -140,6 +144,7 @@ class StaffController extends Controller
                     ->first();
                 
                 if ($existingLetter) {
+                    DB::rollBack(); // Roll back transaction
                     $mahasiswa = Mahasiswa::findOrFail($validatedData['pemohon_id']);
                     return redirect()->back()->with('error', 'Surat untuk mahasiswa "' . $mahasiswa->nama_lengkap . '" sudah pernah diterbitkan dengan nomor ' . $existingLetter->nomor_surat . '. Silakan periksa kembali data surat yang ada.')->withInput();
                 }
@@ -149,6 +154,7 @@ class StaffController extends Controller
                     ->first();
                 
                 if ($existingLetter) {
+                    DB::rollBack(); // Roll back transaction
                     $nonMahasiswa = NonMahasiswa::findOrFail($validatedData['pemohon_id']);
                     return redirect()->back()->with('error', 'Surat untuk non-mahasiswa "' . $nonMahasiswa->nama_lengkap . '" sudah pernah diterbitkan dengan nomor ' . $existingLetter->nomor_surat . '. Silakan periksa kembali data surat yang ada.')->withInput();
                 }
@@ -201,14 +207,23 @@ class StaffController extends Controller
             // Store the document path in the session
             session(['generated_document' => $documentPath]);
 
+            // Commit transaction if we reach this point (everything successful)
+            DB::commit();
+
             return redirect()->route('datasurat')->with([
                 'success' => 'Data surat berhasil dibuat',
                 'document_path' => $documentPath
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
+            // Roll back transaction
+            DB::rollBack();
+            
             // Handle validation errors
             return redirect()->back()->withErrors($e->validator)->withInput();
         } catch (\Illuminate\Database\QueryException $e) {
+            // Roll back transaction
+            DB::rollBack();
+            
             // Handle database errors
             $errorCode = $e->errorInfo[1] ?? '';
             
@@ -219,6 +234,9 @@ class StaffController extends Controller
             
             return redirect()->back()->with('error', 'Terjadi kesalahan database: ' . $e->getMessage())->withInput();
         } catch (\Exception $e) {
+            // Roll back transaction
+            DB::rollBack();
+            
             // Handle general errors
             return redirect()->back()->with('error', 'Gagal menerbitkan surat: ' . $e->getMessage())->withInput();
         }
@@ -230,7 +248,7 @@ class StaffController extends Controller
      * @param int $suratId
      * @return string Path to the generated document
      */
-    private function generateSuratPenelitian($suratId) 
+     private function generateSuratPenelitian($suratId) 
     {
         // Get the PenerbitanSurat data with relations
         $surat = PenerbitanSurat::with(['mahasiswa', 'nonMahasiswa', 'user'])->findOrFail($suratId);
@@ -254,111 +272,9 @@ class StaffController extends Controller
         $tanggalSurat = Carbon::now()->locale('id')->isoFormat('D MMMM Y');
         $waktuPenelitian = $peneliti->tanggal_mulai . ' s.d ' . $peneliti->tanggal_selesai;
         
-        // Create a new PHPWord instance
-        $phpWord = new PhpWord();
-        
-        // Set default font
-        $phpWord->setDefaultFontName('Times New Roman');
-        $phpWord->setDefaultFontSize(12);
-        
-        // Add a section
-        $section = $phpWord->addSection();
-        
-        // Header with logo and institution name
-        $header = $section->addHeader();
-        $table = $header->addTable();
-        $table->addRow();
-        
-        $cell1 = $table->addCell(2000);
-        $cell1->addImage(public_path('assets/images/logo.png'), ['width' => 80, 'height' => 80, 'alignment' => 'center']);
-        
-        $cell2 = $table->addCell(9000);
-        $cell2->addText("PEMERINTAH PROVINSI KALIMANTAN TIMUR", ['bold' => true, 'size' => 14, 'alignment' => 'center']);
-        $cell2->addText("BADAN KESATUAN BANGSA DAN POLITIK", ['bold' => true, 'size' => 14, 'alignment' => 'center']);
-        $cell2->addText("Jalan Jenderal Sudirman Nomor 1, Samarinda, Kalimantan Timur 75121", ['size' => 11, 'alignment' => 'center']);
-        $cell2->addText("Telepon (0541) 733333; Faksimile (0541) 733453", ['size' => 11, 'alignment' => 'center']);
-        $cell2->addText("Pos-el kesbangpol.kaltim@gmail.com; Laman http://kesbangpol.kaltimprov.go.id", ['size' => 11, 'alignment' => 'center']);
-        
-        // Add horizontal line
-        $section->addText('', [], ['borderBottomSize' => 3, 'borderBottomColor' => '000000']);
-        
-        // Title
-        $section->addText('SURAT KETERANGAN PENELITIAN', ['bold' => true, 'alignment' => 'center'], ['alignment' => 'center', 'spaceAfter' => 0]);
-        $section->addText('Nomor: ' . $surat->nomor_surat, ['alignment' => 'center'], ['alignment' => 'center', 'spaceAfter' => 200]);
-        
-        // Dasar
-        $section->addText('a. Dasar', ['bold' => true]);
-        $section->addText('    1. Peraturan Menteri Dalam Negeri Nomor 3 Tahun 2018 tentang Penerbitan Surat Keterangan Penelitian (Berita Negara Republik Indonesia Tahun 2018 Nomor 122);');
-        $section->addText('    2. Peraturan Gubernur Kalimantan Timur Nomor 43 Tahun 2023 tentang Kedudukan, Susunan Organisasi, Tugas, Fungsi, dan Tata Kerja Perangkat Daerah (Berita Daerah Provinsi Kalimantan Timur Tahun 2023 Nomor 46);');
-        
-        // Menimbang
-        if ($surat->menimbang) {
-            $section->addText('b. Menimbang', ['bold' => true]);
-            $section->addText('    ' . $surat->menimbang);
-        } else {
-            $section->addText('b. Menimbang', ['bold' => true]);
-            $section->addText('    1. Surat a.n Dekan, Wakil Dekan Bidang Akademik, Kemahasiswaan dan Alumni, ' . $peneliti->nama_instansi . ' tentang Surat Pengantar Penelitian.');
-        }
-        
-        // Rekomendasi
-        $section->addText('Kepala Badan Kesbang dan Politik Prov. Kaltim, memberikan rekomendasi kepada :', ['bold' => true, 'spaceAfter' => 200]);
-        
-        // Informasi peneliti dalam format tabel
-        $infoTable = $section->addTable(['borderSize' => 0, 'cellMargin' => 80]);
-        
-        // Nama
-        $infoTable->addRow();
-        $infoTable->addCell(3000)->addText('Nama');
-        $infoTable->addCell(500)->addText(':');
-        $infoTable->addCell(6000)->addText($peneliti->nama_lengkap);
-        
-        // Jabatan
-        $infoTable->addRow();
-        $infoTable->addCell(3000)->addText('Jabatan');
-        $infoTable->addCell(500)->addText(':');
-        $infoTable->addCell(6000)->addText($jabatan);
-        
-        // NIM/ID jika mahasiswa
-        if ($surat->jenis_surat === 'mahasiswa') {
-            $infoTable->addRow();
-            $infoTable->addCell(3000)->addText('NIM');
-            $infoTable->addCell(500)->addText(':');
-            $infoTable->addCell(6000)->addText($peneliti->nim);
-        }
-        
-        // Tempat Tinggal
-        $infoTable->addRow();
-        $infoTable->addCell(3000)->addText('Tempat Tinggal');
-        $infoTable->addCell(500)->addText(':');
-        $infoTable->addCell(6000)->addText($peneliti->alamat_peneliti);
-        
-        // Nama Lembaga dan Alamat
-        $infoTable->addRow();
-        $infoTable->addCell(3000)->addText('Nama Lembaga / Alamat');
-        $infoTable->addCell(500)->addText(':');
-        $infoTable->addCell(6000)->addText($peneliti->nama_instansi . '/' . $peneliti->alamat_instansi);
-        
-        // Judul Proposal
-        $infoTable->addRow();
-        $infoTable->addCell(3000)->addText('Judul Proposal');
-        $infoTable->addCell(500)->addText(':');
-        $infoTable->addCell(6000)->addText($peneliti->judul_penelitian);
-        
-        // Bidang Penelitian
-        $infoTable->addRow();
-        $infoTable->addCell(3000)->addText('Bidang Penelitian');
-        $infoTable->addCell(500)->addText(':');
-        $infoTable->addCell(6000)->addText($bidang);
-        
-        // Status Penelitian
-        $infoTable->addRow();
-        $infoTable->addCell(3000)->addText('Status Penelitian');
-        $infoTable->addCell(500)->addText(':');
-        $infoTable->addCell(6000)->addText(ucfirst($surat->status_penelitian));
-        
-        // Anggota peneliti
+        // Process anggota peneliti
+        $anggotaText = '';
         if (!empty($peneliti->anggota_peneliti)) {
-            $anggotaText = '';
             try {
                 $anggota = json_decode($peneliti->anggota_peneliti);
                 if (is_array($anggota)) {
@@ -371,89 +287,42 @@ class StaffController extends Controller
             } catch (\Exception $e) {
                 $anggotaText = $peneliti->anggota_peneliti;
             }
-            
-            if (!empty($anggotaText)) {
-                $infoTable->addRow();
-                $infoTable->addCell(3000)->addText('Anggota');
-                $infoTable->addCell(500)->addText(':');
-                $infoTable->addCell(6000)->addText($anggotaText);
-            }
         }
         
-        // Lokasi Penelitian
-        $infoTable->addRow();
-        $infoTable->addCell(3000)->addText('Lokasi Penelitian');
-        $infoTable->addCell(500)->addText(':');
-        $infoTable->addCell(6000)->addText($peneliti->lokasi_penelitian);
+        // Prepare data for the view
+        $data = [
+            'surat' => $surat,
+            'peneliti' => $peneliti,
+            'kategori' => $kategori,
+            'jabatan' => $jabatan,
+            'nim' => $nim,
+            'bidang' => $bidang,
+            'tanggalSurat' => $tanggalSurat,
+            'waktuPenelitian' => $waktuPenelitian,
+            'anggotaText' => $anggotaText
+        ];
         
-        // Waktu/Lama Penelitian
-        $infoTable->addRow();
-        $infoTable->addCell(3000)->addText('Waktu/Lama Penelitian');
-        $infoTable->addCell(500)->addText(':');
-        $infoTable->addCell(6000)->addText($waktuPenelitian);
+        // Generate PDF using DomPDF
+        $pdf = PDF::loadView('staff.surat.surat_penelitian', $data);
         
-        // Tujuan Peneliti
-        $infoTable->addRow();
-        $infoTable->addCell(3000)->addText('Tujuan Peneliti');
-        $infoTable->addCell(500)->addText(':');
-        $infoTable->addCell(6000)->addText($peneliti->tujuan_penelitian);
+        // Set PDF options
+        $pdf->setPaper('a4');
+        $pdf->setOptions([
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+            'defaultFont' => 'Times New Roman'
+        ]);
         
-        $section->addText('');
-        
-        // Ketentuan
-        $section->addText('Dengan Ketentuan', ['bold' => true]);
-        $section->addText('1. Yang bersangkutan berkewajiban menghormati dan mentaati peraturan dan tata tertib yang berlaku diwilayah kegiatan;');
-        $section->addText('2. Tidak dibenarkan melakukan penelitian yang tidak sesuai/tidak ada kaitannya dengan judul penelitian dimaksud;');
-        $section->addText('3. Setelah selesai penelitian agar menyampaikan 1 (satu) Eksemplar laporan kepada Gubernur Kalimantan Timur Cq. Kepala Badan Kesatuan Bangsa dan Politik Provinsi Kalimantan Timur.');
-        
-        $section->addText('Demikian rekomendasi ini dibuat untuk dipergunakan seperlunya.');
-        
-        $section->addText('');
-        $section->addText('');
-        
-        // Signature and footer
-        $dateTable = $section->addTable(['borderSize' => 0]);
-        $dateTable->addRow();
-        $dateTable->addCell(6000);
-        $dateCell = $dateTable->addCell(4000);
-        $dateCell->addText('Samarinda, ' . $tanggalSurat);
-        
-        $signTable = $section->addTable(['borderSize' => 0]);
-        $signTable->addRow();
-        $signTable->addCell(6000);
-        $sigCell = $signTable->addCell(4000);
-        $sigCell->addText('a.n. Kepala');
-        $sigCell->addText('Badan Kewaspadaan Nasional');
-        $sigCell->addText('dan Penanganan Konflik');
-        $sigCell->addText('');
-        $sigCell->addText('');
-        $sigCell->addText('');
-        $sigCell->addText('');
-        $sigCell->addText('Wildan Taufik, S.Pd, M.Si');
-        $sigCell->addText('Pembina IV/b');
-        $sigCell->addText('NIP. 19750412200212 1 005');
-        
-        // Tembusan
-        $section->addText('');
-        $section->addText('Tembusan Yth:', ['bold' => true]);
-        $section->addText('1. Gubernur Kalimantan Timur (sebagai laporan)');
-        $section->addText('2. Kepala Balitbangda Prov. Kaltim');
-        $section->addText('3. Kepala Badan Kesbangpol. Kota Samarinda');
-        $section->addText('4. Yang Bersangkutan');
-        
-        // Save the document
-        $fileName = 'surat_penelitian_' . $surat->nomor_surat . '_' . time() . '.docx';
-        $filePath = 'documents/surat_penelitian/' . $fileName;
-        
-        // Pastikan direktori ada dengan izin penuh
+        // Create directory if it doesn't exist
         $directory = storage_path('app/public/documents/surat_penelitian');
         if (!file_exists($directory)) {
             mkdir($directory, 0777, true);
         }
         
-        // Save the document
-        $objWriter = IOFactory::createWriter($phpWord, 'Word2007');
-        $objWriter->save(storage_path('app/public/' . $filePath));
+        // Save PDF to file
+        $fileName = 'surat_penelitian_' . $surat->nomor_surat . '_' . time() . '.pdf';
+        $filePath = 'documents/surat_penelitian/' . $fileName;
+        $pdf->save(storage_path('app/public/' . $filePath));
         
         return $filePath;
     }
