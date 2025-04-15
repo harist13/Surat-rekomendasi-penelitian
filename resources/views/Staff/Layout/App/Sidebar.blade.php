@@ -72,7 +72,7 @@
                     <ul class="hidden group-hover:block ml-4 pl-2 space-y-2">
                         <li>
                             <a href="{{ route('penerbitan') }}" class="flex items-center p-3 text-gray-700 hover:bg-blue-50 rounded-lg transition">
-                                <span class="ml-6">Penerbitan surat</span>
+                                <span class="ml-6">Buat surat</span>
                             </a>
                         </li>
                         <li>

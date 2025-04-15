@@ -11,7 +11,7 @@
 
         <div class="p-8">
             <div class="flex justify-between items-center mb-8">
-                <h1 class="text-2xl font-bold text-gray-800">Penerbitan Surat</h1>
+                <h1 class="text-2xl font-bold text-gray-800">Pembuatan Surat</h1>
                 <div class="text-gray-600">
                     Selamat Datang Staff, <span class="font-semibold text-blue-600">{{ Auth::user()->username }}</span>
                 </div>
@@ -20,9 +20,9 @@
             <div class="bg-white p-6 rounded-lg shadow-md mb-8">
                 <div class="flex justify-between items-center mb-6">
                     <div class="flex items-center space-x-2">
-                        <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium">
-                            FORM PENERBITAN SURAT
-                        </button>
+                        <div class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium">
+                            Form Pembuatan Surat
+                        </div>
                     </div>
 
                     <div class="flex items-center space-x-2">

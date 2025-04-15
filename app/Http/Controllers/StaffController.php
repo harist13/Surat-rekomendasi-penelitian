@@ -445,27 +445,41 @@ class StaffController extends Controller
     
     public function datasurat(Request $request)
     {
-        // Get search and per_page parameters
+        // Get search and per_page parameters for main table (draft surat)
         $search = $request->input('search', '');
         $perPage = $request->input('per_page', 10); // Default 10 items per page
         
-        // Base query with relationships
-        $query = PenerbitanSurat::with(['mahasiswa', 'nonMahasiswa', 'user']);
+        // Get search and per_page parameters for published table (surat diterbitkan)
+        $searchPublished = $request->input('search_published', '');
+        $perPagePublished = $request->input('per_page_published', 10); // Default 10 items per page
         
-        // Apply search filter if provided
+        // Base query with relationships
+        $baseQuery = PenerbitanSurat::with(['mahasiswa', 'nonMahasiswa', 'user']);
+        
+        // Create separate query instances for draft and published surat
+        $draftQuery = clone $baseQuery;
+        $publishedQuery = clone $baseQuery;
+        
+        // Filter draft surat (not diterbitkan)
+        $draftQuery->where('status_surat', '!=', 'diterbitkan');
+        
+        // Filter published surat (diterbitkan)
+        $publishedQuery->where('status_surat', 'diterbitkan');
+        
+        // Apply search filter for draft surat if provided
         if ($search) {
-            $query->where(function($q) use ($search) {
+            $draftQuery->where(function($q) use ($search) {
                 // Search in PenerbitanSurat table
                 $q->where('nomor_surat', 'like', '%' . $search . '%')
-                  ->orWhere('status_penelitian', 'like', '%' . $search . '%')
-                  ->orWhere('status_surat', 'like', '%' . $search . '%');
+                ->orWhere('status_penelitian', 'like', '%' . $search . '%')
+                ->orWhere('status_surat', 'like', '%' . $search . '%');
                 
                 // Search in related Mahasiswa
                 $q->orWhereHas('mahasiswa', function($mq) use ($search) {
                     $mq->where('nama_lengkap', 'like', '%' . $search . '%')
-                       ->orWhere('no_hp', 'like', '%' . $search . '%')
-                       ->orWhere('nama_instansi', 'like', '%' . $search . '%')
-                       ->orWhere('judul_penelitian', 'like', '%' . $search . '%');
+                    ->orWhere('no_hp', 'like', '%' . $search . '%')
+                    ->orWhere('nama_instansi', 'like', '%' . $search . '%')
+                    ->orWhere('judul_penelitian', 'like', '%' . $search . '%');
                 });
                 
                 // Search in related NonMahasiswa
@@ -478,14 +492,49 @@ class StaffController extends Controller
             });
         }
         
-        // Order by created date, descending
-        $query->orderBy('created_at', 'desc');
+        // Apply search filter for published surat if provided
+        if ($searchPublished) {
+            $publishedQuery->where(function($q) use ($searchPublished) {
+                // Search in PenerbitanSurat table
+                $q->where('nomor_surat', 'like', '%' . $searchPublished . '%')
+                ->orWhere('status_penelitian', 'like', '%' . $searchPublished . '%');
+                
+                // Search in related Mahasiswa
+                $q->orWhereHas('mahasiswa', function($mq) use ($searchPublished) {
+                    $mq->where('nama_lengkap', 'like', '%' . $searchPublished . '%')
+                    ->orWhere('no_hp', 'like', '%' . $searchPublished . '%')
+                    ->orWhere('nama_instansi', 'like', '%' . $searchPublished . '%')
+                    ->orWhere('judul_penelitian', 'like', '%' . $searchPublished . '%');
+                });
+                
+                // Search in related NonMahasiswa
+                $q->orWhereHas('nonMahasiswa', function($nmq) use ($searchPublished) {
+                    $nmq->where('nama_lengkap', 'like', '%' . $searchPublished . '%')
+                        ->orWhere('no_hp', 'like', '%' . $searchPublished . '%')
+                        ->orWhere('nama_instansi', 'like', '%' . $searchPublished . '%')
+                        ->orWhere('judul_penelitian', 'like', '%' . $searchPublished . '%');
+                });
+            });
+        }
         
-        // Get paginated results
-        $penerbitanSurats = $query->paginate($perPage);
+        // Order by created date, descending for both queries
+        $draftQuery->orderBy('created_at', 'desc');
+        $publishedQuery->orderBy('created_at', 'desc');
         
-        // Return view with data
-        return view('staff.datasurat', compact('penerbitanSurats', 'search', 'perPage'));
+        // Get paginated results for both tables
+        $penerbitanSurats = $draftQuery->paginate($perPage)->withQueryString();
+        $penerbitanSuratsPublished = $publishedQuery->paginate($perPagePublished, ['*'], 'page_published')
+                                                ->withQueryString();
+        
+        // Return view with data for both tables
+        return view('staff.datasurat', compact(
+            'penerbitanSurats',
+            'penerbitanSuratsPublished',
+            'search',
+            'perPage',
+            'searchPublished',
+            'perPagePublished'
+        ));
     }
 
     
@@ -657,8 +706,13 @@ class StaffController extends Controller
 
     public function datapengajuanmahasiswa(Request $request)
     {
+        // Main table search and pagination params
         $search = $request->input('search', '');
-        $perPage = $request->input('per_page', 10); // Default 10 items per page
+        $perPage = $request->input('per_page', 10);
+
+        // Rejected table search and pagination params
+        $searchRejected = $request->input('search_rejected', '');
+        $perPageRejected = $request->input('per_page_rejected', 10);
 
         // Query for non-rejected applications
         $mahasiswasQuery = Mahasiswa::query()->where('status', '!=', 'ditolak');
@@ -686,21 +740,29 @@ class StaffController extends Controller
             return $mahasiswa;
         });
         
-        // Query for rejected applications
+        // Query for rejected applications with pagination
         $ditolakMahasiswasQuery = Mahasiswa::with('notifikasis')
                                     ->where('status', 'ditolak');
         
-        if ($search) {
-            $ditolakMahasiswasQuery->where(function($q) use ($search) {
-                $q->where('nama_lengkap', 'like', '%' . $search . '%')
-                ->orWhere('nim', 'like', '%' . $search . '%')
-                ->orWhere('email', 'like', '%' . $search . '%');
+        if ($searchRejected) {
+            $ditolakMahasiswasQuery->where(function($q) use ($searchRejected) {
+                $q->where('nama_lengkap', 'like', '%' . $searchRejected . '%')
+                ->orWhere('nim', 'like', '%' . $searchRejected . '%')
+                ->orWhere('email', 'like', '%' . $searchRejected . '%')
+                ->orWhere('judul_penelitian', 'like', '%' . $searchRejected . '%');
             });
         }
         
-        $ditolakMahasiswas = $ditolakMahasiswasQuery->get();
+        $ditolakMahasiswas = $ditolakMahasiswasQuery->paginate($perPageRejected, ['*'], 'page_rejected');
 
-        return view('staff.datapengajuanmahasiswa', compact('mahasiswas', 'ditolakMahasiswas', 'search', 'perPage'));
+        return view('staff.datapengajuanmahasiswa', compact(
+            'mahasiswas', 
+            'ditolakMahasiswas', 
+            'search', 
+            'perPage',
+            'searchRejected',
+            'perPageRejected'
+        ));
     }
 
     public function tolakPengajuan(Request $request, $id)
@@ -836,8 +898,13 @@ class StaffController extends Controller
    
     public function datapengajuannonmahasiswa(Request $request)
     {
+        // Main table search and pagination params
         $search = $request->input('search', '');
-        $perPage = $request->input('per_page', 10); // Default 10 items per page
+        $perPage = $request->input('per_page', 10);
+
+        // Rejected table search and pagination params
+        $searchRejected = $request->input('search_rejected', '');
+        $perPageRejected = $request->input('per_page_rejected', 10);
 
         // Query for non-rejected applications
         $nonMahasiswasQuery = NonMahasiswa::query()->where('status', '!=', 'ditolak');
@@ -865,21 +932,29 @@ class StaffController extends Controller
             return $nonMahasiswa;
         });
         
-        // Query for rejected applications
+        // Query for rejected applications with pagination
         $ditolakNonMahasiswasQuery = NonMahasiswa::with('notifikasis')
                                         ->where('status', 'ditolak');
         
-        if ($search) {
-            $ditolakNonMahasiswasQuery->where(function($q) use ($search) {
-                $q->where('nama_lengkap', 'like', '%' . $search . '%')
-                ->orWhere('email', 'like', '%' . $search . '%')
-                ->orWhere('nama_instansi', 'like', '%' . $search . '%');
+        if ($searchRejected) {
+            $ditolakNonMahasiswasQuery->where(function($q) use ($searchRejected) {
+                $q->where('nama_lengkap', 'like', '%' . $searchRejected . '%')
+                ->orWhere('email', 'like', '%' . $searchRejected . '%')
+                ->orWhere('nama_instansi', 'like', '%' . $searchRejected . '%')
+                ->orWhere('judul_penelitian', 'like', '%' . $searchRejected . '%');
             });
         }
         
-        $ditolakNonMahasiswas = $ditolakNonMahasiswasQuery->get();
+        $ditolakNonMahasiswas = $ditolakNonMahasiswasQuery->paginate($perPageRejected, ['*'], 'page_rejected');
 
-        return view('staff.datapengajuannonmahasiswa', compact('nonMahasiswas', 'ditolakNonMahasiswas', 'search', 'perPage'));
+        return view('staff.datapengajuannonmahasiswa', compact(
+            'nonMahasiswas', 
+            'ditolakNonMahasiswas', 
+            'search', 
+            'perPage',
+            'searchRejected',
+            'perPageRejected'
+        ));
     }
 
     public function tolakPengajuanNonMahasiswa(Request $request, $id)

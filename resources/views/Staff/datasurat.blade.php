@@ -81,49 +81,47 @@
             <div class="bg-white p-6 rounded-lg shadow-md mb-8">
                 <div class="flex justify-between items-center mb-6">
                     <div class="flex items-center space-x-2">
-                        <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium">
-                            LIST Data Surat
-                        </button>
+                       <div class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium">
+                            List Data Surat
+                        </div>
                     </div>
 
                     <div class="flex items-center space-x-2">
-                         <div class="relative">
-                            <select id="entries-select" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                                <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
-                                <option value="25" {{ $perPage == 25 ? 'selected' : '' }}>25</option>
-                                <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
-                                <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100</option>
-                            </select>
-                        </div>
-                        
-                        <div class="relative">
-                            <form action="{{ route('datasurat') }}" method="GET" class="flex items-center">
+                         <form id="main-filter-form" action="{{ route('datasurat') }}" method="GET" class="flex items-center space-x-2">
+                            <div class="relative">
+                                <select id="main-entries-select" name="per_page" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                    <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
+                                    <option value="25" {{ $perPage == 25 ? 'selected' : '' }}>25</option>
+                                    <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
+                                    <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100</option>
+                                </select>
+                            </div>
+                            
+                            <div class="relative">
                                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                     <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
                                     </svg>
                                 </div>
-                                <input type="hidden" name="per_page" id="per-page-input" value="{{ $perPage }}">
-                                <input type="text" name="search" id="search-input" class="block w-60 p-2.5 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500" placeholder="Cari Data Surat" value="{{ $search }}">
+                                <input type="text" name="search" id="main-search-input" class="block w-60 p-2.5 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500" placeholder="Cari Data Surat" value="{{ request('search') }}">
                                 <button type="submit" class="absolute inset-y-0 right-0 flex items-center px-4 text-sm font-medium text-white bg-blue-600 rounded-r-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300">
                                     Cari
                                 </button>
-                            </form>
-                        </div>
+                            </div>
+                            
+                            <!-- Keep published table parameters when submitting main form -->
+                            <input type="hidden" name="search_published" value="{{ request('search_published') }}">
+                            <input type="hidden" name="per_page_published" value="{{ request('per_page_published', 10) }}">
                         
-                        <a href="{{ route('penerbitan') }}" class="flex items-center text-white bg-blue-600 hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
-                            </svg>
-                            Tambah Surat
-                        </a>
+                            
+                        </form>
                     </div>
                 </div>
                 
                 <div class="overflow-x-auto rounded-lg border border-gray-200">
                 <table class="w-full text-sm text-left border-collapse">
                     <thead class="text-gray-700 bg-gray-100">
-                        <tr class="bg-gray-200">
+                        <tr class="text-white bg-[#004aad]">
                             <th class="px-4 py-3 border border-gray-300 w-12">No</th>
                             <th class="px-4 py-3 border border-gray-300 min-w-[150px]">No Pengajuan</th>
                             <th class="px-4 py-3 border border-gray-300 min-w-[150px]">Nama</th>
@@ -361,260 +359,315 @@
                 </table>
             </div>
 
-                <!-- Pagination -->
+                <!-- Pagination for main table -->
                 <div class="flex justify-between items-center mt-6">
                     <div class="text-sm text-gray-600">
-                        Menampilkan {{ $penerbitanSurats->firstItem() ?? 0 }} sampai {{ $penerbitanSurats->lastItem() ?? 0 }} dari {{ $penerbitanSurats->total() }} Total Data
+                        Menampilkan {{ $penerbitanSurats->where('status_surat', '!=', 'diterbitkan')->count() > 0 ? ($penerbitanSurats->firstItem() ?? 0) : 0 }} sampai {{ $penerbitanSurats->where('status_surat', '!=', 'diterbitkan')->count() > 0 ? ($penerbitanSurats->lastItem() ?? 0) : 0 }} dari {{ $penerbitanSurats->total() }} Total Data
                     </div>
                     <div class="flex">
-                        {{ $penerbitanSurats->appends(['search' => $search, 'per_page' => $perPage])->links() }}
+                        {{ $penerbitanSurats->appends([
+                            'search' => request('search'), 
+                            'per_page' => $perPage,
+                            'search_published' => request('search_published'),
+                            'per_page_published' => request('per_page_published', 10)
+                        ])->links() }}
                     </div>
                 </div>
 
-                 <!-- Data Surat Diterbitkan Section -->
-        <div class="mt-12 mb-8">
-            <div class="flex justify-between items-center mb-6">
-                <div class="flex items-center space-x-2">
-                    <div class="px-4 py-2 bg-green-100 text-green-700 rounded-lg font-medium">
-                        Data Surat Diterbitkan
-                    </div>
-                </div>
-            </div>
-            
-            <div class="overflow-x-auto rounded-lg border border-gray-200">
-                <table class="w-full text-sm text-left border-collapse">
-                    <thead class="text-gray-700 bg-gray-100">
-                        <tr class="bg-gray-200">
-                            <th class="px-4 py-3 border border-gray-300 w-12">No</th>
-                            <th class="px-4 py-3 border border-gray-300 min-w-[150px]">No Pengajuan</th>
-                            <th class="px-4 py-3 border border-gray-300 min-w-[150px]">Nama</th>
-                            <th class="px-4 py-3 border border-gray-300 min-w-[150px]">Jabatan</th>
-                            <th class="px-4 py-3 border border-gray-300 min-w-[180px]">No telpon</th>
-                            <th class="px-4 py-3 border border-gray-300 min-w-[150px]">Nama Lembaga</th>
-                            <th class="px-4 py-3 border border-gray-300 min-w-[200px]">Judul Proposal</th>
-                            <th class="px-4 py-3 border border-gray-300 min-w-[150px]">Lokasi Penelitian</th>
-                            <th class="px-4 py-3 border border-gray-300 min-w-[150px]">Waktu Penelitian</th>
-                            <th class="px-4 py-3 border border-gray-300 min-w-[150px]">Bidang Penelitian</th>
-                            <th class="px-4 py-3 border border-gray-300 w-32">Status Penelitian</th>
-                            <th class="px-4 py-3 border border-gray-300 w-32">Nomor Surat</th>
-                            <th class="px-4 py-3 border border-gray-300 w-32">Menimbang</th>
-                            <th class="px-4 py-3 border border-gray-300 min-w-[120px]">Status surat</th>
-                            <th class="px-4 py-3 border border-gray-300 w-40">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse($penerbitanSurats->where('status_surat', 'diterbitkan') as $index => $surat)
-                        <tr class="bg-white hover:bg-gray-50">
-                            <td class="px-4 py-3 border border-gray-200">{{ $index + 1 }}</td>
-                            <td class="px-4 py-3 border border-gray-200">
-                                @if($surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa)
-                                    {{ $surat->mahasiswa->no_pengajuan ?? 'Tidak tersedia' }}
-                                @elseif($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa)
-                                    {{ $surat->nonMahasiswa->no_pengajuan ?? 'Tidak tersedia' }}
-                                @else
-                                    <span class="text-red-500">Data tidak tersedia</span>
-                                @endif
-                            </td>
-                            <td class="px-4 py-3 border border-gray-200">
-                                @if($surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa)
-                                    {{ $surat->mahasiswa->nama_lengkap }}
-                                @elseif($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa)
-                                    {{ $surat->nonMahasiswa->nama_lengkap }}
-                                @else
-                                    <span class="text-red-500">Data tidak tersedia</span>
-                                @endif
-                            </td>
-                            <td class="px-4 py-3 border border-gray-200">
-                                @if($surat->jenis_surat === 'mahasiswa')
-                                    Mahasiswa
-                                @elseif($surat->nonMahasiswa)
-                                    {{ $surat->nonMahasiswa->jabatan }}
-                                @else
-                                    <span class="text-red-500">Data tidak tersedia</span>
-                                @endif
-                            </td>
-                            <td class="px-4 py-3 border border-gray-200">
-                                @if($surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa)
-                                    {{ $surat->mahasiswa->no_hp }}
-                                @elseif($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa)
-                                    {{ $surat->nonMahasiswa->no_hp }}
-                                @else
-                                    <span class="text-red-500">Data tidak tersedia</span>
-                                @endif
-                            </td>
-                            <td class="px-4 py-3 border border-gray-200">
-                                @if($surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa)
-                                    {{ $surat->mahasiswa->nama_instansi }}
-                                @elseif($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa)
-                                    {{ $surat->nonMahasiswa->nama_instansi }}
-                                @else
-                                    <span class="text-red-500">Data tidak tersedia</span>
-                                @endif
-                            </td>
-                            <td class="px-4 py-3 border border-gray-200">
-                                @if($surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa)
-                                    {{ $surat->mahasiswa->judul_penelitian }}
-                                @elseif($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa)
-                                    {{ $surat->nonMahasiswa->judul_penelitian }}
-                                @else
-                                    <span class="text-red-500">Data tidak tersedia</span>
-                                @endif
-                            </td>
-                            <td class="px-4 py-3 border border-gray-200">
-                                @if($surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa)
-                                    {{ $surat->mahasiswa->lokasi_penelitian }}
-                                @elseif($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa)
-                                    {{ $surat->nonMahasiswa->lokasi_penelitian }}
-                                @else
-                                    <span class="text-red-500">Data tidak tersedia</span>
-                                @endif
-                            </td>
-                            <td class="px-4 py-3 border border-gray-200">
-                                @if($surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa)
-                                    @if($surat->mahasiswa->tanggal_mulai && $surat->mahasiswa->tanggal_selesai)
-                                        {{ $surat->mahasiswa->tanggal_mulai }} - {{ $surat->mahasiswa->tanggal_selesai }}
-                                        @if($surat->mahasiswa->lama_penelitian)
-                                            ({{ $surat->mahasiswa->lama_penelitian }})
-                                        @endif
-                                    @elseif($surat->mahasiswa->lama_penelitian)
-                                        {{ $surat->mahasiswa->lama_penelitian }}
-                                    @else
-                                        <span class="text-red-500">Data tidak tersedia</span>
-                                    @endif
-                                @elseif($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa)
-                                    @if($surat->nonMahasiswa->tanggal_mulai && $surat->nonMahasiswa->tanggal_selesai)
-                                        {{ $surat->nonMahasiswa->tanggal_mulai }} - {{ $surat->nonMahasiswa->tanggal_selesai }}
-                                        @if($surat->nonMahasiswa->lama_penelitian)
-                                            ({{ $surat->nonMahasiswa->lama_penelitian }})
-                                        @endif
-                                    @elseif($surat->nonMahasiswa->lama_penelitian)
-                                        {{ $surat->nonMahasiswa->lama_penelitian }}
-                                    @else
-                                        <span class="text-red-500">Data tidak tersedia</span>
-                                    @endif
-                                @else
-                                    <span class="text-red-500">Data tidak tersedia</span>
-                                @endif
-                            </td>
-                            <td class="px-4 py-3 border border-gray-200">
-                                @if($surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa)
-                                    {{ $surat->mahasiswa->jurusan ?? 'Data tidak tersedia' }}
-                                @elseif($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa)
-                                    {{ $surat->nonMahasiswa->bidang ?? 'Data tidak tersedia' }}
-                                @else
-                                    <span class="text-red-500">Data tidak tersedia</span>
-                                @endif
-                            </td>
-                            <td class="px-4 py-3 border border-gray-200">
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full 
-                                    {{ $surat->status_penelitian === 'baru' ? 'bg-green-100 text-green-800' : 
-                                       ($surat->status_penelitian === 'lanjutan' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800') }}">
-                                    {{ ucfirst($surat->status_penelitian) }}
-                                </span>
-                            </td>
-                            <td class="px-4 py-3 border border-gray-200">
-                                {{ $surat->nomor_surat }}
-                            </td>
-                            <td class="px-4 py-3 border border-gray-200">
-                                @if($surat->menimbang)
-                                    <button type="button" class="text-blue-500 hover:text-blue-700" 
-                                            onclick="showMenimbangModal('{{ addslashes($surat->menimbang) }}', 
-                                            '{{ $surat->nomor_surat }}')">
-                                        Lihat Pertimbangan
-                                    </button>
-                                @else
-                                    <span class="text-gray-500">Tidak ada</span>
-                                @endif
-                            </td>
-                            <td class="px-4 py-3 border border-gray-200">
-                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
-                                    Diterbitkan
-                                </span>
-                            </td>
-                            <td class="px-4 py-3 border border-gray-200">
-                                <div class="flex space-x-2 justify-center">
-                                    <button type="button" 
-                                            onclick="openWhatsAppModal('{{ $surat->id }}', '{{ $surat->jenis_surat === 'mahasiswa' ? $surat->mahasiswa->nama_lengkap : $surat->nonMahasiswa->nama_lengkap }}', '{{ $surat->jenis_surat === 'mahasiswa' ? $surat->mahasiswa->no_hp : $surat->nonMahasiswa->no_hp }}', '{{ $surat->jenis_surat === 'mahasiswa' ? $surat->mahasiswa->judul_penelitian : $surat->nonMahasiswa->judul_penelitian }}', '{{ $surat->nomor_surat }}', '{{ $surat->jenis_surat === 'mahasiswa' ? $surat->mahasiswa->no_pengajuan : $surat->nonMahasiswa->no_pengajuan }}')" 
-                                            class="text-green-500 hover:text-green-700 p-1" 
-                                            title="Kirim Notifikasi WhatsApp">
-                                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                            <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                                        </svg>
-                                    </button>
-
-                                    <!-- Email button - Add right after the WhatsApp button -->
-                                    <!-- Add this after the WhatsApp notification button -->
-                                    <button type="button" class="text-blue-500 hover:text-blue-700 p-1" 
-                                            onclick="openEmailModal('{{ $surat->id }}', 
-                                            '{{ $surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa ? $surat->mahasiswa->nama_lengkap : ($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa ? $surat->nonMahasiswa->nama_lengkap : 'Tidak tersedia') }}',
-                                            '{{ $surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa ? $surat->mahasiswa->email : ($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa ? $surat->nonMahasiswa->email : '') }}',
-                                            '{{ $surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa ? addslashes($surat->mahasiswa->judul_penelitian) : ($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa ? addslashes($surat->nonMahasiswa->judul_penelitian) : '') }}',
-                                            '{{ $surat->nomor_surat }}')"
-                                            title="Kirim Notifikasi Email">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                                        </svg>
-                                    </button>
-                                    
-                                    
-                                    
-                                    <form action="{{ route('penerbitan.destroy', $surat->id) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus surat ini?');">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit" class="text-red-500 hover:text-red-700 p-1" title="Hapus">
-                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                            </svg>
-                                        </button>
-                                    </form>
-                                    
-                                    <!-- Modified PDF download button - only show if no file is uploaded -->
-                                    @if(!isset($surat->file_path) || empty($surat->file_path))
-                                    <a href="{{ route('penerbitan.download', $surat->id) }}" class="text-green-500 hover:text-green-700 p-1" title="Unduh Pdf">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                        </svg>
-                                    </a>
-                                    @endif
-                                    
-                                    <!-- Tombol Download File yang Diupload (hanya muncul jika ada file) -->
-                                    @if(isset($surat->file_path) && !empty($surat->file_path))
-                                    <a href="{{ route('penerbitan.downloadFile', $surat->id) }}" class="text-green-500 hover:text-green-700 p-1" title="Unduh File Surat Terupload">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
-                                        </svg>
-                                    </a>
-                                    @endif
+                <!-- Data Surat Diterbitkan Section -->
+                <div class="mt-12 mb-8">
+                    <div class="flex justify-between items-center mb-6">
+                        <div class="flex items-center space-x-2">
+                            <div class="px-4 py-2 bg-green-100 text-green-700 rounded-lg font-medium">
+                                Data Surat Diterbitkan
+                            </div>
+                        </div>
+                        
+                        <!-- Add search and per-page for published table -->
+                        <div class="flex items-center space-x-2">
+                            <form id="published-filter-form" action="{{ route('datasurat') }}" method="GET" class="flex items-center space-x-2">
+                                <div class="relative">
+                                    <select id="published-entries-select" name="per_page_published" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5">
+                                        <option value="10" {{ (request('per_page_published', 10) == 10) ? 'selected' : '' }}>10</option>
+                                        <option value="25" {{ (request('per_page_published', 10) == 25) ? 'selected' : '' }}>25</option>
+                                        <option value="50" {{ (request('per_page_published', 10) == 50) ? 'selected' : '' }}>50</option>
+                                        <option value="100" {{ (request('per_page_published', 10) == 100) ? 'selected' : '' }}>100</option>
+                                    </select>
                                 </div>
-                            </td>
-                        </tr>
-                        @empty
-                        <tr class="bg-white">
-                            <td colspan="16" class="px-4 py-3 border border-gray-200 text-center text-gray-500">
-                                Belum ada data surat yang diterbitkan
-                            </td>
-                        </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
+                                
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                        <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                                        </svg>
+                                    </div>
+                                    <input type="text" name="search_published" id="published-search-input" class="block w-60 p-2.5 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-green-500 focus:border-green-500" placeholder="Cari Surat Diterbitkan" value="{{ request('search_published') }}">
+                                    <button type="submit" class="absolute inset-y-0 right-0 flex items-center px-4 text-sm font-medium text-white bg-green-600 rounded-r-lg hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300">
+                                        Cari
+                                    </button>
+                                </div>
+                                
+                                <!-- Keep main table parameters when submitting published form -->
+                                <input type="hidden" name="search" value="{{ request('search') }}">
+                                <input type="hidden" name="per_page" value="{{ $perPage }}">
+                            </form>
+                        </div>
+                    </div>
+                    
+                    <div class="overflow-x-auto rounded-lg border border-gray-200">
+                        <table class="w-full text-sm text-left border-collapse">
+                            <thead class="text-gray-700 bg-gray-100">
+                                <tr class="text-white bg-[#004aad]">
+                                    <th class="px-4 py-3 border border-gray-300 w-12">No</th>
+                                    <th class="px-4 py-3 border border-gray-300 min-w-[150px]">No Pengajuan</th>
+                                    <th class="px-4 py-3 border border-gray-300 min-w-[150px]">Nama</th>
+                                    <th class="px-4 py-3 border border-gray-300 min-w-[150px]">Jabatan</th>
+                                    <th class="px-4 py-3 border border-gray-300 min-w-[180px]">No telpon</th>
+                                    <th class="px-4 py-3 border border-gray-300 min-w-[150px]">Nama Lembaga</th>
+                                    <th class="px-4 py-3 border border-gray-300 min-w-[200px]">Judul Proposal</th>
+                                    <th class="px-4 py-3 border border-gray-300 min-w-[150px]">Lokasi Penelitian</th>
+                                    <th class="px-4 py-3 border border-gray-300 min-w-[150px]">Waktu Penelitian</th>
+                                    <th class="px-4 py-3 border border-gray-300 min-w-[150px]">Bidang Penelitian</th>
+                                    <th class="px-4 py-3 border border-gray-300 w-32">Status Penelitian</th>
+                                    <th class="px-4 py-3 border border-gray-300 w-32">Nomor Surat</th>
+                                    <th class="px-4 py-3 border border-gray-300 w-32">Menimbang</th>
+                                    <th class="px-4 py-3 border border-gray-300 min-w-[120px]">Status surat</th>
+                                    <th class="px-4 py-3 border border-gray-300 w-40">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @forelse($penerbitanSuratsPublished ?? $penerbitanSurats->where('status_surat', 'diterbitkan') as $index => $surat)
+                                <tr class="bg-white hover:bg-gray-50">
+                                    <td class="px-4 py-3 border border-gray-200">{{ $index + 1 }}</td>
+                                    <td class="px-4 py-3 border border-gray-200">
+                                        @if($surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa)
+                                            {{ $surat->mahasiswa->no_pengajuan ?? 'Tidak tersedia' }}
+                                        @elseif($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa)
+                                            {{ $surat->nonMahasiswa->no_pengajuan ?? 'Tidak tersedia' }}
+                                        @else
+                                            <span class="text-red-500">Data tidak tersedia</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 border border-gray-200">
+                                        @if($surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa)
+                                            {{ $surat->mahasiswa->nama_lengkap }}
+                                        @elseif($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa)
+                                            {{ $surat->nonMahasiswa->nama_lengkap }}
+                                        @else
+                                            <span class="text-red-500">Data tidak tersedia</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 border border-gray-200">
+                                        @if($surat->jenis_surat === 'mahasiswa')
+                                            Mahasiswa
+                                        @elseif($surat->nonMahasiswa)
+                                            {{ $surat->nonMahasiswa->jabatan }}
+                                        @else
+                                            <span class="text-red-500">Data tidak tersedia</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 border border-gray-200">
+                                        @if($surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa)
+                                            {{ $surat->mahasiswa->no_hp }}
+                                        @elseif($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa)
+                                            {{ $surat->nonMahasiswa->no_hp }}
+                                        @else
+                                            <span class="text-red-500">Data tidak tersedia</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 border border-gray-200">
+                                        @if($surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa)
+                                            {{ $surat->mahasiswa->nama_instansi }}
+                                        @elseif($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa)
+                                            {{ $surat->nonMahasiswa->nama_instansi }}
+                                        @else
+                                            <span class="text-red-500">Data tidak tersedia</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 border border-gray-200">
+                                        @if($surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa)
+                                            {{ $surat->mahasiswa->judul_penelitian }}
+                                        @elseif($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa)
+                                            {{ $surat->nonMahasiswa->judul_penelitian }}
+                                        @else
+                                            <span class="text-red-500">Data tidak tersedia</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 border border-gray-200">
+                                        @if($surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa)
+                                            {{ $surat->mahasiswa->lokasi_penelitian }}
+                                        @elseif($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa)
+                                            {{ $surat->nonMahasiswa->lokasi_penelitian }}
+                                        @else
+                                            <span class="text-red-500">Data tidak tersedia</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 border border-gray-200">
+                                        @if($surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa)
+                                            @if($surat->mahasiswa->tanggal_mulai && $surat->mahasiswa->tanggal_selesai)
+                                                {{ $surat->mahasiswa->tanggal_mulai }} - {{ $surat->mahasiswa->tanggal_selesai }}
+                                                @if($surat->mahasiswa->lama_penelitian)
+                                                    ({{ $surat->mahasiswa->lama_penelitian }})
+                                                @endif
+                                            @elseif($surat->mahasiswa->lama_penelitian)
+                                                {{ $surat->mahasiswa->lama_penelitian }}
+                                            @else
+                                                <span class="text-red-500">Data tidak tersedia</span>
+                                            @endif
+                                        @elseif($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa)
+                                            @if($surat->nonMahasiswa->tanggal_mulai && $surat->nonMahasiswa->tanggal_selesai)
+                                                {{ $surat->nonMahasiswa->tanggal_mulai }} - {{ $surat->nonMahasiswa->tanggal_selesai }}
+                                                @if($surat->nonMahasiswa->lama_penelitian)
+                                                    ({{ $surat->nonMahasiswa->lama_penelitian }})
+                                                @endif
+                                            @elseif($surat->nonMahasiswa->lama_penelitian)
+                                                {{ $surat->nonMahasiswa->lama_penelitian }}
+                                            @else
+                                                <span class="text-red-500">Data tidak tersedia</span>
+                                            @endif
+                                        @else
+                                            <span class="text-red-500">Data tidak tersedia</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 border border-gray-200">
+                                        @if($surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa)
+                                            {{ $surat->mahasiswa->jurusan ?? 'Data tidak tersedia' }}
+                                        @elseif($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa)
+                                            {{ $surat->nonMahasiswa->bidang ?? 'Data tidak tersedia' }}
+                                        @else
+                                            <span class="text-red-500">Data tidak tersedia</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 border border-gray-200">
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                                            {{ $surat->status_penelitian === 'baru' ? 'bg-green-100 text-green-800' : 
+                                               ($surat->status_penelitian === 'lanjutan' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800') }}">
+                                            {{ ucfirst($surat->status_penelitian) }}
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 border border-gray-200">
+                                        {{ $surat->nomor_surat }}
+                                    </td>
+                                    <td class="px-4 py-3 border border-gray-200">
+                                        @if($surat->menimbang)
+                                            <button type="button" class="text-blue-500 hover:text-blue-700" 
+                                                    onclick="showMenimbangModal('{{ addslashes($surat->menimbang) }}', 
+                                                    '{{ $surat->nomor_surat }}')">
+                                                Lihat Pertimbangan
+                                            </button>
+                                        @else
+                                            <span class="text-gray-500">Tidak ada</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 border border-gray-200">
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                            Diterbitkan
+                                        </span>
+                                    </td>
+                                    <td class="px-4 py-3 border border-gray-200">
+                                        <div class="flex space-x-2 justify-center">
+                                            <button type="button" 
+                                                    onclick="openWhatsAppModal('{{ $surat->id }}', '{{ $surat->jenis_surat === 'mahasiswa' ? $surat->mahasiswa->nama_lengkap : $surat->nonMahasiswa->nama_lengkap }}', '{{ $surat->jenis_surat === 'mahasiswa' ? $surat->mahasiswa->no_hp : $surat->nonMahasiswa->no_hp }}', '{{ $surat->jenis_surat === 'mahasiswa' ? $surat->mahasiswa->judul_penelitian : $surat->nonMahasiswa->judul_penelitian }}', '{{ $surat->nomor_surat }}', '{{ $surat->jenis_surat === 'mahasiswa' ? $surat->mahasiswa->no_pengajuan : $surat->nonMahasiswa->no_pengajuan }}')" 
+                                                    class="text-green-500 hover:text-green-700 p-1" 
+                                                    title="Kirim Notifikasi WhatsApp">
+                                                 <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                                        <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                                                </svg>
+                                            </button>
+
+                                            <!-- Email button - Add right after the WhatsApp button -->
+                                            <button type="button" class="text-blue-500 hover:text-blue-700 p-1" 
+                                                    onclick="openEmailModal('{{ $surat->id }}', 
+                                                    '{{ $surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa ? $surat->mahasiswa->nama_lengkap : ($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa ? $surat->nonMahasiswa->nama_lengkap : 'Tidak tersedia') }}',
+                                                    '{{ $surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa ? $surat->mahasiswa->email : ($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa ? $surat->nonMahasiswa->email : '') }}',
+                                                    '{{ $surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa ? addslashes($surat->mahasiswa->judul_penelitian) : ($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa ? addslashes($surat->nonMahasiswa->judul_penelitian) : '') }}',
+                                                    '{{ $surat->nomor_surat }}')"
+                                                    title="Kirim Notifikasi Email">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                                </svg>
+                                            </button>
+                                            
+                                            <form action="{{ route('penerbitan.destroy', $surat->id) }}" method="POST" class="inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus surat ini?');">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="text-red-500 hover:text-red-700 p-1" title="Hapus">
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                                    </svg>
+                                                </button>
+                                            </form>
+                                            
+                                            <!-- Modified PDF download button - only show if no file is uploaded -->
+                                            @if(!isset($surat->file_path) || empty($surat->file_path))
+                                            <a href="{{ route('penerbitan.download', $surat->id) }}" class="text-green-500 hover:text-green-700 p-1" title="Unduh Pdf">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                </svg>
+                                            </a>
+                                            @endif
+                                            
+                                            <!-- Tombol Download File yang Diupload (hanya muncul jika ada file) -->
+                                            @if(isset($surat->file_path) && !empty($surat->file_path))
+                                            <a href="{{ route('penerbitan.downloadFile', $surat->id) }}" class="text-green-500 hover:text-green-700 p-1" title="Unduh File Surat Terupload">
+                                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                </svg>
+                                            </a>
+                                            @endif
+                                        </div>
+                                    </td>
+                                </tr>
+                                @empty
+                                <tr class="bg-white">
+                                    <td colspan="16" class="px-4 py-3 border border-gray-200 text-center text-gray-500">
+                                        Belum ada data surat yang diterbitkan
+                                    </td>
+                                </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination for published table -->
+                    @if(isset($penerbitanSuratsPublished) && $penerbitanSuratsPublished->count() > 0 || $penerbitanSurats->where('status_surat', 'diterbitkan')->count() > 0)
+                    <div class="flex justify-between items-center mt-6">
+                        <div class="text-sm text-gray-600">
+                            Menampilkan {{ isset($penerbitanSuratsPublished) ? $penerbitanSuratsPublished->firstItem() ?? 0 : 0 }} sampai {{ isset($penerbitanSuratsPublished) ? $penerbitanSuratsPublished->lastItem() ?? 0 : 0 }} dari {{ isset($penerbitanSuratsPublished) ? $penerbitanSuratsPublished->total() : $penerbitanSurats->where('status_surat', 'diterbitkan')->count() }} Total Data
+                        </div>
+                        <div class="flex">
+                            @if(isset($penerbitanSuratsPublished))
+                                {{ $penerbitanSuratsPublished->appends([
+                                    'search' => request('search'),
+                                    'per_page' => $perPage,
+                                    'search_published' => request('search_published'),
+                                    'per_page_published' => request('per_page_published', 10)
+                                ])->links() }}
+                            @else
+                                <!-- Placeholder for pagination links -->
+                                <span class="text-gray-500">Paginasi belum tersedia</span>
+                            @endif
+                        </div>
+                    </div>
+                    @endif
+                </div>
             </div>
         </div>
     </div>
     
     <!-- Email Notification Modal -->
-    <!-- Modal for Email Notification -->
-    <div id="emailModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
-        <div class="bg-white rounded-lg shadow-lg w-11/12 max-w-md p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-gray-900 flex items-center">
+    <div id="emailModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeEmailModal()"></div>
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 relative">
+            <div class="flex justify-between items-center bg-blue-600 text-white p-4 rounded-t-lg">
+                <h2 class="text-lg font-semibold flex items-center">
                     <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
                     </svg>
                     Kirim Notifikasi Email
-                </h3>
-                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5" onclick="closeEmailModal()">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                </h2>
+                <button type="button" class="text-white hover:text-gray-200 focus:outline-none" onclick="closeEmailModal()">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                     </svg>
                 </button>
@@ -622,31 +675,40 @@
             <form action="{{ route('send.approval.email.notification') }}" method="POST">
                 @csrf
                 <input type="hidden" name="surat_id" id="email_surat_id">
-                <div class="mb-4">
-                    <label for="email_alamat" class="block text-sm font-medium text-gray-700 mb-1">Alamat Email</label>
-                    <input type="email" id="email_alamat" name="email" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm" required>
-                </div>
                 <input type="hidden" name="nama" id="email_nama">
                 <input type="hidden" name="judul_penelitian" id="email_judul_penelitian">
                 <input type="hidden" name="nomor_surat" id="email_nomor_surat">
-                <div class="mb-4">
-                    <p class="text-sm text-gray-600 mb-2">Informasi Surat Terbit:</p>
-                    <div class="p-3 bg-gray-50 rounded-md text-sm mb-4">
-                        <p class="mb-1"><span class="font-medium">Nama:</span> <span id="display_email_nama"></span></p>
-                        <p class="mb-1"><span class="font-medium">Judul Penelitian:</span> <span id="display_email_judul_penelitian"></span></p>
-                        <p class="mb-1"><span class="font-medium">Nomor Surat:</span> <span id="display_email_nomor_surat"></span></p>
+                
+                <div class="p-6">
+                    <div class="mb-4">
+                        <label for="email_alamat" class="block text-sm font-medium text-gray-700 mb-1">Alamat Email</label>
+                        <input type="email" id="email_alamat" name="email" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-blue-500 focus:border-blue-500 text-sm" required>
                     </div>
-                    <label for="email_pesan" class="block text-sm font-medium text-gray-700">Pesan</label>
-                    <textarea id="email_pesan" name="pesan_email" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 text-sm" rows="6" required></textarea>
-                </div>
-                <div class="flex justify-end">
-                    <button type="button" class="mr-2 px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400" onclick="closeEmailModal()">Batal</button>
-                    <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                        </svg>
-                        Kirim
-                    </button>
+                    
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-600 mb-2">Informasi Surat Terbit:</p>
+                        <div class="p-3 bg-gray-50 rounded-md text-sm mb-4">
+                            <p class="mb-1"><span class="font-medium">Nama:</span> <span id="display_email_nama"></span></p>
+                            <p class="mb-1"><span class="font-medium">Judul Penelitian:</span> <span id="display_email_judul_penelitian"></span></p>
+                            <p class="mb-1"><span class="font-medium">Nomor Surat:</span> <span id="display_email_nomor_surat"></span></p>
+                        </div>
+                        
+                        <label for="email_pesan" class="block text-sm font-medium text-gray-700 mb-1">Pesan Email</label>
+                        <textarea id="email_pesan" name="pesan_email" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-blue-500 focus:border-blue-500 text-sm" rows="12" required></textarea>
+                        <p class="mt-1 text-xs text-gray-500">Pesan akan dikirim melalui email ke alamat yang tercantum.</p>
+                    </div>
+                    
+                    <div class="flex justify-end space-x-3 mt-6">
+                        <button type="button" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2" onclick="closeEmailModal()">
+                            Batal
+                        </button>
+                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                            </svg>
+                            Kirim Email
+                        </button>
+                    </div>
                 </div>
             </form>
         </div>
@@ -947,9 +1009,6 @@
         function closeEmailModal() {
             document.getElementById('emailModal').classList.add('hidden');
         }
-
-        // Add this to modals array in the existing DOMContentLoaded event
-        // { id: 'emailModal', closeFn: closeEmailModal },
     </script>
 
     <script>
@@ -1191,7 +1250,6 @@
     }
     
     // Function to open WhatsApp notification modal
-    // Function to open WhatsApp notification modal for issued letters
     function openWhatsAppModal(id, nama, nomor, judulPenelitian, nomorSurat, noPengajuan) {
         document.getElementById('whatsapp_surat_id').value = id;
         document.getElementById('whatsapp_nomor').value = nomor;
@@ -1332,16 +1390,23 @@
         // Initialize alert auto-dismiss (only for success alerts)
         initializeAlerts();
         
-        // Handle entries per page selector
-        const entriesSelect = document.getElementById('entries-select');
-        if (entriesSelect) {
-            entriesSelect.addEventListener('change', function() {
-                document.getElementById('per-page-input').value = this.value;
-                document.querySelector('form').submit();
+        // Handle entries per page selectors
+        // Main table entries select
+        const mainEntriesSelect = document.getElementById('main-entries-select');
+        if (mainEntriesSelect) {
+            mainEntriesSelect.addEventListener('change', function() {
+                document.getElementById('main-filter-form').submit();
             });
         }
         
-        // Add confirmation for delete actions with Indonesian messages
+        // Published table entries select
+        const publishedEntriesSelect = document.getElementById('published-entries-select');
+        if (publishedEntriesSelect) {
+            publishedEntriesSelect.addEventListener('change', function() {
+                document.getElementById('published-filter-form').submit();
+            });
+        }
+        
         // Add confirmation for delete actions with Indonesian messages
         const deleteForms = document.querySelectorAll('form[action*="destroy"]');
         deleteForms.forEach(form => {

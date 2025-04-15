@@ -11,7 +11,7 @@
 
         <div class="p-8">
             <div class="flex justify-between items-center mb-8">
-                <h1 class="text-2xl font-bold text-gray-800">Data Surat Diterbitkan</h1>
+                <h1 class="text-2xl font-bold text-gray-800">Manajemen Data Surat</h1>
                 <div class="text-gray-600">
                     Selamat Datang Admin, <span class="font-semibold text-blue-600">{{ auth()->user()->username }}</span>
                 </div>
@@ -57,8 +57,33 @@
             <div class="bg-white p-6 rounded-lg shadow-md mb-8">
                 <div class="flex justify-between items-center mb-6">
                     <div class="flex items-center space-x-2">
-                        <div class="px-4 py-2 bg-green-100 text-green-700 rounded-lg font-medium">
-                            Daftar Surat Diterbitkan
+                        <div class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium">
+                            Daftar Data Surat
+                        </div>
+                        
+                        <!-- Status Filter Tabs -->
+                        <div class="flex items-center space-x-2 ml-4 bg-gray-100 rounded-lg p-1">
+                            <a href="{{ route('admin.datasurat', ['status' => 'all', 'search' => $search, 'per_page' => $perPage]) }}" 
+                               class="px-3 py-1.5 rounded-md text-sm font-medium {{ $statusFilter === 'all' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-200' }}">
+                                Semua
+                                <span class="inline-flex items-center justify-center ml-1 px-2 py-0.5 text-xs font-medium rounded-full {{ $statusFilter === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800' }}">
+                                    {{ \App\Models\PenerbitanSurat::count() }}
+                                </span>
+                            </a>
+                            <a href="{{ route('admin.datasurat', ['status' => 'draft', 'search' => $search, 'per_page' => $perPage]) }}" 
+                               class="px-3 py-1.5 rounded-md text-sm font-medium {{ $statusFilter === 'draft' ? 'bg-yellow-500 text-white' : 'text-gray-700 hover:bg-gray-200' }}">
+                                Draft
+                                <span class="inline-flex items-center justify-center ml-1 px-2 py-0.5 text-xs font-medium rounded-full {{ $statusFilter === 'draft' ? 'bg-yellow-400 text-white' : 'bg-gray-200 text-gray-800' }}">
+                                    {{ \App\Models\PenerbitanSurat::where('status_surat', 'draft')->count() }}
+                                </span>
+                            </a>
+                            <a href="{{ route('admin.datasurat', ['status' => 'diterbitkan', 'search' => $search, 'per_page' => $perPage]) }}" 
+                               class="px-3 py-1.5 rounded-md text-sm font-medium {{ $statusFilter === 'diterbitkan' ? 'bg-green-600 text-white' : 'text-gray-700 hover:bg-gray-200' }}">
+                                Diterbitkan
+                                <span class="inline-flex items-center justify-center ml-1 px-2 py-0.5 text-xs font-medium rounded-full {{ $statusFilter === 'diterbitkan' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-800' }}">
+                                    {{ \App\Models\PenerbitanSurat::where('status_surat', 'diterbitkan')->count() }}
+                                </span>
+                            </a>
                         </div>
                     </div>
 
@@ -80,6 +105,7 @@
                                     </svg>
                                 </div>
                                 <input type="hidden" name="per_page" id="per-page-input" value="{{ $perPage }}">
+                                <input type="hidden" name="status" value="{{ $statusFilter }}">
                                 <input type="text" name="search" id="search-input" class="block w-60 p-2.5 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500" placeholder="Cari Data Surat" value="{{ $search }}">
                                 <button type="submit" class="absolute inset-y-0 right-0 flex items-center px-4 text-sm font-medium text-white bg-blue-600 rounded-r-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300">
                                     Cari
@@ -92,7 +118,7 @@
                 <div class="overflow-x-auto rounded-lg border border-gray-200">
                     <table class="w-full text-sm text-left border-collapse">
                         <thead class="text-gray-700 bg-gray-100">
-                            <tr class="bg-gray-200">
+                            <tr class="bg-[#004aad] text-white">
                                 <th class="px-4 py-3 border border-gray-300 w-12">No</th>
                                 <th class="px-4 py-3 border border-gray-300 min-w-[150px]">No Pengajuan</th>
                                 <th class="px-4 py-3 border border-gray-300 min-w-[150px]">Nama</th>
@@ -103,10 +129,12 @@
                                 <th class="px-4 py-3 border border-gray-300 min-w-[150px]">Lokasi Penelitian</th>
                                 <th class="px-4 py-3 border border-gray-300 min-w-[150px]">Waktu Penelitian</th>
                                 <th class="px-4 py-3 border border-gray-300 min-w-[150px]">Bidang Penelitian</th>
+                                <th class="px-4 py-3 border border-gray-300 w-40">Anggota Penelitian</th>
                                 <th class="px-4 py-3 border border-gray-300 w-32">Status Penelitian</th>
                                 <th class="px-4 py-3 border border-gray-300 w-32">Nomor Surat</th>
                                 <th class="px-4 py-3 border border-gray-300 w-32">Menimbang</th>
-                                <th class="px-4 py-3 border border-gray-300 min-w-[120px]">Tanggal Terbit</th>
+                                <th class="px-4 py-3 border border-gray-300 min-w-[120px]">Status surat</th>
+                                <th class="px-4 py-3 border border-gray-300 min-w-[120px]">Tanggal</th>
                                 <th class="px-4 py-3 border border-gray-300 w-40">Aksi</th>
                             </tr>
                         </thead>
@@ -214,6 +242,23 @@
                                     @endif
                                 </td>
                                 <td class="px-4 py-3 border border-gray-200">
+                                    @if($surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa && $surat->mahasiswa->anggota_peneliti)
+                                        <button type="button" class="text-blue-500 hover:text-blue-700" 
+                                                onclick="showAnggotaModal('{{ addslashes(json_encode($surat->mahasiswa->anggota_peneliti)) }}', 
+                                                '{{ addslashes($surat->mahasiswa->nama_lengkap) }}')">
+                                            Lihat Anggota
+                                        </button>
+                                    @elseif($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa && $surat->nonMahasiswa->anggota_peneliti)
+                                        <button type="button" class="text-blue-500 hover:text-blue-700" 
+                                                onclick="showAnggotaModal('{{ addslashes(json_encode($surat->nonMahasiswa->anggota_peneliti)) }}', 
+                                                '{{ addslashes($surat->nonMahasiswa->nama_lengkap) }}')">
+                                            Lihat Anggota
+                                        </button>
+                                    @else
+                                        <span class="text-gray-500">Tidak ada anggota</span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3 border border-gray-200">
                                     <span class="px-2 py-1 text-xs font-semibold rounded-full 
                                         {{ $surat->status_penelitian === 'baru' ? 'bg-green-100 text-green-800' : 
                                            ($surat->status_penelitian === 'lanjutan' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800') }}">
@@ -235,20 +280,55 @@
                                     @endif
                                 </td>
                                 <td class="px-4 py-3 border border-gray-200">
+                                    @if($surat->status_surat == 'draft')
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                            Draft
+                                        </span>
+                                    @elseif($surat->status_surat == 'diterbitkan')
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">
+                                            Diterbitkan
+                                        </span>
+                                    @else
+                                        <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                                            {{ $surat->status_surat }}
+                                        </span>
+                                    @endif
+                                </td>
+                                <td class="px-4 py-3 border border-gray-200">
                                     {{ $surat->updated_at->format('d/m/Y') }}
                                 </td>
                                 <td class="px-4 py-3 border border-gray-200">
                                     <div class="flex space-x-2 justify-center">
+                                        <!-- Modified PDF download button - only show if no file is uploaded -->
+                                        @if(!isset($surat->file_path) || empty($surat->file_path))
+                                        <a href="{{ route('admin.penerbitan.download', $surat->id) }}" class="text-green-500 hover:text-green-700 p-1" title="Unduh Pdf">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                        </a>
+                                        @endif
                                         
-                                        
-                                        
+                                        <!-- Tombol Download File yang Diupload (hanya muncul jika ada file) -->
+                                        @if(isset($surat->file_path) && !empty($surat->file_path))
+                                        <a href="{{ route('admin.penerbitan.downloadFile', $surat->id) }}" class="text-green-500 hover:text-green-700 p-1" title="Unduh File Surat Terupload">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                            </svg>
+                                        </a>
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
                             @empty
                             <tr class="bg-white">
-                                <td colspan="15" class="px-4 py-3 border border-gray-200 text-center text-gray-500">
-                                    Belum ada data surat yang diterbitkan
+                                <td colspan="17" class="px-4 py-3 border border-gray-200 text-center text-gray-500">
+                                    @if($statusFilter == 'all')
+                                        Belum ada data surat
+                                    @elseif($statusFilter == 'draft')
+                                        Belum ada data surat draft
+                                    @elseif($statusFilter == 'diterbitkan')
+                                        Belum ada data surat yang diterbitkan
+                                    @endif
                                 </td>
                             </tr>
                             @endforelse
@@ -262,7 +342,7 @@
                         Menampilkan {{ $penerbitanSurats->firstItem() ?? 0 }} sampai {{ $penerbitanSurats->lastItem() ?? 0 }} dari {{ $penerbitanSurats->total() }} Total Data
                     </div>
                     <div class="flex">
-                        {{ $penerbitanSurats->appends(['search' => $search, 'per_page' => $perPage])->links() }}
+                        {{ $penerbitanSurats->links() }}
                     </div>
                 </div>
             </div>
@@ -294,7 +374,111 @@
         </div>
     </div>
 
+    <!-- Modal for Anggota Penelitian -->
+    <div id="anggotaModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
+        <div class="bg-white rounded-lg shadow-lg w-11/12 max-w-md p-6">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-lg font-semibold text-gray-900" id="modalTitle">Daftar Anggota Penelitian</h3>
+                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5" onclick="closeAnggotaModal()">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            <div id="anggotaList" class="mt-2 max-h-60 overflow-y-auto">
+                <!-- Anggota will be loaded here -->
+            </div>
+            <div class="mt-4 flex justify-end">
+                <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" onclick="closeAnggotaModal()">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // Function to show anggota penelitian modal
+        function showAnggotaModal(anggotaData, namaLengkap) {
+            const anggotaModal = document.getElementById('anggotaModal');
+            const anggotaList = document.getElementById('anggotaList');
+            const modalTitle = document.getElementById('modalTitle');
+            
+            modalTitle.textContent = `Daftar Anggota Penelitian - ${namaLengkap}`;
+            anggotaList.innerHTML = '';
+            
+            try {
+                // Try to parse the data as JSON
+                let anggotaArray;
+                
+                if (typeof anggotaData === 'string') {
+                    // If it's already a string, try to parse it
+                    anggotaArray = JSON.parse(anggotaData);
+                } else {
+                    // If it's already an object, use it directly
+                    anggotaArray = anggotaData;
+                }
+                
+                // Check if it's an array
+                if (Array.isArray(anggotaArray)) {
+                    if (anggotaArray.length === 0) {
+                        anggotaList.innerHTML = '<p class="text-gray-500">Tidak ada anggota penelitian.</p>';
+                    } else {
+                        const ul = document.createElement('ul');
+                        ul.className = 'list-disc list-inside';
+                        
+                        anggotaArray.forEach((anggota, index) => {
+                            const li = document.createElement('li');
+                            li.className = 'py-1';
+                            li.textContent = typeof anggota === 'object' ? anggota.nama || JSON.stringify(anggota) : anggota;
+                            ul.appendChild(li);
+                        });
+                        
+                        anggotaList.appendChild(ul);
+                    }
+                } else if (typeof anggotaArray === 'string') {
+                    // If it's a string (not JSON), display it as is
+                    const p = document.createElement('p');
+                    p.textContent = anggotaArray;
+                    anggotaList.appendChild(p);
+                } else {
+                    // If it's another type of object, convert to string
+                    anggotaList.innerHTML = '<p>' + JSON.stringify(anggotaArray, null, 2).replace(/\\n/g, '<br>') + '</p>';
+                }
+            } catch (e) {
+                // If JSON parsing fails, treat it as a plain string
+                const p = document.createElement('p');
+                if (anggotaData.includes('\n')) {
+                    // If it contains newlines, split by newlines
+                    const lines = anggotaData.split('\n');
+                    const ul = document.createElement('ul');
+                    ul.className = 'list-disc list-inside';
+                    
+                    lines.forEach(line => {
+                        if (line.trim()) {
+                            const li = document.createElement('li');
+                            li.className = 'py-1';
+                            li.textContent = line.trim();
+                            ul.appendChild(li);
+                        }
+                    });
+                    
+                    anggotaList.appendChild(ul);
+                } else {
+                    // Otherwise show as is
+                    p.textContent = anggotaData;
+                    anggotaList.appendChild(p);
+                }
+            }
+            
+            // Show the modal
+            anggotaModal.classList.remove('hidden');
+        }
+        
+        // Function to close anggota modal
+        function closeAnggotaModal() {
+            document.getElementById('anggotaModal').classList.add('hidden');
+        }
+
         // Function to show menimbang modal
         function showMenimbangModal(menimbangText, nomorSurat) {
             const menimbangModal = document.getElementById('menimbangModal');
@@ -317,31 +501,53 @@
             // Initialize alert auto-dismiss (only for success alerts)
             initializeAlerts();
             
-            // Handle entries per page selector
+            // Handle entries per page selector - Modified to preserve status filter
             const entriesSelect = document.getElementById('entries-select');
             if (entriesSelect) {
                 entriesSelect.addEventListener('change', function() {
-                    document.getElementById('per-page-input').value = this.value;
-                    document.querySelector('form').submit();
+                    const currentUrl = new URL(window.location.href);
+                    const params = new URLSearchParams(currentUrl.search);
+                    
+                    // Update the per_page parameter
+                    params.set('per_page', this.value);
+                    
+                    // Keep the status filter if it exists
+                    if (!params.has('status')) {
+                        params.set('status', '{{ $statusFilter }}');
+                    }
+                    
+                    // Redirect to the updated URL
+                    currentUrl.search = params.toString();
+                    window.location.href = currentUrl.toString();
                 });
             }
             
             // Close modals when clicking outside of them
-            const menimbangModal = document.getElementById('menimbangModal');
-            if (menimbangModal) {
-                menimbangModal.addEventListener('click', function(event) {
-                    if (event.target === this) {
-                        closeMenimbangModal();
-                    }
-                });
-            }
+            const modals = [
+                { id: 'anggotaModal', closeFn: closeAnggotaModal },
+                { id: 'menimbangModal', closeFn: closeMenimbangModal }
+            ];
+            
+            modals.forEach(modal => {
+                const modalElement = document.getElementById(modal.id);
+                if (modalElement) {
+                    modalElement.addEventListener('click', function(event) {
+                        if (event.target === this) {
+                            modal.closeFn();
+                        }
+                    });
+                }
+            });
             
             // Add escape key handler for all modals
             document.addEventListener('keydown', function(event) {
                 if (event.key === 'Escape') {
-                    if (!menimbangModal.classList.contains('hidden')) {
-                        closeMenimbangModal();
-                    }
+                    modals.forEach(modal => {
+                        const modalElement = document.getElementById(modal.id);
+                        if (modalElement && !modalElement.classList.contains('hidden')) {
+                            modal.closeFn();
+                        }
+                    });
                 }
             });
         });

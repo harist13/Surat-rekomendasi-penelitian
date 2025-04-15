@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
 use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
+use Illuminate\Support\Facades\Storage;
+use PDF;
 
 class AdminController extends Controller
 {
@@ -174,47 +176,183 @@ class AdminController extends Controller
     }
 
     public function datasurats(Request $request)
-    {
-        // Get search and per_page parameters
-        $search = $request->input('search', '');
-        $perPage = $request->input('per_page', 10); // Default 10 items per page
-        
-        // Base query with relationships, only get published letters
-        $query = PenerbitanSurat::with(['mahasiswa', 'nonMahasiswa', 'user'])
-                    ->where('status_surat', 'diterbitkan');
-        
-        // Apply search filter if provided
-        if ($search) {
-            $query->where(function($q) use ($search) {
-                // Search in PenerbitanSurat table
-                $q->where('nomor_surat', 'like', '%' . $search . '%')
-                ->orWhere('status_penelitian', 'like', '%' . $search . '%');
-                
-                // Search in related Mahasiswa
-                $q->orWhereHas('mahasiswa', function($mq) use ($search) {
-                    $mq->where('nama_lengkap', 'like', '%' . $search . '%')
+{
+    // Get filter parameters
+    $search = $request->input('search', '');
+    $perPage = $request->input('per_page', 10);
+    $statusFilter = $request->input('status', 'all'); // Default to 'all'
+    
+    // Base query with relationships
+    $query = PenerbitanSurat::with(['mahasiswa', 'nonMahasiswa', 'user']);
+    
+    // Apply status filter if provided and not 'all'
+    if ($statusFilter !== 'all') {
+        $query->where('status_surat', $statusFilter);
+    }
+    
+    // Apply search filter if provided
+    if ($search) {
+        $query->where(function($q) use ($search) {
+            // Search in PenerbitanSurat table
+            $q->where('nomor_surat', 'like', '%' . $search . '%')
+              ->orWhere('status_penelitian', 'like', '%' . $search . '%')
+              ->orWhere('status_surat', 'like', '%' . $search . '%');
+            
+            // Search in related Mahasiswa
+            $q->orWhereHas('mahasiswa', function($mq) use ($search) {
+                $mq->where('nama_lengkap', 'like', '%' . $search . '%')
+                   ->orWhere('no_hp', 'like', '%' . $search . '%')
+                   ->orWhere('nama_instansi', 'like', '%' . $search . '%')
+                   ->orWhere('judul_penelitian', 'like', '%' . $search . '%');
+            });
+            
+            // Search in related NonMahasiswa
+            $q->orWhereHas('nonMahasiswa', function($nmq) use ($search) {
+                $nmq->where('nama_lengkap', 'like', '%' . $search . '%')
                     ->orWhere('no_hp', 'like', '%' . $search . '%')
                     ->orWhere('nama_instansi', 'like', '%' . $search . '%')
                     ->orWhere('judul_penelitian', 'like', '%' . $search . '%');
-                });
-                
-                // Search in related NonMahasiswa
-                $q->orWhereHas('nonMahasiswa', function($nmq) use ($search) {
-                    $nmq->where('nama_lengkap', 'like', '%' . $search . '%')
-                        ->orWhere('no_hp', 'like', '%' . $search . '%')
-                        ->orWhere('nama_instansi', 'like', '%' . $search . '%')
-                        ->orWhere('judul_penelitian', 'like', '%' . $search . '%');
-                });
             });
+        });
+    }
+    
+    // Order by created date, descending
+    $query->orderBy('created_at', 'desc');
+    
+    // Get paginated results
+    $penerbitanSurats = $query->paginate($perPage)->withQueryString();
+    
+    // Return view with data
+    return view('admin.datasurat', compact('penerbitanSurats', 'search', 'perPage', 'statusFilter'));
+}
+
+    /**
+     * Download document for admin
+     * 
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function downloadDocument($id)
+    {
+        try {
+            $surat = PenerbitanSurat::findOrFail($id);
+            
+            // Generate a new document
+            $filePath = $this->generateSuratPenelitian($id);
+            
+            // Prepare the file for download
+            $fileName = basename($filePath);
+            
+            // Return the file as a download
+            return Storage::download('public/' . $filePath, $fileName);
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengunduh dokumen: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Download uploaded file for admin
+     * 
+     * @param int $id
+     * @return \Illuminate\Http\Response
+     */
+    public function downloadUploadedFile($id)
+    {
+        try {
+            $surat = PenerbitanSurat::findOrFail($id);
+            
+            if (!$surat->file_path || !file_exists(public_path('storage/' . $surat->file_path))) {
+                return redirect()->back()->with('error', 'File surat tidak ditemukan');
+            }
+            
+            return response()->download(public_path('storage/' . $surat->file_path));
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'Gagal mengunduh file: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Generate a PDF document for Surat Keterangan Penelitian
+     * 
+     * @param int $suratId
+     * @return string Path to the generated document
+     */
+    private function generateSuratPenelitian($suratId) 
+    {
+        // Get the PenerbitanSurat data with relations
+        $surat = PenerbitanSurat::with(['mahasiswa', 'nonMahasiswa', 'user'])->findOrFail($suratId);
+        
+        // Determine if it's mahasiswa or non-mahasiswa
+        if ($surat->jenis_surat === 'mahasiswa') {
+            $peneliti = $surat->mahasiswa;
+            $kategori = 'Mahasiswa';
+            $jabatan = 'Mahasiswa';
+            $nim = $peneliti->nim;
+            $bidang = $peneliti->jurusan;
+        } else {
+            $peneliti = $surat->nonMahasiswa;
+            $kategori = 'Non-Mahasiswa';
+            $jabatan = $peneliti->jabatan;
+            $nim = '-';
+            $bidang = $peneliti->bidang;
         }
         
-        // Order by created date, descending
-        $query->orderBy('created_at', 'desc');
+        // Format dates
+        $tanggalSurat = Carbon::now()->locale('id')->isoFormat('D MMMM Y');
+        $waktuPenelitian = $peneliti->tanggal_mulai . ' s.d ' . $peneliti->tanggal_selesai;
         
-        // Get paginated results
-        $penerbitanSurats = $query->paginate($perPage);
+        // Process anggota peneliti
+        $anggotaText = '';
+        if (!empty($peneliti->anggota_peneliti)) {
+            try {
+                $anggota = json_decode($peneliti->anggota_peneliti);
+                if (is_array($anggota)) {
+                    foreach ($anggota as $index => $nama) {
+                        $anggotaText .= ($index + 1) . '. ' . $nama . "\n";
+                    }
+                } else {
+                    $anggotaText = $peneliti->anggota_peneliti;
+                }
+            } catch (\Exception $e) {
+                $anggotaText = $peneliti->anggota_peneliti;
+            }
+        }
         
-        // Return view with data
-        return view('admin.datasurat', compact('penerbitanSurats', 'search', 'perPage'));
+        // Prepare data for the view
+        $data = [
+            'surat' => $surat,
+            'peneliti' => $peneliti,
+            'kategori' => $kategori,
+            'jabatan' => $jabatan,
+            'nim' => $nim,
+            'bidang' => $bidang,
+            'tanggalSurat' => $tanggalSurat,
+            'waktuPenelitian' => $waktuPenelitian,
+            'anggotaText' => $anggotaText
+        ];
+        
+        // Generate PDF using DomPDF
+        $pdf = PDF::loadView('staff.surat.surat_penelitian', $data);
+        
+        // Set PDF options
+        $pdf->setPaper('a4');
+        $pdf->setOptions([
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+            'defaultFont' => 'Times New Roman'
+        ]);
+        
+        // Create directory if it doesn't exist
+        $directory = storage_path('app/public/documents/surat_penelitian');
+        if (!file_exists($directory)) {
+            mkdir($directory, 0777, true);
+        }
+        
+        // Save PDF to file
+        $fileName = 'surat_penelitian_' . $surat->nomor_surat . '_' . time() . '.pdf';
+        $filePath = 'documents/surat_penelitian/' . $fileName;
+        $pdf->save(storage_path('app/public/' . $filePath));
+        
+        return $filePath;
     }
 }

@@ -93,7 +93,7 @@ class PengajuanMahasiswaRequest extends FormRequest
             'unique' => ':attribute sudah terdaftar.',
             'file' => ':attribute harus berupa file.',
             'mimes' => ':attribute harus berupa file dengan tipe: :values.',
-            'max' => ':attribute tidak boleh lebih dari :max kilobytes.',
+            'max' => ':attribute tidak boleh lebih dari 2 MB.',
             'numeric' => ':attribute harus berupa angka.',
         ];
     }

@@ -38,7 +38,11 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::delete('/akun/{id}', [AdminController::class, 'deleteUser'])->name('akun.delete');
     Route::get('/akun/data', [AdminController::class, 'getUsersData'])->name('akun.data');
     Route::get('/akun/{id}', [AdminController::class, 'getUserById'])->name('akun.show');
+    // Data surat routes
     Route::get('/datasurat', [AdminController::class, 'datasurats'])->name('admin.datasurat');
+    Route::get('/penerbitan/{id}/download', [AdminController::class, 'downloadDocument'])->name('admin.penerbitan.download');
+    Route::get('/penerbitan/{id}/download-file', [AdminController::class, 'downloadUploadedFile'])->name('admin.penerbitan.downloadFile');
+
 });
 
 // Staff routes

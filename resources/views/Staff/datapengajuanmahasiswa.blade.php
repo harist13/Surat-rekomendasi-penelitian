@@ -20,37 +20,38 @@
             <div class="bg-white p-6 rounded-lg shadow-md mb-8">
                 <div class="flex justify-between items-center mb-6">
                     <div class="flex items-center space-x-2">
-                        <div class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium">
+                        <div class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium">
                             List Pengajuan Mahasiswa
                         </div>
                     </div>
 
-                    <div class="flex items-center space-x-2">
-                        <div class="relative">
-                            <select id="entries-select" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                                <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
-                                <option value="25" {{ $perPage == 25 ? 'selected' : '' }}>25</option>
-                                <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
-                                <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100</option>
-                            </select>
-                        </div>
-                        
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-                                </svg>
+                     <div class="flex items-center space-x-2">
+                        <form id="main-filter-form" action="{{ route('datapengajuanmahasiswa') }}" method="GET" class="flex items-center space-x-2">
+                            <div class="relative">
+                                <select id="main-entries-select" name="per_page" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                    <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
+                                    <option value="25" {{ $perPage == 25 ? 'selected' : '' }}>25</option>
+                                    <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
+                                    <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100</option>
+                                </select>
                             </div>
-                            <form action="{{ route('datapengajuanmahasiswa') }}" method="GET" class="relative">
-                                <input type="hidden" name="per_page" id="per-page-input" value="{{ $perPage }}">
-                                <input type="text" name="search" id="search-input" class="block w-60 p-2.5 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500" placeholder="Cari Mahasiswa" value="{{ request('search') }}">
+                            
+                            <div class="relative">
+                                <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                    <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                                    </svg>
+                                </div>
+                                <input type="text" name="search" id="main-search-input" class="block w-60 p-2.5 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500" placeholder="Cari Mahasiswa" value="{{ request('search') }}">
                                 <button type="submit" class="absolute inset-y-0 right-0 flex items-center px-4 text-sm font-medium text-white bg-blue-600 rounded-r-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300">
                                     Cari
                                 </button>
-                            </form>
-                        </div>
-                        
-                        
+                            </div>
+                            
+                            <!-- Keep rejected table parameters when submitting main form -->
+                            <input type="hidden" name="search_rejected" value="{{ request('search_rejected') }}">
+                            <input type="hidden" name="per_page_rejected" value="{{ $perPageRejected ?? 10 }}">
+                        </form>
                     </div>
                 </div>
                 @if(session('success'))
@@ -76,7 +77,7 @@
                 @endif
                 <div class="overflow-x-auto rounded-lg border border-gray-200">
                     <table class="w-full text-sm text-left border-collapse">
-                        <thead class="text-gray-700 bg-gray-100">
+                        <thead class="text-white bg-[#004aad]">
                             <tr class="border-b border-gray-300">
                                 <th colspan="7" class="px-4 py-3 text-center font-medium border-r border-gray-300">Data Pemohon</th>
                                 <th colspan="3" class="px-4 py-3 text-center font-medium border-r border-gray-300">Data Instansi</th>
@@ -84,7 +85,7 @@
                                 <th colspan="3" class="px-4 py-3 text-center font-medium">Berkas Pendukung</th>
                                 <th class="px-4 py-3 border-l border-gray-300">Aksi</th>
                             </tr>
-                            <tr class="bg-gray-200">
+                            <tr class="bg-[#004aad]">
                                 <!-- Data Pemohon Sub Columns -->
                                 <th class="px-4 py-3 border border-gray-300 w-12">No</th>
                                 <th class="px-4 py-3 border border-gray-300 min-w-[150px]">Nomor Pengajuan</th>
@@ -144,9 +145,9 @@
                                     <!-- In the Data Penelitian section, replace the anggota_peneliti cell with this: -->
                                     <td class="px-4 py-3 border border-gray-200">
                                         <button type="button" 
-                                                onclick="openAnggotaModal('{{ $mahasiswa->anggota_peneliti }}')" 
-                                                class="px-2 py-1 text-sm text-blue-600 hover:text-blue-800 font-medium">
-                                            Lihat Anggota
+                                            onclick="openAnggotaModal({{ json_encode($mahasiswa->anggota_peneliti) }})" 
+                                            class="px-2 py-1 text-sm text-blue-600 hover:text-blue-800 font-medium">
+                                        Lihat Anggota
                                         </button>
                                     </td>
                                     <td class="px-4 py-3 border border-gray-200">
@@ -239,13 +240,18 @@
                 </div>
 
 
-                  <!-- Pagination -->
+                  <!-- Pagination for main table -->
                 <div class="flex justify-between items-center mt-6">
                     <div class="text-sm text-gray-600">
                         Menampilkan {{ $mahasiswas->firstItem() ?? 0 }} sampai {{ $mahasiswas->lastItem() ?? 0 }} dari {{ $mahasiswas->total() }} Total Data
                     </div>
                     <div class="flex">
-                        {{ $mahasiswas->appends(['search' => request('search'), 'per_page' => $perPage])->links('vendor.pagination.tailwind') }}
+                        {{ $mahasiswas->appends([
+                            'search' => request('search'), 
+                            'per_page' => $perPage,
+                            'search_rejected' => request('search_rejected'),
+                            'per_page_rejected' => $perPageRejected ?? 10
+                        ])->links('vendor.pagination.tailwind') }}
                     </div>
                 </div>
                 <!-- Add this new table after the existing table and pagination -->
@@ -256,11 +262,40 @@
                                 Pengajuan Mahasiswa yang Ditolak
                             </div>
                         </div>
+                        <!-- Add search and per-page for rejected table -->
+                        <div class="flex items-center space-x-2">
+                            <form id="rejected-filter-form" action="{{ route('datapengajuanmahasiswa') }}" method="GET" class="flex items-center space-x-2">
+                                <div class="relative">
+                                    <select id="rejected-entries-select" name="per_page_rejected" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5">
+                                        <option value="10" {{ ($perPageRejected ?? 10) == 10 ? 'selected' : '' }}>10</option>
+                                        <option value="25" {{ ($perPageRejected ?? 10) == 25 ? 'selected' : '' }}>25</option>
+                                        <option value="50" {{ ($perPageRejected ?? 10) == 50 ? 'selected' : '' }}>50</option>
+                                        <option value="100" {{ ($perPageRejected ?? 10) == 100 ? 'selected' : '' }}>100</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="relative">
+                                    <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                        <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                                        </svg>
+                                    </div>
+                                    <input type="text" name="search_rejected" id="rejected-search-input" class="block w-60 p-2.5 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-red-500 focus:border-red-500" placeholder="Cari Pengajuan Ditolak" value="{{ request('search_rejected') }}">
+                                    <button type="submit" class="absolute inset-y-0 right-0 flex items-center px-4 text-sm font-medium text-white bg-red-600 rounded-r-lg hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300">
+                                        Cari
+                                    </button>
+                                </div>
+                                
+                                <!-- Keep main table parameters when submitting rejected form -->
+                                <input type="hidden" name="search" value="{{ request('search') }}">
+                                <input type="hidden" name="per_page" value="{{ $perPage }}">
+                            </form>
+                        </div>
                     </div>
                     
                     <div class="overflow-x-auto rounded-lg border border-gray-200">
                         <table class="w-full text-sm text-left border-collapse">
-                            <thead class="text-gray-700 bg-gray-100">
+                            <thead class="text-white bg-[#004aad]">
                                 <tr>
                                     <th class="px-4 py-3 border border-gray-300 w-12">No</th>
                                     <th class="px-4 py-3 border border-gray-300 min-w-[150px]">Nomor Pengajuan</th>
@@ -335,6 +370,22 @@
                             </tbody>
                         </table>
                     </div>
+                    <!-- Pagination for rejected table -->
+                    @if($ditolakMahasiswas->count() > 0)
+                    <div class="flex justify-between items-center mt-6">
+                        <div class="text-sm text-gray-600">
+                            Menampilkan {{ $ditolakMahasiswas->firstItem() ?? 0 }} sampai {{ $ditolakMahasiswas->lastItem() ?? 0 }} dari {{ $ditolakMahasiswas->total() }} Total Data
+                        </div>
+                        <div class="flex">
+                            {{ $ditolakMahasiswas->appends([
+                                'search' => request('search'),
+                                'per_page' => $perPage,
+                                'search_rejected' => request('search_rejected'),
+                                'per_page_rejected' => $perPageRejected ?? 10
+                            ])->links('vendor.pagination.tailwind') }}
+                        </div>
+                    </div>
+                    @endif
                 </div>
             </div>
         </div>
@@ -483,31 +534,32 @@
         </div>
     </div>
      <!-- Modal Anggota Penelitian -->
-    <div id="anggotaPenelitianModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center">
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b p-4">
-                <h3 class="text-xl font-semibold text-gray-800">Daftar Anggota Penelitian</h3>
-                <button type="button" class="text-gray-400 hover:text-gray-600" onclick="closeAnggotaModal()">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-            
-            <div class="p-6">
-                <!-- Daftar Anggota Penelitian -->
-                <div class="mb-6">
-                    <h4 class="text-lg font-medium text-gray-700 mb-3">Anggota Penelitian</h4>
-                    <ul id="anggotaList" class="space-y-2 mb-4">
-                        <!-- List items will be populated dynamically -->
-                    </ul>
+    <!-- Modal Anggota Penelitian -->
+    <div id="anggotaPenelitianModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center h-full">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center border-b p-4">
+                    <h3 class="text-xl font-semibold text-gray-800">Daftar Anggota Penelitian</h3>
+                    <button type="button" class="text-gray-400 hover:text-gray-600" onclick="closeAnggotaModal()">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
                 </div>
-            </div>
-            
-            <div class="border-t p-4 flex justify-end">
-                <button type="button" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300" onclick="closeAnggotaModal()">
-                    Tutup
-                </button>
+                
+                <div class="p-6">
+                    <!-- Daftar Anggota Penelitian -->
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-700 mb-3">Anggota Penelitian</h4>
+                        <textarea id="anggotaTextarea" class="w-full h-64 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" readonly></textarea>
+                    </div>
+                </div>
+                
+                <div class="border-t p-4 flex justify-end">
+                    <button type="button" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300" onclick="closeAnggotaModal()">
+                        Tutup
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -624,62 +676,84 @@
     </script>
 
      <script>
-        // Auto-hide alerts after 5 seconds
-        setTimeout(function() {
-            document.querySelectorAll('.alert').forEach(function(alert) {
-                alert.style.display = 'none';
+            document.addEventListener('DOMContentLoaded', function() {
+            // Auto-hide alerts after 5 seconds
+            setTimeout(function() {
+                document.querySelectorAll('.alert').forEach(function(alert) {
+                    alert.style.display = 'none';
+                });
+            }, 5000);
+
+            // Event listeners for select boxes to change items per page
+            // Main table entries select
+            document.getElementById('main-entries-select').addEventListener('change', function() {
+                document.getElementById('main-filter-form').submit();
             });
-        }, 5000);
+            
+            // Rejected table entries select
+            document.getElementById('rejected-entries-select').addEventListener('change', function() {
+                document.getElementById('rejected-filter-form').submit();
+            });
 
-        // Event listener for entries-select
-        document.getElementById('entries-select').addEventListener('change', function() {
-            const perPage = this.value;
-            const searchInput = document.getElementById('search-input').value;
-            const perPageInput = document.getElementById('per-page-input');
-            perPageInput.value = perPage;
-
-            // Submit the form
-            const form = document.querySelector('form');
-            form.submit();
+            // Mobile menu toggle
+            const menuToggle = document.getElementById('menu-toggle');
+            const sidebar = document.querySelector('[id^="sidebar"]'); // Get sidebar element
+            
+            if (menuToggle && sidebar) {
+                menuToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('-translate-x-full');
+                });
+            }
         });
-    </script>
+     </script>
 
      <!-- JavaScript untuk Modal -->
     <script>
         // Function to open the modal and populate with anggota data
+        // Function to open the modal and populate with anggota data
         function openAnggotaModal(anggotaData) {
-            // Get the modal and list elements
+            // Get the modal and textarea element
             const modal = document.getElementById('anggotaPenelitianModal');
-            const anggotaList = document.getElementById('anggotaList');
+            const anggotaTextarea = document.getElementById('anggotaTextarea');
             
-            // Clear previous list
-            anggotaList.innerHTML = '';
+            // Clear previous content
+            anggotaTextarea.value = '';
             
-            // Parse the anggota data - assuming it's comma-separated
-            const anggotaArray = anggotaData.split(',').map(item => item.trim()).filter(item => item);
+            // Parse the anggota data properly - handle different formats
+            let anggotaArray = [];
             
-            // Create list items for each anggota
-            if (anggotaArray.length > 0) {
-                anggotaArray.forEach(anggota => {
-                    const listItem = document.createElement('li');
-                    listItem.className = 'anggota-item p-3 bg-gray-50 border border-gray-200 rounded-lg';
-                    listItem.innerHTML = `<span class="font-medium">${anggota}</span>`;
-                    anggotaList.appendChild(listItem);
-                });
+            if (typeof anggotaData === 'string') {
+                // Try to parse if it's a JSON string
+                try {
+                    const parsed = JSON.parse(anggotaData);
+                    if (Array.isArray(parsed)) {
+                        anggotaArray = parsed;
+                    } else if (typeof parsed === 'string') {
+                        anggotaArray = parsed.split(',').map(item => item.trim()).filter(item => item);
+                    } else {
+                        anggotaArray = [String(parsed)]; // Just use it as a single item
+                    }
+                } catch (e) {
+                    // If parsing fails, assume it's comma-separated
+                    anggotaArray = anggotaData.split(',').map(item => item.trim()).filter(item => item);
+                }
+            } else if (Array.isArray(anggotaData)) {
+                anggotaArray = anggotaData;
+            }
+            
+            // Add data to textarea
+            if (anggotaArray && anggotaArray.length > 0) {
+                anggotaTextarea.value = anggotaArray.join('\n');
             } else {
-                // If no anggota, show a message
-                const listItem = document.createElement('li');
-                listItem.className = 'p-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-500';
-                listItem.textContent = 'Tidak ada anggota peneliti';
-                anggotaList.appendChild(listItem);
+                anggotaTextarea.value = 'Tidak ada anggota peneliti';
             }
             
             // Show the modal
             modal.classList.remove('hidden');
             document.body.style.overflow = 'hidden'; // Prevent scrolling behind modal
         }
-        
-        // Function to close the modal
+
+        // Function to close the modal remains the same
         function closeAnggotaModal() {
             document.getElementById('anggotaPenelitianModal').classList.add('hidden');
             document.body.style.overflow = 'auto'; // Re-enable scrolling

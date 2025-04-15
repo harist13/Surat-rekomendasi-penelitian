@@ -44,9 +44,9 @@
                 <div class="flex justify-between items-center mb-6">
                     <!-- Tabs -->
                     <div class="flex items-center space-x-2">
-                        <button class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium">
+                        <div class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium">
                             LIST USER
-                        </button>
+                        </div>
                     </div>
 
                     <!-- Actions -->
@@ -93,7 +93,7 @@
                 <!-- Users Table -->
                 <div class="overflow-x-auto">
                     <table class="w-full text-sm text-left" id="users-table">
-                        <thead class="text-gray-700 bg-gray-300">
+                        <thead class="text-white bg-[#004aad]">
                             <tr>
                                 <th class="px-4 py-3">No</th>
                                 <th class="px-4 py-3">NIP</th>
