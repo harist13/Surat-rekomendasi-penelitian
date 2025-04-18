@@ -355,4 +355,67 @@ class AdminController extends Controller
         
         return $filePath;
     }
+
+    // Add this method to AdminController.php
+
+    /**
+     * Update the authenticated user's profile
+     * 
+     * @param \Illuminate\Http\Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function updateProfile(Request $request)
+    {
+        // Validate the request data
+        $rules = [
+            'nip' => 'required|string|max:50',
+            'username' => 'required|string|max:255',
+            'no_telp' => 'required|string|max:15',
+            'email' => 'required|email|max:255',
+        ];
+        
+        // Only validate password if it was provided
+        if ($request->filled('password')) {
+            $rules['password'] = 'required|string|min:6|confirmed';
+        }
+        
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), $rules);
+        
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validasi gagal',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        
+        try {
+            // Get the authenticated user
+            $user = auth()->user();
+            
+            // Update user data
+            $user->nip = $request->nip;
+            $user->username = $request->username;
+            $user->no_telp = $request->no_telp;
+            $user->email = $request->email;
+            
+            // Update password if provided
+            if ($request->filled('password')) {
+                $user->password = Hash::make($request->password);
+            }
+            
+            // Save changes
+            $user->save();
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Profile berhasil diperbarui'
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
+        }
+    }
 }

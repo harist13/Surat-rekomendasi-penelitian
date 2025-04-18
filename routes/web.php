@@ -28,6 +28,14 @@ Route::get('/login', [LoginController::class, 'login'])->name('login');
 Route::post('/login', [LoginController::class, 'authenticate'])->name('login.authenticate');
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
 
+// Add this route to routes/web.php
+// This should be accessible to both admin and staff users
+
+// Common authenticated routes (for both admin and staff)
+Route::middleware(['auth'])->group(function () {
+    Route::put('/profile/update', [AdminController::class, 'updateProfile'])->name('profile.update');
+});
+
 // Admin routes
 Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/', [AdminController::class, 'index'])->name('admin');

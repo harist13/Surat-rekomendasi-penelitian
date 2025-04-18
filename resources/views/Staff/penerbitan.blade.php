@@ -128,12 +128,26 @@
                             <input type="text" id="nomor_surat" name="nomor_surat" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Masukkan nomor surat" required>
                         </div>
 
+                        <br>
+
+                        <!-- Status Penelitian -->
+                                <div>
+                                    <label for="status_penelitian" class="block mb-2 text-sm font-medium text-gray-700">Status Penelitian</label>
+                                    <select id="status_penelitian" name="status_penelitian" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                        <option selected disabled>Pilih Status</option>
+                                        <option value="baru">Baru</option>
+                                        <option value="lama">Lama</option>
+                                        <option value="perpanjangan">Perpanjangan</option>
+                                    </select>
+                                </div>
+
                   
                         <br>
                         <div>
                             <label for="menimbang" class="block mb-2 text-sm font-medium text-gray-700">menimbang</label>
                             <textarea id="menimbang" name="menimbang" rows="4" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Masukkan pertimbangan untuk penerbitan surat ini"></textarea>
                         </div>
+                        
 
                     </div>
                     
@@ -220,16 +234,6 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <!-- Left Column -->
                             <div class="space-y-4">
-                                <!-- Status Penelitian -->
-                                <div>
-                                    <label for="status_penelitian" class="block mb-2 text-sm font-medium text-gray-700">Status Penelitian</label>
-                                    <select id="status_penelitian" name="status_penelitian" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                                        <option selected disabled>Pilih Status</option>
-                                        <option value="baru">Baru</option>
-                                        <option value="lama">Lama</option>
-                                        <option value="perpanjangan">Perpanjangan</option>
-                                    </select>
-                                </div>
                                 
                                 <!-- Lokasi Penelitian -->
                                 <div>

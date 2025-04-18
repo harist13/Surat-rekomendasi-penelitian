@@ -5,7 +5,7 @@
             <div class="flex items-center mb-8 pb-4 border-b border-gray-200">
                 <img src="{{ asset('assets/kaltim.png') }}" alt="Logo Kesbangpol" class="h-8 w-8 mr-2" />
                 <div class="text-lg">
-                    <div class="font-semibold text-black-700">SRIKOP</div>
+                    <div class="font-semibold text-black-700">SIRPENA</div>
                 </div>
                 <!-- Added sidebar toggle button on the right -->
                 <button id="sidebar-toggle-close" class="ml-auto p-1 hover:bg-gray-100 rounded-lg">

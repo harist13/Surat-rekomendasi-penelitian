@@ -43,7 +43,7 @@
                             Kantor Kesatuan Bangsa dan Politik Provinsi Kalimantan Timur menyediakan layanan penerbitan Surat Rekomendasi Penelitian untuk kebutuhan akademik dan non-akademik melalui website resmi.
                         </p>
                         <p class="md:text-lg">
-                            Tujuan dari website ini adalah untuk memudahkan pelacakan status permohonan dan pengiriman berkas secara online. Namun, surat rekomendasi yang telah selesai prosesnya wajib diambil secara offline langsung di kantor.
+                            Sirpena adalah Surat Izin Rekomendasi Penelitian, Tujuan dari website ini adalah untuk memudahkan pelacakan status permohonan dan pengiriman berkas secara online. Namun, surat rekomendasi yang telah selesai prosesnya wajib diambil secara offline langsung di kantor.
                         </p>
                         <div class="bg-blue-50 p-6 rounded-lg mt-6">
                             <h3 class="text-xl font-semibold text-[#004aad] mb-4">Jenis Layanan:</h3>
