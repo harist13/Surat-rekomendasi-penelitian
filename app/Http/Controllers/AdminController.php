@@ -7,6 +7,9 @@ use App\Models\User;
 use App\Models\Mahasiswa;
 use App\Models\NonMahasiswa;
 use App\Models\PenerbitanSurat;
+use App\Models\SurveiKepuasan;
+use App\Models\SurveiQuestion;
+use App\Models\SurveiResponse;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
 use Spatie\Permission\Models\Role;
@@ -14,6 +17,11 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use Illuminate\Support\Facades\Storage;
 use PDF;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+use PhpOffice\PhpSpreadsheet\Style\Fill;
+use PhpOffice\PhpSpreadsheet\Style\Alignment;
+use PhpOffice\PhpSpreadsheet\Style\Border;
 
 class AdminController extends Controller
 {
@@ -418,4 +426,590 @@ class AdminController extends Controller
             ], 500);
         }
     }
+
+
+    public function datasurvei(Request $request)
+    {
+        $search = $request->input('search', '');
+        $perPage = $request->input('per_page', 10);
+        
+        $query = SurveiQuestion::query();
+        
+        if ($search) {
+            $query->where('pertanyaan', 'like', '%' . $search . '%');
+        }
+        
+        $surveiQuestions = $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString();
+        
+        return view('admin.datasurvei', compact('surveiQuestions', 'search', 'perPage'));
+    }
+
+    // Update storeSurvei method to create questions
+    public function storeSurvei(Request $request)
+    {
+        $validated = $request->validate([
+            'pertanyaan' => 'required|string',
+        ]);
+        
+        SurveiQuestion::create([
+            'pertanyaan' => $validated['pertanyaan'],
+            'kepuasan_pelayanan' => '1 2 3 4 5', // Set default value
+            'is_active' => true
+        ]);
+        
+        return redirect()->route('admin.datasurvei')->with('success', 'Pertanyaan survei berhasil ditambahkan');
+    }
+
+    // Update getSurveiById method to get question
+    public function getSurveiById($id)
+    {
+        $survei = SurveiQuestion::findOrFail($id);
+        return response()->json($survei);
+    }
+
+    // Update updateSurvei method to update question
+    public function updateSurvei(Request $request, $id)
+    {
+        $survei = SurveiQuestion::findOrFail($id);
+        
+        $validated = $request->validate([
+            'pertanyaan' => 'required|string',
+        ]);
+        
+        $survei->pertanyaan = $validated['pertanyaan'];
+        $survei->save();
+        
+        return redirect()->route('admin.datasurvei')->with('success', 'Pertanyaan survei berhasil diperbarui');
+    }
+
+    // Update deleteSurvei method to delete question
+    public function deleteSurvei($id)
+    {
+        $survei = SurveiQuestion::findOrFail($id);
+        $survei->delete();
+        
+        return redirect()->route('admin.datasurvei')->with('success', 'Pertanyaan survei berhasil dihapus');
+    }
+
+    // Add method to view responses
+    /**
+     * Display survey responses grouped by user
+     */
+    /**
+     * Display survey responses grouped by user
+     */
+    /**
+     * Display survey responses grouped by user
+     */
+    public function dataresponden(Request $request)
+    {
+        $search = $request->input('search', '');
+        $perPage = $request->input('per_page', 10);
+        
+        // Get responses with their questions
+        $query = SurveiResponse::with('question');
+        
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                $q->where('nama', 'like', '%' . $search . '%')
+                ->orWhere('email', 'like', '%' . $search . '%')
+                ->orWhere('no_hp', 'like', '%' . $search . '%')
+                ->orWhereHas('question', function($qn) use ($search) {
+                    $qn->where('pertanyaan', 'like', '%' . $search . '%');
+                });
+            });
+        }
+        
+        // Apply jenis_layanan filter if provided
+        if ($request->has('jenis_layanan') && $request->jenis_layanan) {
+            $query->where('jenis_layanan', $request->jenis_layanan);
+        }
+        
+        // Get the responses
+        $responses = $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString();
+        
+        // Count unique respondents by email
+        $uniqueEmails = SurveiResponse::distinct('email')->count('email');
+        
+        // Get rating statistics for chart
+        $ratingStats = [
+            1 => SurveiResponse::where('rating', 1)->count(),
+            2 => SurveiResponse::where('rating', 2)->count(),
+            3 => SurveiResponse::where('rating', 3)->count(),
+            4 => SurveiResponse::where('rating', 4)->count(),
+            5 => SurveiResponse::where('rating', 5)->count()
+        ];
+        
+        // Calculate highest and lowest ratings that have at least one response
+        $highestRating = 0;
+        $lowestRating = 6; // Start higher than any possible rating
+        
+        foreach ($ratingStats as $rating => $count) {
+            if ($count > 0) {
+                if ($rating > $highestRating) {
+                    $highestRating = $rating;
+                }
+                if ($rating < $lowestRating) {
+                    $lowestRating = $rating;
+                }
+            }
+        }
+        
+        // If no responses, reset lowestRating
+        if (array_sum($ratingStats) === 0) {
+            $lowestRating = 0;
+        }
+        
+        // Calculate average rating
+        $totalRatings = array_sum($ratingStats);
+        $weightedSum = 0;
+        foreach ($ratingStats as $rating => $count) {
+            $weightedSum += $rating * $count;
+        }
+        $averageRating = $totalRatings > 0 ? round($weightedSum / $totalRatings, 1) : 0;
+        
+        return view('admin.dataresponden', compact(
+            'responses', 
+            'search', 
+            'perPage', 
+            'uniqueEmails', 
+            'ratingStats', 
+            'averageRating', 
+            'highestRating',
+            'lowestRating',
+            'totalRatings'
+        ));
+    }
+
+    /**
+     * Delete all responses from a specific email
+     */
+    public function deleteRespondenData($email)
+    {
+        try {
+            // Delete all responses with the given email
+            $count = SurveiResponse::where('email', $email)->delete();
+            
+            if ($count > 0) {
+                return redirect()->route('admin.dataresponden')
+                    ->with('success', "Berhasil menghapus {$count} data responden dengan email {$email}");
+            } else {
+                return redirect()->route('admin.dataresponden')
+                    ->with('error', "Tidak ditemukan data responden dengan email {$email}");
+            }
+        } catch (\Exception $e) {
+            return redirect()->route('admin.dataresponden')
+                ->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Export survey responses to Excel
+     */
+    public function exportResponden()
+    {
+        // Create new Spreadsheet object
+        $spreadsheet = new Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        
+        // Set document properties
+        $spreadsheet->getProperties()
+                    ->setCreator('Kesbangpol Kaltim')
+                    ->setLastModifiedBy('Kesbangpol Kaltim')
+                    ->setTitle('Data Responden Survei')
+                    ->setSubject('Data Responden Survei')
+                    ->setDescription('Data Responden Survei Kepuasan Pengguna');
+        
+        // Add title (header) row
+        $sheet->mergeCells('A1:K1');
+        $sheet->setCellValue('A1', 'DATA RESPONDEN SURVEI KEPUASAN PELAYANAN');
+        
+        // Style the title
+        $titleStyle = [
+            'font' => [
+                'bold' => true,
+                'size' => 16,
+                'color' => ['rgb' => '000000'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => 'E0E0E0'],
+            ],
+            'borders' => [
+                'outline' => [
+                    'borderStyle' => \PhpOffice\PhpSpreadsheet\Style\Border::BORDER_THIN,
+                    'color' => ['rgb' => '000000'],
+                ],
+            ],
+        ];
+        
+        $sheet->getStyle('A1:K1')->applyFromArray($titleStyle);
+        $sheet->getRowDimension(1)->setRowHeight(30);
+        
+        // Set column headers (now in row 3 due to title)
+        $columns = [
+            'A' => 'No',
+            'B' => 'Nama',
+            'C' => 'Email',
+            'D' => 'No HP',
+            'E' => 'Jenis Kelamin',
+            'F' => 'Usia',
+            'G' => 'Jenis Layanan',
+            'H' => 'Pertanyaan',
+            'I' => 'Rating',
+            'J' => 'Kritik & Saran',
+            'K' => 'Tanggal'
+        ];
+        
+        // Add header row (now in row 3)
+        foreach ($columns as $column => $heading) {
+            $sheet->setCellValue($column . '3', $heading);
+        }
+        
+        // Style the header row
+        $headerStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => 'FFFFFF'],
+            ],
+            'fill' => [
+                'fillType' => Fill::FILL_SOLID,
+                'startColor' => ['rgb' => '004AAD'],
+            ],
+            'alignment' => [
+                'horizontal' => Alignment::HORIZONTAL_CENTER,
+                'vertical' => Alignment::VERTICAL_CENTER,
+            ],
+        ];
+        
+        $sheet->getStyle('A3:K3')->applyFromArray($headerStyle);
+        
+        // Set row height for header
+        $sheet->getRowDimension(3)->setRowHeight(20);
+        
+        // Add empty row after title for spacing
+        $sheet->getRowDimension(2)->setRowHeight(10);
+        
+        // Get all responses with questions
+        $responses = SurveiResponse::with('question')->get();
+        
+        // Group responses by email
+        $groupedResponses = $responses->groupBy('email');
+        
+        // Add data rows (now starting from row 4)
+        $row = 4;
+        $respondentNumber = 1;
+        
+        foreach ($groupedResponses as $email => $userResponses) {
+            // Get the first response to get user info
+            $firstResponse = $userResponses->first();
+            
+            // Loop through all responses for this user
+            foreach ($userResponses as $index => $response) {
+                // Only show respondent number, name, email, etc. on the first question row
+                if ($index === 0) {
+                    $sheet->setCellValue('A' . $row, $respondentNumber);
+                    $sheet->setCellValue('B' . $row, $response->nama);
+                    $sheet->setCellValue('C' . $row, $response->email);
+                    $sheet->setCellValue('D' . $row, $response->no_hp);
+                    $sheet->setCellValue('E' . $row, $response->jenis_kelamin);
+                    $sheet->setCellValue('F' . $row, $response->usia);
+                    $sheet->setCellValue('G' . $row, $response->jenis_layanan);
+                } else {
+                    // For subsequent questions, we leave the cells A-G empty
+                    $sheet->setCellValue('A' . $row, '');
+                    $sheet->setCellValue('B' . $row, '');
+                    $sheet->setCellValue('C' . $row, '');
+                    $sheet->setCellValue('D' . $row, '');
+                    $sheet->setCellValue('E' . $row, '');
+                    $sheet->setCellValue('F' . $row, '');
+                    $sheet->setCellValue('G' . $row, '');
+                }
+                
+                // Always show the question, rating, and other response-specific data
+                $sheet->setCellValue('H' . $row, $response->question ? $response->question->pertanyaan : '-');
+                $sheet->setCellValue('I' . $row, $response->rating);
+                
+                // Show kritik_saran only on the first row for this user
+                if ($index === 0) {
+                    $sheet->setCellValue('J' . $row, $response->kritik_saran);
+                    $sheet->setCellValue('K' . $row, $response->created_at->format('d/m/Y H:i:s'));
+                } else {
+                    $sheet->setCellValue('J' . $row, '');
+                    $sheet->setCellValue('K' . $row, '');
+                }
+                
+                $row++;
+            }
+            
+            // Increment respondent number after processing all responses for a user
+            $respondentNumber++;
+        }
+        
+        // Remember the last data row
+        $lastDataRow = $row - 1;
+        
+        // Style the data
+        $dataStyle = [
+            'borders' => [
+                'allBorders' => [
+                    'borderStyle' => Border::BORDER_THIN,
+                    'color' => ['rgb' => 'CCCCCC'],
+                ],
+            ],
+        ];
+        
+        if ($lastDataRow >= 4) { // If there's at least one data row
+            $sheet->getStyle('A4:K' . $lastDataRow)->applyFromArray($dataStyle);
+        }
+        
+        // Apply vertical merge for grouped cells
+        $startRow = 4;
+        foreach ($groupedResponses as $email => $userResponses) {
+            $questionCount = count($userResponses);
+            
+            if ($questionCount > 1) {
+                // Merge cells for user info (columns A-G, J-K)
+                $sheet->mergeCells('A' . $startRow . ':A' . ($startRow + $questionCount - 1));
+                $sheet->mergeCells('B' . $startRow . ':B' . ($startRow + $questionCount - 1));
+                $sheet->mergeCells('C' . $startRow . ':C' . ($startRow + $questionCount - 1));
+                $sheet->mergeCells('D' . $startRow . ':D' . ($startRow + $questionCount - 1));
+                $sheet->mergeCells('E' . $startRow . ':E' . ($startRow + $questionCount - 1));
+                $sheet->mergeCells('F' . $startRow . ':F' . ($startRow + $questionCount - 1));
+                $sheet->mergeCells('G' . $startRow . ':G' . ($startRow + $questionCount - 1));
+                $sheet->mergeCells('J' . $startRow . ':J' . ($startRow + $questionCount - 1));
+                $sheet->mergeCells('K' . $startRow . ':K' . ($startRow + $questionCount - 1));
+                
+                // Center align merged cells
+                $sheet->getStyle('A' . $startRow)->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+                $sheet->getStyle('B' . $startRow)->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+                $sheet->getStyle('C' . $startRow)->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+                $sheet->getStyle('D' . $startRow)->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+                $sheet->getStyle('E' . $startRow)->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+                $sheet->getStyle('F' . $startRow)->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+                $sheet->getStyle('G' . $startRow)->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+                $sheet->getStyle('J' . $startRow)->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+                $sheet->getStyle('K' . $startRow)->getAlignment()->setVertical(Alignment::VERTICAL_CENTER);
+            }
+            
+            $startRow += $questionCount;
+        }
+        
+        // Add empty row after data
+        $row++;
+        
+        // Add Rating Scale Legend
+        $legendStartRow = $row;
+        $sheet->mergeCells('A' . $row . ':K' . $row);
+        $sheet->setCellValue('A' . $row, 'KETERANGAN SKALA PENILAIAN:');
+        $row++;
+        
+        // Add legend items
+        $legendItems = [
+            '1 = Sangat Tidak Setuju',
+            '2 = Tidak Setuju',
+            '3 = Kurang Setuju',
+            '4 = Setuju',
+            '5 = Sangat Setuju'
+        ];
+        
+        foreach ($legendItems as $item) {
+            $sheet->mergeCells('A' . $row . ':K' . $row);
+            $sheet->setCellValue('A' . $row, $item);
+            $row++;
+        }
+        
+        // Style the legend
+        $legendStyle = [
+            'font' => [
+                'bold' => true,
+                'color' => ['rgb' => '000000'],
+            ],
+        ];
+        
+        $sheet->getStyle('A' . $legendStartRow)->applyFromArray($legendStyle);
+        
+        // Auto size columns
+        foreach (array_keys($columns) as $column) {
+            $sheet->getColumnDimension($column)->setAutoSize(true);
+        }
+        
+        // Set active sheet index to the first sheet
+        $spreadsheet->setActiveSheetIndex(0);
+        
+        // Create temporary file
+        $fileName = 'data-responden-survei-' . date('Y-m-d') . '.xlsx';
+        $tempFile = tempnam(sys_get_temp_dir(), 'excel');
+        
+        // Save file to disk
+        $writer = new Xlsx($spreadsheet);
+        $writer->save($tempFile);
+        
+        // Return the file as download
+        return response()->download($tempFile, $fileName, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ])->deleteFileAfterSend(true);
+    }
+    
+
+    /**
+     * Export survey responses to PDF
+     */
+    public function exportRespondenPdf()
+    {
+        // Get responses with their questions
+        $responses = SurveiResponse::with('question')->get();
+        
+        // Count unique respondents by email
+        $uniqueEmails = SurveiResponse::distinct('email')->count('email');
+        
+        // Group responses by email
+        $groupedResponses = $responses->groupBy('email');
+        
+        // Get rating statistics for chart
+        $ratingStats = [
+            1 => SurveiResponse::where('rating', 1)->count(),
+            2 => SurveiResponse::where('rating', 2)->count(),
+            3 => SurveiResponse::where('rating', 3)->count(),
+            4 => SurveiResponse::where('rating', 4)->count(),
+            5 => SurveiResponse::where('rating', 5)->count()
+        ];
+        
+        // Calculate highest and lowest ratings that have at least one response
+        $highestRating = 0;
+        $lowestRating = 6; // Start higher than any possible rating
+        
+        foreach ($ratingStats as $rating => $count) {
+            if ($count > 0) {
+                if ($rating > $highestRating) {
+                    $highestRating = $rating;
+                }
+                if ($rating < $lowestRating) {
+                    $lowestRating = $rating;
+                }
+            }
+        }
+        
+        // If no responses, reset lowestRating
+        if (array_sum($ratingStats) === 0) {
+            $lowestRating = 0;
+        }
+        
+        // Calculate average rating
+        $totalRatings = array_sum($ratingStats);
+        $weightedSum = 0;
+        foreach ($ratingStats as $rating => $count) {
+            $weightedSum += $rating * $count;
+        }
+        $averageRating = $totalRatings > 0 ? round($weightedSum / $totalRatings, 1) : 0;
+        
+        // Create chart image
+        $chartUrl = $this->generateChartImageUrl($ratingStats);
+        
+        // Pass data to view for PDF rendering
+        $data = [
+            'responses' => $responses,
+            'groupedResponses' => $groupedResponses,
+            'uniqueEmails' => $uniqueEmails,
+            'ratingStats' => $ratingStats,
+            'highestRating' => $highestRating,
+            'lowestRating' => $lowestRating,
+            'averageRating' => $averageRating,
+            'chartUrl' => $chartUrl,
+            'totalRatings' => $totalRatings
+        ];
+        
+        // Generate PDF using DomPDF
+        $pdf = PDF::loadView('admin.pdf.dataresponden', $data);
+        
+        // Set PDF options
+        $pdf->setPaper('a4', 'portrait');
+        $pdf->setOptions([
+            'isHtml5ParserEnabled' => true,
+            'isRemoteEnabled' => true,
+            'defaultFont' => 'sans-serif'
+        ]);
+        
+        // Return the file as download
+        return $pdf->download('data-responden-survei-' . date('Y-m-d') . '.pdf');
+    }
+
+    /**
+     * Generate chart image URL using QuickChart.io
+     */
+    /**
+     * Generate chart image URL using QuickChart.io
+     */
+    private function generateChartImageUrl($ratingStats)
+    {
+        // Calculate total responses for percentage calculation
+        $totalResponses = array_sum($ratingStats);
+        
+        // Calculate percentages for each rating
+        $percentages = [];
+        foreach ($ratingStats as $rating => $count) {
+            $percentages[$rating] = $totalResponses > 0 ? round(($count / $totalResponses) * 100, 1) : 0;
+        }
+        
+        // Create labels with percentages
+        
+        
+        // Prepare chart data
+        $chartData = [
+            'type' => 'pie',
+            'data' => [
+                        'labels' => [
+                        "1 - Sangat Tidak Setuju", 
+                        "2 - Tidak Setuju", 
+                        "3 - Kurang Setuju", 
+                        "4 - Setuju", 
+                        "5 - Sangat Setuju"
+                    ],
+                'datasets' => [
+                    [
+                        'data' => [
+                            $ratingStats[1],
+                            $ratingStats[2],
+                            $ratingStats[3],
+                            $ratingStats[4],
+                            $ratingStats[5]
+                        ],
+                        'backgroundColor' => [
+                            '#FF6384', // Red
+                            '#FFCE56', // Yellow
+                            '#36A2EB', // Blue
+                            '#4BC0C0', // Teal
+                            '#9966FF'  // Purple
+                        ]
+                    ]
+                ]
+            ],
+            'options' => [
+                'plugins' => [
+                    'legend' => [
+                        'position' => 'right'
+                    ],
+                    'tooltip' => [
+                        'callbacks' => [
+                            'label' => "function(context) { return context.label; }"
+                        ]
+                    ],
+                    'datalabels' => [
+                        'display' => false // Hide the data values on the chart
+                    ]
+                ]
+            ]
+        ];
+        
+        // Convert chart configuration to JSON and encode for URL
+        $chartConfig = urlencode(json_encode($chartData));
+        
+        // Generate URL for QuickChart.io
+        return "https://quickchart.io/chart?c={$chartConfig}&w=500&h=300";
+    }
+
 }

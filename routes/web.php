@@ -22,6 +22,8 @@ Route::get('/pantau', [HomeController::class, 'pantau'])->name('pantau');
 Route::post('/pantau/cek', [HomeController::class, 'cekStatus'])->name('pantau.cek');
 Route::get('/pantau/{no_pengajuan}', [HomeController::class, 'showStatus'])->name('pantau.show');
 Route::get('/layanan', [HomeController::class, 'layanan'])->name('layanan');
+Route::get('/survei', [HomeController::class, 'survei'])->name('survei');
+Route::post('/survei/submit', [HomeController::class, 'submitSurvei'])->name('survei.submit');
 
 // Authentication routes
 Route::get('/login', [LoginController::class, 'login'])->name('login');
@@ -50,6 +52,18 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/datasurat', [AdminController::class, 'datasurats'])->name('admin.datasurat');
     Route::get('/penerbitan/{id}/download', [AdminController::class, 'downloadDocument'])->name('admin.penerbitan.download');
     Route::get('/penerbitan/{id}/download-file', [AdminController::class, 'downloadUploadedFile'])->name('admin.penerbitan.downloadFile');
+     // Add these routes to the admin routes group
+Route::get('/dataresponden', [AdminController::class, 'dataresponden'])->name('admin.dataresponden');
+Route::delete('/dataresponden/{email}', [AdminController::class, 'deleteRespondenData'])->name('admin.dataresponden.delete');
+Route::get('/dataresponden/export', [AdminController::class, 'exportResponden'])->name('admin.dataresponden.export');
+    // Add these routes to the admin routes group in routes/web.php
+    Route::get('/datasurvei', [AdminController::class, 'datasurvei'])->name('admin.datasurvei');
+    Route::post('/datasurvei', [AdminController::class, 'storeSurvei'])->name('admin.datasurvei.store');
+    Route::get('/datasurvei/{id}', [AdminController::class, 'getSurveiById'])->name('admin.datasurvei.show');
+    Route::put('/datasurvei/{id}', [AdminController::class, 'updateSurvei'])->name('admin.datasurvei.update');
+    Route::delete('/datasurvei/{id}', [AdminController::class, 'deleteSurvei'])->name('admin.datasurvei.delete');
+    Route::get('/dataresponden/export-pdf', [AdminController::class, 'exportRespondenPdf'])->name('admin.dataresponden.export-pdf');
+
 
 });
 
