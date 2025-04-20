@@ -84,8 +84,8 @@ class HomeController extends Controller
             'nama' => 'required|string|max:255',
             'email' => 'required|email|max:255',
             'jenis_kelamin' => 'required|string|in:Laki-laki,Perempuan',
-            'no_hp' => 'required|string|max:15',
-            'usia' => 'required|numeric|min:17|max:60',
+            'no_hp' => 'required|string',
+            'usia' => 'required|numeric',
             'jenis_layanan' => 'required|string|in:Mahasiswa,Non-Mahasiswa',
             'kritik_saran' => 'nullable|string',
         ]);

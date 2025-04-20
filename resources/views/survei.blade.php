@@ -97,17 +97,16 @@
                         <div class="space-y-6">
                             <div>
                                 <label class="block text-gray-700 mb-2">No. HP/WhatsApp<span class="text-red-500">*</span></label>
-                                <input type="tel" name="no_hp" value="{{ old('no_hp') }}"
+                                <input type="text" name="no_hp" value="{{ old('no_hp') }}"
                                     class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                                    pattern="[0-9]{10,13}"
+                                
                                     required>
                             </div>
                             
                             <div>
                                 <label class="block text-gray-700 mb-2">Usia<span class="text-red-500">*</span></label>
-                                <input type="number" name="usia" value="{{ old('usia') }}"
-                                    min="17" 
-                                    max="60" 
+                                <input type="text" name="usia" value="{{ old('usia') }}"
+             
                                     class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                     required>
                             </div>
