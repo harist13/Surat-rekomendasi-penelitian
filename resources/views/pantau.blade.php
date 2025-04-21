@@ -34,7 +34,7 @@
                 <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                     <h1 class="text-2xl font-bold text-[#004aad] mb-6">
                         STATUS PENGAJUAN PENELITIAN 
-                        <span class="text-lg">({{ strtoupper($tipe) }})</span>
+                    ({{ strtoupper($tipe) }})
                     </h1>
                     
                     <!-- Alert Status -->

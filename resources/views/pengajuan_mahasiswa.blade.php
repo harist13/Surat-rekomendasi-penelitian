@@ -101,7 +101,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div>
                                     <label class="block text-sm font-medium mb-1">Judul Penelitian<span class="text-red-500">*</span></label>
-                                    <input type="text" name="judul_penelitian" class="w-full p-2 border rounded-md" required>
+                                    <textarea name="judul_penelitian" class="w-full p-2 border rounded-md" rows="3" required></textarea>
                                 </div>
                                 <div>
                                     <label class="block text-sm font-medium mb-1">Lama Penelitian<span class="text-red-500">*</span></label>

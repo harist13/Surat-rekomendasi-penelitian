@@ -12,7 +12,7 @@ class CreateNonMahasiswaTable extends Migration
             $table->id();
             $table->string('no_pengajuan')->unique();
             $table->string('nama_lengkap', 255);
-            $table->string('jabatan', 100);
+            $table->string('jabatan', 255);
             $table->string('email', 100)->unique();
             $table->bigInteger('no_hp')->unique();
             $table->text('alamat_peneliti');

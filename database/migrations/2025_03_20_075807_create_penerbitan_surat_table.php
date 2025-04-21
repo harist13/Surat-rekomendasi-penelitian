@@ -12,7 +12,7 @@ class CreatePenerbitansuratTable extends Migration
             $table->id();
             $table->string('jenis_surat', 100);
             $table->string('nomor_surat', 50)->unique();
-            $table->string('menimbang', 100);
+            $table->text('menimbang');
             $table->enum('status_penelitian', ['baru', 'lama', 'perpanjangan']);
             $table->enum('status_surat', ['draft', 'diterbitkan'])->default('draft');
             $table->string('file_path')->nullable();

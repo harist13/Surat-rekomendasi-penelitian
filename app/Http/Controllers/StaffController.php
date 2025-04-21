@@ -123,7 +123,7 @@ class StaffController extends Controller
                 'jenis_surat' => 'required|in:mahasiswa,non_mahasiswa',
                 'pemohon_id' => 'required',
                 'nomor_surat' => 'required|string',
-                'menimbang' => 'nullable|string',
+                'menimbang' => 'required|string',
                 'status_penelitian' => 'required|in:baru,lama,perpanjangan',
                 'status_surat' => 'required|string',
                 // Remove no_pengajuan from validation as it's only for display

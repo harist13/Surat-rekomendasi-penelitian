@@ -15,7 +15,7 @@
             margin-bottom: 20px;
         }
         .header h1 {
-            font-size: 18pt;
+            font-size: 14pt;
             margin-bottom: 0;
             color: #004aad;
         }
@@ -126,7 +126,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>DATA RESPONDEN SURVEI KEPUASAN PELAYANAN</h1>
+        <h1>DATA RESPONDEN SURVEI KEPUASAN PELAYANAN WEBSITE SURAT REKOMENDASI PENELITIAN KALIMANTAN TIMUR</h1>
         <p>Tanggal: {{ date('d-m-Y') }}</p>
     </div>
     

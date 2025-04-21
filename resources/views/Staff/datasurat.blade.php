@@ -658,7 +658,7 @@
     <!-- Email Notification Modal -->
     <div id="emailModal" class="fixed inset-0 flex items-center justify-center z-50 hidden">
         <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeEmailModal()"></div>
-        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 relative">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md mx-4 relative max-h-[90vh] flex flex-col">
             <div class="flex justify-between items-center bg-blue-600 text-white p-4 rounded-t-lg">
                 <h2 class="text-lg font-semibold flex items-center">
                     <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -672,45 +672,47 @@
                     </svg>
                 </button>
             </div>
-            <form action="{{ route('send.approval.email.notification') }}" method="POST">
-                @csrf
-                <input type="hidden" name="surat_id" id="email_surat_id">
-                <input type="hidden" name="nama" id="email_nama">
-                <input type="hidden" name="judul_penelitian" id="email_judul_penelitian">
-                <input type="hidden" name="nomor_surat" id="email_nomor_surat">
-                
-                <div class="p-6">
-                    <div class="mb-4">
-                        <label for="email_alamat" class="block text-sm font-medium text-gray-700 mb-1">Alamat Email</label>
-                        <input type="email" id="email_alamat" name="email" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-blue-500 focus:border-blue-500 text-sm" required>
-                    </div>
+            <div class="overflow-y-auto flex-grow">
+                <form action="{{ route('send.approval.email.notification') }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="surat_id" id="email_surat_id">
+                    <input type="hidden" name="nama" id="email_nama">
+                    <input type="hidden" name="judul_penelitian" id="email_judul_penelitian">
+                    <input type="hidden" name="nomor_surat" id="email_nomor_surat">
                     
-                    <div class="mb-4">
-                        <p class="text-sm text-gray-600 mb-2">Informasi Surat Terbit:</p>
-                        <div class="p-3 bg-gray-50 rounded-md text-sm mb-4">
-                            <p class="mb-1"><span class="font-medium">Nama:</span> <span id="display_email_nama"></span></p>
-                            <p class="mb-1"><span class="font-medium">Judul Penelitian:</span> <span id="display_email_judul_penelitian"></span></p>
-                            <p class="mb-1"><span class="font-medium">Nomor Surat:</span> <span id="display_email_nomor_surat"></span></p>
+                    <div class="p-6">
+                        <div class="mb-4">
+                            <label for="email_alamat" class="block text-sm font-medium text-gray-700 mb-1">Alamat Email</label>
+                            <input type="email" id="email_alamat" name="email" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-blue-500 focus:border-blue-500 text-sm" required>
                         </div>
                         
-                        <label for="email_pesan" class="block text-sm font-medium text-gray-700 mb-1">Pesan Email</label>
-                        <textarea id="email_pesan" name="pesan_email" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-blue-500 focus:border-blue-500 text-sm" rows="12" required></textarea>
-                        <p class="mt-1 text-xs text-gray-500">Pesan akan dikirim melalui email ke alamat yang tercantum.</p>
+                        <div class="mb-4">
+                            <p class="text-sm text-gray-600 mb-2">Informasi Surat Terbit:</p>
+                            <div class="p-3 bg-gray-50 rounded-md text-sm mb-4">
+                                <p class="mb-1"><span class="font-medium">Nama:</span> <span id="display_email_nama"></span></p>
+                                <p class="mb-1"><span class="font-medium">Judul Penelitian:</span> <span id="display_email_judul_penelitian"></span></p>
+                                <p class="mb-1"><span class="font-medium">Nomor Surat:</span> <span id="display_email_nomor_surat"></span></p>
+                            </div>
+                            
+                            <label for="email_pesan" class="block text-sm font-medium text-gray-700 mb-1">Pesan Email</label>
+                            <textarea id="email_pesan" name="pesan_email" class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:ring-blue-500 focus:border-blue-500 text-sm" rows="12" required></textarea>
+                            <p class="mt-1 text-xs text-gray-500">Pesan akan dikirim melalui email ke alamat yang tercantum.</p>
+                        </div>
+                        
+                        <div class="flex justify-end space-x-3 mt-6">
+                            <button type="button" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2" onclick="closeEmailModal()">
+                                Batal
+                            </button>
+                            <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center">
+                                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
+                                </svg>
+                                Kirim Email
+                            </button>
+                        </div>
                     </div>
-                    
-                    <div class="flex justify-end space-x-3 mt-6">
-                        <button type="button" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2" onclick="closeEmailModal()">
-                            Batal
-                        </button>
-                        <button type="submit" class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 flex items-center">
-                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path>
-                            </svg>
-                            Kirim Email
-                        </button>
-                    </div>
-                </div>
-            </form>
+                </form>
+            </div>
         </div>
     </div>
 

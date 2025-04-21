@@ -63,7 +63,7 @@ class FormPengajuanController extends Controller
                 'Pengajuan diterima oleh sistem'
             );
 
-            return redirect()->route('pengajuanmahasiswa')->with('success', "Pengajuan berhasil disimpan dengan nomor pengajuan {$noPengajuan}. Simpan nomor pengajuan dengan baik agar bisa melacak status pengajuan.");
+            return redirect()->route('pengajuanmahasiswa')->with('success', "Pengajuan berhasil disimpan dengan nomor pengajuan {$noPengajuan} Simpan nomor pengajuan dengan baik agar bisa melacak status pengajuan.");
         } catch (\Exception $e) {
             return redirect()->route('pengajuanmahasiswa')->withErrors(['error' => 'Terjadi kesalahan saat menyimpan pengajuan: ' . $e->getMessage()]);
         }
@@ -126,7 +126,7 @@ class FormPengajuanController extends Controller
                 'Pengajuan diterima oleh sistem'
             );
 
-            return redirect()->route('pengajuannonmahasiswa')->with('success', "Pengajuan berhasil disimpan dengan nomor pengajuan {$noPengajuan}. Simpan nomor pengajuan dengan baik agar bisa melacak status pengajuan.");
+            return redirect()->route('pengajuannonmahasiswa')->with('success', "Pengajuan berhasil disimpan dengan nomor pengajuan {$noPengajuan} Simpan nomor pengajuan dengan baik agar bisa melacak status pengajuan.");
         } catch (\Exception $e) {
             return redirect()->route('pengajuannonmahasiswa')->withErrors(['error' => 'Terjadi kesalahan saat menyimpan pengajuan: ' . $e->getMessage()]);
         }

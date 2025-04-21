@@ -16,7 +16,7 @@
         <div class="p-8">
             <!-- Header -->
             <div class="flex justify-between items-center mb-8">
-                <h1 class="text-2xl font-bold text-gray-800">Data Survei Kepuasan</h1>
+                <h1 class="text-2xl font-bold text-gray-800">Data Kuisioner</h1>
                 <div class="text-gray-600">
                     Selamat Datang Admin, <span class="font-semibold text-blue-600">{{ Auth::user()->username }}</span>
                 </div>
@@ -45,7 +45,7 @@
                     <!-- Tabs -->
                     <div class="flex items-center space-x-2">
                         <div class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium">
-                            DATA PERTANYAAN SURVEI
+                            DATA KUISIONER
                         </div>
                     </div>
 
@@ -156,7 +156,7 @@
         <div class="bg-white rounded-lg w-full max-w-2xl">
             <!-- Modal Header -->
             <div class="flex justify-between items-center p-4 border-b">
-                <h3 class="text-lg font-semibold">Tambah Pertanyaan Survei</h3>
+                <h3 class="text-lg font-semibold">Tambah Kuisioner</h3>
                 <button onclick="hideTambahSurveiModal()" class="text-gray-500 hover:text-gray-700">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -168,7 +168,7 @@
             <form id="add-survei-form" action="{{ route('admin.datasurvei.store') }}" method="POST" class="p-4 space-y-4">
                 @csrf
                 <div>
-                    <label class="block text-sm font-medium mb-1">Pertanyaan Survei</label>
+                    <label class="block text-sm font-medium mb-1">Pertanyaan</label>
                     <input type="text" name="pertanyaan" class="w-full p-2 border rounded-lg" required>
                 </div>
                 
@@ -202,7 +202,7 @@
         <div class="bg-white rounded-lg w-full max-w-2xl">
             <!-- Modal Header -->
             <div class="flex justify-between items-center p-4 border-b">
-                <h3 class="text-lg font-semibold">Edit Pertanyaan Survei</h3>
+                <h3 class="text-lg font-semibold">Edit Kuisioner</h3>
                 <button onclick="hideEditSurveiModal()" class="text-gray-500 hover:text-gray-700">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -217,7 +217,7 @@
                 <input type="hidden" id="edit-survei-id" name="survei_id">
                 
                 <div>
-                    <label class="block text-sm font-medium mb-1">Pertanyaan Survei</label>
+                    <label class="block text-sm font-medium mb-1">Pertanyaan</label>
                     <input type="text" id="edit-pertanyaan" name="pertanyaan" class="w-full p-2 border rounded-lg" required>
                 </div>
                 
@@ -251,7 +251,7 @@
         <div class="bg-white rounded-lg w-full max-w-2xl">
             <!-- Modal Header -->
             <div class="flex justify-between items-center p-4 border-b">
-                <h3 class="text-lg font-semibold">Detail Pertanyaan Survei</h3>
+                <h3 class="text-lg font-semibold">Detail Kuisioner</h3>
                 <button onclick="hideViewSurveiModal()" class="text-gray-500 hover:text-gray-700">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
@@ -311,7 +311,7 @@
     <div id="delete-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-lg w-full max-w-md p-6">
             <h3 class="text-lg font-semibold mb-4">Konfirmasi Hapus</h3>
-            <p class="mb-6">Apakah Anda yakin ingin menghapus pertanyaan survei ini? Tindakan ini akan menghapus semua jawaban terkait dan tidak dapat dibatalkan.</p>
+            <p class="mb-6">Apakah Anda yakin ingin menghapus pertanyaan ini? Tindakan ini akan menghapus semua jawaban terkait dan tidak dapat dibatalkan.</p>
             <div class="flex justify-end space-x-2">
                 <button onclick="hideDeleteModal()" class="px-4 py-2 border rounded-lg hover:bg-gray-50">
                     Batal
@@ -331,7 +331,7 @@
     <div id="toggle-status-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
         <div class="bg-white rounded-lg w-full max-w-md p-6">
             <h3 class="text-lg font-semibold mb-4">Konfirmasi Perubahan Status</h3>
-            <p id="toggle-status-text" class="mb-6">Apakah Anda yakin ingin mengubah status pertanyaan survei ini?</p>
+            <p id="toggle-status-text" class="mb-6">Apakah Anda yakin ingin mengubah status pertanyaan ini?</p>
             <div class="flex justify-end space-x-2">
                 <button onclick="hideToggleStatusModal()" class="px-4 py-2 border rounded-lg hover:bg-gray-50">
                     Batal
