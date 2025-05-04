@@ -196,7 +196,7 @@
     </div>
 
     <!-- Footer -->
-    @include('Layout.App.Footer')
+    @include('Layout.App.footer')
     
     <script>
         // Auto-hide alerts after 8 seconds

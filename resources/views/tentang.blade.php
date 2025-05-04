@@ -90,6 +90,6 @@
     </div>
 
     <!-- Footer -->
-    @include('Layout.App.Footer')
+    @include('Layout.App.footer')
 </body>
 </html>
