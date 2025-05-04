@@ -340,7 +340,7 @@ class AdminController extends Controller
         ];
         
         // Generate PDF using DomPDF
-        $pdf = PDF::loadView('staff.surat.surat_penelitian', $data);
+        $pdf = PDF::loadview('Staff.surat.surat_penelitian', $data);
         
         // Set PDF options
         $pdf->setPaper('a4');

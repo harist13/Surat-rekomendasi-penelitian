@@ -36,7 +36,7 @@ class StaffController extends Controller
         // Get monthly statistics for chart
         $monthlyStats = $this->getMonthlyStatistics();
         
-        return view('staff.index', compact('totalUsers', 'totalPending', 'approvedDocuments', 'monthlyStats'));
+        return view('Staff.index', compact('totalUsers', 'totalPending', 'approvedDocuments', 'monthlyStats'));
     }
     
     /**
@@ -93,7 +93,7 @@ class StaffController extends Controller
         $approvedMahasiswa = Mahasiswa::where('status', 'diterima')->get();
         $approvedNonMahasiswa = NonMahasiswa::where('status', 'diterima')->get();
         
-        return view('staff.penerbitan', compact('approvedMahasiswa', 'approvedNonMahasiswa'));
+        return view('Staff.penerbitan', compact('approvedMahasiswa', 'approvedNonMahasiswa'));
     }
 
     public function getMahasiswaData(Request $request)
@@ -303,7 +303,7 @@ class StaffController extends Controller
         ];
         
         // Generate PDF using DomPDF
-        $pdf = PDF::loadView('staff.surat.surat_penelitian', $data);
+        $pdf = PDF::loadview('Staff.surat.surat_penelitian', $data);
         
         // Set PDF options
         $pdf->setPaper('a4');
@@ -527,7 +527,7 @@ class StaffController extends Controller
                                                 ->withQueryString();
         
         // Return view with data for both tables
-        return view('staff.datasurat', compact(
+        return view('Staff.datasurat', compact(
             'penerbitanSurats',
             'penerbitanSuratsPublished',
             'search',
@@ -755,7 +755,7 @@ class StaffController extends Controller
         
         $ditolakMahasiswas = $ditolakMahasiswasQuery->paginate($perPageRejected, ['*'], 'page_rejected');
 
-        return view('staff.datapengajuanmahasiswa', compact(
+        return view('Staff.datapengajuanmahasiswa', compact(
             'mahasiswas', 
             'ditolakMahasiswas', 
             'search', 
@@ -947,7 +947,7 @@ class StaffController extends Controller
         
         $ditolakNonMahasiswas = $ditolakNonMahasiswasQuery->paginate($perPageRejected, ['*'], 'page_rejected');
 
-        return view('staff.datapengajuannonmahasiswa', compact(
+        return view('Staff.datapengajuannonmahasiswa', compact(
             'nonMahasiswas', 
             'ditolakNonMahasiswas', 
             'search', 
