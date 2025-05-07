@@ -156,7 +156,7 @@
                                     <input type="file" name="proposal_penelitian" class="w-full p-2 border rounded-md" required>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium mb-1">Lampiran Rincian daftar lokasi penelitian<span class="text-red-500">*</span></label>
+                                    <label class="block text-sm font-medium mb-1">Surat pernyataan memberikan hasil survei<span class="text-red-500">*</span></label>
                                     <input type="file" name="lampiran_rincian_lokasi" class="w-full p-2 border rounded-md" required>
                                 </div>
                             </div>
@@ -189,6 +189,12 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                             </svg>
                             <p class="text-sm text-gray-600">Berkas yang diupload format PDF (maks. 2MB)</p>
+                        </div>
+                        <div class="flex items-start space-x-2">
+                            <svg class="w-5 h-5 text-[#004aad] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p class="text-sm text-gray-600">Proposal Penelitian maks. 10 halaman jadi tidak perlu di sertakan semuanya</p>
                         </div>
                     </div>
                 </div>

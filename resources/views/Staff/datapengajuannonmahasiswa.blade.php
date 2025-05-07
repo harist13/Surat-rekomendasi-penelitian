@@ -82,7 +82,7 @@
                                 <th colspan="7" class="px-4 py-3 text-center font-medium border-r border-gray-300">Data Pemohon</th>
                                 <th colspan="3" class="px-4 py-3 text-center font-medium border-r border-gray-300">Data Instansi</th>
                                 <th colspan="8" class="px-4 py-3 text-center font-medium border-r border-gray-300">Data Penelitian</th>
-                                <th colspan="3" class="px-4 py-3 text-center font-medium">Berkas Pendukung</th>
+                                <th colspan="6" class="px-4 py-3 text-center font-medium">Berkas Pendukung</th>
                                 <th class="px-4 py-3 border-l border-gray-300">Aksi</th>
                             </tr>
                             <tr class="bg-[#004aad]">
@@ -111,10 +111,12 @@
                                 <th class="px-4 py-3 border border-gray-300 w-24">Status</th>
                                 
                                 <!-- Berkas Pendukung Sub Columns -->
-                                <th class="px-4 py-3 border border-gray-300 w-40">Surat Pengantar</th>
-                                <th class="px-4 py-3 border border-gray-300 w-32">Proposal</th>
-                                <th class="px-4 py-3 border border-gray-300 w-28">KTP</th>
-                                
+                                <th class="px-4 py-3 border border-gray-300 w-40">Surat Pengantar instansi</th>
+                                <th class="px-4 py-3 border border-gray-300 w-40">akta notaris lembaga</th>
+                                <th class="px-4 py-3 border border-gray-300 w-40">surat terdaftar kemenkuham</th>
+                                <th class="px-4 py-3 border border-gray-300 w-28">KTP ketua peneliti</th>
+                                <th class="px-4 py-3 border border-gray-300 w-28">Proposal penelitian</th>
+                                <th class="px-4 py-3 border border-gray-300 w-32">Surat pernyataan memberikan hasil survei</th>
                                 <th class="px-4 py-3 border border-gray-300 w-28">Aksi</th>
                             </tr>
                         </thead>
@@ -167,10 +169,19 @@
                                         <a href="{{ Storage::url($nonMahasiswa->surat_pengantar_instansi) }}" class="text-blue-500 hover:text-blue-700">Download</a>
                                     </td>
                                     <td class="px-4 py-3 border border-gray-200">
-                                        <a href="{{ Storage::url($nonMahasiswa->proposal_penelitian) }}" class="text-blue-500 hover:text-blue-700">Download</a>
+                                        <a href="{{ Storage::url($nonMahasiswa->akta_notaris_lembaga) }}" class="text-blue-500 hover:text-blue-700">Download</a>
+                                    </td>
+                                    <td class="px-4 py-3 border border-gray-200">
+                                        <a href="{{ Storage::url($nonMahasiswa->surat_terdaftar_kemenkumham) }}" class="text-blue-500 hover:text-blue-700">Download</a>
                                     </td>
                                     <td class="px-4 py-3 border border-gray-200">
                                         <a href="{{ Storage::url($nonMahasiswa->ktp) }}" class="text-blue-500 hover:text-blue-700">Download</a>
+                                    </td>
+                                    <td class="px-4 py-3 border border-gray-200">
+                                        <a href="{{ Storage::url($nonMahasiswa->proposal_penelitian) }}" class="text-blue-500 hover:text-blue-700">Download</a>
+                                    </td>
+                                    <td class="px-4 py-3 border border-gray-200">
+                                        <a href="{{ Storage::url($nonMahasiswa->lampiran_rincian_lokasi) }}" class="text-blue-500 hover:text-blue-700">Download</a>
                                     </td>
                                     
                                     <td class="px-4 py-3 border border-gray-200">

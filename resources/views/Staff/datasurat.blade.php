@@ -803,48 +803,66 @@
     </div>
 
     <!-- Modal for Menimbang Details -->
-    <div id="menimbangModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
-        <div class="bg-white rounded-lg shadow-lg w-11/12 max-w-lg p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-gray-900">Pertimbangan Penerbitan Surat</h3>
-                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5" onclick="closeMenimbangModal()">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-            <div class="mb-4">
-                <p class="text-sm text-gray-500">Nomor Surat: <span id="menimbang_nomor_surat" class="font-medium text-gray-700"></span></p>
-            </div>
-            <div class="bg-gray-50 p-4 rounded border border-gray-200 mb-4">
-                <div id="menimbangContent" class="text-gray-700 whitespace-pre-line"></div>
-            </div>
-            <div class="flex justify-end">
-                <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" onclick="closeMenimbangModal()">
-                    Tutup
-                </button>
+    <!-- Modal for Menimbang Details -->
+    <div id="menimbangModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center h-full">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center border-b p-4">
+                    <h3 class="text-xl font-semibold text-gray-800">Pertimbangan Penerbitan Surat</h3>
+                    <button type="button" class="text-gray-400 hover:text-gray-600" onclick="closeMenimbangModal()">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="p-6">
+                    <div class="mb-4">
+                        <p class="text-sm text-gray-700 mb-2">Nomor Surat: <span id="menimbang_nomor_surat" class="font-medium text-gray-900"></span></p>
+                    </div>
+                    <!-- Pertimbangan Penerbitan Surat -->
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-700 mb-3">Pertimbangan</h4>
+                        <textarea id="menimbangTextarea" class="w-full h-64 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" readonly></textarea>
+                    </div>
+                </div>
+                
+                <div class="border-t p-4 flex justify-end">
+                    <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700" onclick="closeMenimbangModal()">
+                        Tutup
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
     <!-- Modal for Anggota Penelitian -->
-    <div id="anggotaModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
-        <div class="bg-white rounded-lg shadow-lg w-11/12 max-w-md p-6">
-            <div class="flex justify-between items-center mb-4">
-                <h3 class="text-lg font-semibold text-gray-900" id="modalTitle">Daftar Anggota Penelitian</h3>
-                <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5" onclick="closeAnggotaModal()">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
-                    </svg>
-                </button>
-            </div>
-            <div id="anggotaList" class="mt-2 max-h-60 overflow-y-auto">
-                <!-- Anggota will be loaded here -->
-            </div>
-            <div class="mt-4 flex justify-end">
-                <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" onclick="closeAnggotaModal()">
-                    Tutup
-                </button>
+    <!-- Modal for Anggota Penelitian -->
+    <div id="anggotaModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+        <div class="flex items-center justify-center h-full">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+                <div class="flex justify-between items-center border-b p-4">
+                    <h3 class="text-xl font-semibold text-gray-800" id="modalTitle">Daftar Anggota Penelitian</h3>
+                    <button type="button" class="text-gray-400 hover:text-gray-600" onclick="closeAnggotaModal()">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="p-6">
+                    <!-- Daftar Anggota Penelitian -->
+                    <div class="mb-6">
+                        <h4 class="text-lg font-medium text-gray-700 mb-3">Anggota Penelitian</h4>
+                        <textarea id="anggotaTextarea" class="w-full h-64 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" readonly></textarea>
+                    </div>
+                </div>
+                
+                <div class="border-t p-4 flex justify-end">
+                    <button type="button" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-medium hover:bg-gray-300" onclick="closeAnggotaModal()">
+                        Tutup
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1170,85 +1188,76 @@
 
     <script>
     // Function to show anggota penelitian modal
+    // Function to show anggota penelitian modal
     function showAnggotaModal(anggotaData, namaLengkap) {
+        // Get the modal and textarea element
         const anggotaModal = document.getElementById('anggotaModal');
-        const anggotaList = document.getElementById('anggotaList');
+        const anggotaTextarea = document.getElementById('anggotaTextarea');
         const modalTitle = document.getElementById('modalTitle');
         
+        // Set the title with the name
         modalTitle.textContent = `Daftar Anggota Penelitian - ${namaLengkap}`;
-        anggotaList.innerHTML = '';
+        
+        // Clear previous content
+        anggotaTextarea.value = '';
+        
+        // Parse the anggota data properly - handle different formats
+        let anggotaArray = [];
         
         try {
             // Try to parse the data as JSON
-            let anggotaArray;
-            
             if (typeof anggotaData === 'string') {
-                // If it's already a string, try to parse it
-                anggotaArray = JSON.parse(anggotaData);
-            } else {
-                // If it's already an object, use it directly
+                // If it's already a string, try to parse it as JSON
+                try {
+                    const parsed = JSON.parse(anggotaData);
+                    if (Array.isArray(parsed)) {
+                        anggotaArray = parsed;
+                    } else if (typeof parsed === 'string') {
+                        anggotaArray = parsed.split(',').map(item => item.trim()).filter(item => item);
+                    } else {
+                        anggotaArray = [String(parsed)]; // Just use it as a single item
+                    }
+                } catch (e) {
+                    // If parsing fails, assume it's comma-separated or a plain string
+                    if (anggotaData.includes(',')) {
+                        anggotaArray = anggotaData.split(',').map(item => item.trim()).filter(item => item);
+                    } else {
+                        anggotaArray = [anggotaData];
+                    }
+                }
+            } else if (Array.isArray(anggotaData)) {
                 anggotaArray = anggotaData;
+            } else if (anggotaData) {
+                anggotaArray = [String(anggotaData)];
             }
             
-            // Check if it's an array
-            if (Array.isArray(anggotaArray)) {
-                if (anggotaArray.length === 0) {
-                    anggotaList.innerHTML = '<p class="text-gray-500">Tidak ada anggota penelitian.</p>';
-                } else {
-                    const ul = document.createElement('ul');
-                    ul.className = 'list-disc list-inside';
-                    
-                    anggotaArray.forEach((anggota, index) => {
-                        const li = document.createElement('li');
-                        li.className = 'py-1';
-                        li.textContent = typeof anggota === 'object' ? anggota.nama || JSON.stringify(anggota) : anggota;
-                        ul.appendChild(li);
-                    });
-                    
-                    anggotaList.appendChild(ul);
-                }
-            } else if (typeof anggotaArray === 'string') {
-                // If it's a string (not JSON), display it as is
-                const p = document.createElement('p');
-                p.textContent = anggotaArray;
-                anggotaList.appendChild(p);
+            // Add data to textarea
+            if (anggotaArray && anggotaArray.length > 0) {
+                // Format objects if they exist in the array
+                const formattedArray = anggotaArray.map(item => {
+                    if (typeof item === 'object' && item !== null) {
+                        return item.nama || JSON.stringify(item);
+                    }
+                    return item;
+                });
+                anggotaTextarea.value = formattedArray.join('\n');
             } else {
-                // If it's another type of object, convert to string
-                anggotaList.innerHTML = '<p>' + JSON.stringify(anggotaArray, null, 2).replace(/\\n/g, '<br>') + '</p>';
+                anggotaTextarea.value = 'Tidak ada anggota peneliti';
             }
         } catch (e) {
-            // If JSON parsing fails, treat it as a plain string
-            const p = document.createElement('p');
-            if (anggotaData.includes('\n')) {
-                // If it contains newlines, split by newlines
-                const lines = anggotaData.split('\n');
-                const ul = document.createElement('ul');
-                ul.className = 'list-disc list-inside';
-                
-                lines.forEach(line => {
-                    if (line.trim()) {
-                        const li = document.createElement('li');
-                        li.className = 'py-1';
-                        li.textContent = line.trim();
-                        ul.appendChild(li);
-                    }
-                });
-                
-                anggotaList.appendChild(ul);
-            } else {
-                // Otherwise show as is
-                p.textContent = anggotaData;
-                anggotaList.appendChild(p);
-            }
+            // If all parsing attempts fail, show the error
+            anggotaTextarea.value = 'Error: ' + e.message + '\n\nData asli: ' + anggotaData;
         }
         
         // Show the modal
         anggotaModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling behind modal
     }
-    
-    // Function to close anggota modal
+
+    // Function to close the modal
     function closeAnggotaModal() {
         document.getElementById('anggotaModal').classList.add('hidden');
+        document.body.style.overflow = 'auto'; // Re-enable scrolling
     }
     
     // Function to open WhatsApp notification modal
@@ -1285,21 +1294,27 @@
     }
 
     // Function to show menimbang modal
+    // Function to show menimbang modal
     function showMenimbangModal(menimbangText, nomorSurat) {
         const menimbangModal = document.getElementById('menimbangModal');
-        const menimbangContent = document.getElementById('menimbangContent');
+        const menimbangTextarea = document.getElementById('menimbangTextarea');
         const modalNomorSurat = document.getElementById('menimbang_nomor_surat');
         
+        // Set the nomor surat in the modal
         modalNomorSurat.textContent = nomorSurat;
-        menimbangContent.textContent = menimbangText;
+        
+        // Set the menimbang text in the textarea
+        menimbangTextarea.value = menimbangText || 'Tidak ada pertimbangan';
         
         // Show the modal
         menimbangModal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden'; // Prevent scrolling behind modal
     }
 
     // Function to close menimbang modal
     function closeMenimbangModal() {
         document.getElementById('menimbangModal').classList.add('hidden');
+        document.body.style.overflow = 'auto'; // Re-enable scrolling
     }
 
     function openConfirmStatusModal(id, nama, nomorSurat) {

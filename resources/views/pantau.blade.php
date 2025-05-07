@@ -229,8 +229,8 @@
                                 <div class="md:col-span-2">
                                     <label class="block text-sm font-medium text-gray-500">Anggota Peneliti</label>
                                     <button type="button" 
-                                            onclick="openAnggotaModal('{{ $data->anggota_peneliti }}')" 
-                                            class="mt-1 px-3 py-1.5 text-sm bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-md">
+                                            data-anggota="{{ $data->anggota_peneliti }}" 
+                                            class="mt-1 px-3 py-1.5 text-sm bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-md anggota-btn">
                                         <i class="fas fa-users mr-2"></i>Lihat Daftar Anggota
                                     </button>
                                 </div>
@@ -438,15 +438,24 @@
         </div>
         @endif
     </div>
-    <div id="anggotaModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full">
-    <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div class="mt-3 text-center">
-            <h3 class="text-lg leading-6 font-medium text-gray-900">Daftar Anggota Peneliti</h3>
-            <div class="mt-2 px-4 py-3">
-                <p id="anggotaList" class="text-sm text-gray-500 whitespace-pre-line"></p>
+    <div id="anggotaModal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
+    <div class="flex items-center justify-center min-h-screen p-4">
+        <div class="relative bg-white rounded-lg shadow-xl w-full max-w-md">
+            <div class="flex justify-between items-center border-b p-4">
+                <h3 class="text-xl font-semibold text-gray-800">Daftar Anggota Peneliti</h3>
+                <button type="button" class="text-gray-400 hover:text-gray-600" onclick="closeAnggotaModal()">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
             </div>
-            <div class="items-center px-4 py-3">
-                <button onclick="closeAnggotaModal()" class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300">
+            
+            <div class="p-6">
+                <textarea id="anggotaTextarea" class="w-full h-64 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" readonly></textarea>
+            </div>
+            
+            <div class="border-t p-4 flex justify-end">
+                <button type="button" class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-300" onclick="closeAnggotaModal()">
                     Tutup
                 </button>
             </div>
@@ -455,14 +464,133 @@
 </div>
 
 <script>
+// Perbaiki fungsi untuk membuka anggotaModal
 function openAnggotaModal(anggota) {
-    document.getElementById('anggotaList').textContent = anggota;
-    document.getElementById('anggotaModal').classList.remove('hidden');
+    console.log("Mencoba membuka modal anggota dengan data:", anggota); // Debugging log
+    
+    // Dapatkan elemen modal dan textarea
+    const modal = document.getElementById('anggotaModal');
+    const textarea = document.getElementById('anggotaTextarea');
+    
+    if (!modal || !textarea) {
+        console.error("Modal atau textarea tidak ditemukan!");
+        return;
+    }
+    
+    // Pastikan anggota selalu dalam bentuk string
+    let anggotaText = "";
+    
+    try {
+        // Jika anggota adalah string yang mewakili array JSON, coba parse
+        if (typeof anggota === 'string' && (anggota.startsWith('[') || anggota.startsWith('{'))) {
+            try {
+                const parsed = JSON.parse(anggota);
+                if (Array.isArray(parsed)) {
+                    anggotaText = parsed.join('\n');
+                } else if (typeof parsed === 'object') {
+                    anggotaText = Object.values(parsed).join('\n');
+                } else {
+                    anggotaText = String(parsed);
+                }
+            } catch (e) {
+                // Jika parsing gagal, gunakan string asli
+                anggotaText = anggota;
+            }
+        } else {
+            anggotaText = String(anggota || '');
+        }
+        
+        // Bersihkan data dari karakter pengganggu yang mungkin menyebabkan masalah tampilan
+        anggotaText = anggotaText
+            .replace(/\\n/g, '\n') // Konversi string literal \n menjadi baris baru sebenarnya
+            .replace(/\\"/g, '"')   // Konversi string literal \" menjadi "
+            .replace(/\\'/g, "'");  // Konversi string literal \' menjadi '
+            
+        // Tambahkan pesan jika tidak ada data
+        if (!anggotaText.trim()) {
+            anggotaText = "Tidak ada anggota peneliti";
+        }
+        
+    } catch (err) {
+        console.error("Error memproses data anggota:", err);
+        anggotaText = "Error: Gagal memproses data anggota";
+    }
+    
+    // Isi textarea dengan data yang sudah diproses
+    textarea.value = anggotaText;
+    
+    // Tampilkan modal
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden'; // Cegah scrolling
+    
+    console.log("Modal anggota dibuka", modal.classList.contains('hidden')); // Debugging log
 }
 
+// Fungsi untuk menutup modal
 function closeAnggotaModal() {
-    document.getElementById('anggotaModal').classList.add('hidden');
+    const modal = document.getElementById('anggotaModal');
+    if (modal) {
+        modal.classList.add('hidden');
+        document.body.style.overflow = 'auto'; // Aktifkan kembali scrolling
+    }
 }
+
+// Event listener untuk menutup modal dengan klik di luar atau tombol Escape
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        closeAnggotaModal();
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Tambahkan event listener untuk klik di luar modal
+    const modal = document.getElementById('anggotaModal');
+    if (modal) {
+        modal.addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeAnggotaModal();
+            }
+        });
+    }
+    
+    // Ganti tombol yang memanggil openAnggotaModal untuk memastikan fungsi berjalan dengan benar
+    const anggotaButtons = document.querySelectorAll('button[onclick^="openAnggotaModal"]');
+    anggotaButtons.forEach(button => {
+        const originalOnclick = button.getAttribute('onclick');
+        
+        // Hapus event handler asli
+        button.removeAttribute('onclick');
+        
+        // Tambahkan event listener yang baru
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Ekstrak data anggota dari atribut onclick
+            let anggotaData = '';
+            const match = originalOnclick.match(/openAnggotaModal\('(.*)'\)/);
+            if (match && match[1]) {
+                anggotaData = match[1];
+                // Hilangkan escape karakter jika ada
+                anggotaData = anggotaData.replace(/\\'/g, "'").replace(/\\"/g, '"');
+            }
+            
+            // Panggil fungsi openAnggotaModal dengan data yang sudah dibersihkan
+            openAnggotaModal(anggotaData);
+        });
+    });
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Tangani semua tombol dengan class anggota-btn
+    document.querySelectorAll('.anggota-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const anggotaData = this.getAttribute('data-anggota');
+            openAnggotaModal(anggotaData);
+        });
+    });
+});
 </script>
 </body>
 @include('Layout.App.Footer')

@@ -91,7 +91,7 @@
                             <tr>
                                 <th class="px-4 py-3">No</th>
                                 <th class="px-4 py-3">Pertanyaan</th>
-                                <th class="px-4 py-3">Status</th>
+                                
                                 <th class="px-4 py-3">Tanggal Dibuat</th>
                                 <th class="px-4 py-3">Aksi</th>
                             </tr>
@@ -101,13 +101,6 @@
                             <tr class="bg-white border-b hover:bg-gray-50">
                                 <td class="px-4 py-3">{{ $index + 1 }}</td>
                                 <td class="px-4 py-3 max-w-xs truncate">{{ $question->pertanyaan }}</td>
-                                <td class="px-4 py-3">
-                                    @if($question->is_active)
-                                        <span class="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs">Aktif</span>
-                                    @else
-                                        <span class="px-2 py-1 bg-red-100 text-red-800 rounded-full text-xs">Tidak Aktif</span>
-                                    @endif
-                                </td>
                                 <td class="px-4 py-3">{{ $question->created_at->format('d/m/Y') }}</td>
                                 <td class="px-4 py-3 flex space-x-2">
                                     <button data-survei-id="{{ $question->id }}" class="btn-edit-survei text-blue-500 hover:text-blue-700">
@@ -118,11 +111,6 @@
                                     <button data-survei-id="{{ $question->id }}" class="btn-delete-survei text-red-500 hover:text-red-700">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                        </svg>
-                                    </button>
-                                    <button data-survei-id="{{ $question->id }}" class="btn-toggle-status text-yellow-500 hover:text-yellow-700" title="{{ $question->is_active ? 'Nonaktifkan' : 'Aktifkan' }}">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" {{ $question->is_active ? '' : 'stroke-dasharray="4 4"' }}></path>
                                         </svg>
                                     </button>
                                     <button data-survei-id="{{ $question->id }}" class="btn-view-survei text-green-500 hover:text-green-700">
@@ -172,13 +160,7 @@
                     <input type="text" name="pertanyaan" class="w-full p-2 border rounded-lg" required>
                 </div>
                 
-                <div>
-                    <label class="block text-sm font-medium mb-1">Status</label>
-                    <select name="is_active" class="w-full p-2 border rounded-lg">
-                        <option value="1" selected>Aktif</option>
-                        <option value="0">Tidak Aktif</option>
-                    </select>
-                </div>
+                
                 
                 
                     <input type="hidden" name="kepuasan_pelayanan" class="w-full p-2 border rounded-lg bg-gray-100" value="1 2 3 4 5" readonly>
@@ -221,13 +203,7 @@
                     <input type="text" id="edit-pertanyaan" name="pertanyaan" class="w-full p-2 border rounded-lg" required>
                 </div>
                 
-                <div>
-                    <label class="block text-sm font-medium mb-1">Status</label>
-                    <select id="edit-is-active" name="is_active" class="w-full p-2 border rounded-lg">
-                        <option value="1">Aktif</option>
-                        <option value="0">Tidak Aktif</option>
-                    </select>
-                </div>
+                
                 
                 
                     <input type="hidden" id="edit-kepuasan" name="kepuasan_pelayanan" class="w-full p-2 border rounded-lg bg-gray-100" value="1 2 3 4 5" readonly>
@@ -266,10 +242,6 @@
                     <p id="view-pertanyaan" class="text-lg">-</p>
                 </div>
                 
-                <div>
-                    <p class="text-sm font-medium text-gray-500">Status</p>
-                    <p id="view-status" class="text-lg">-</p>
-                </div>
                 
                 <div>
                     <p class="text-sm font-medium text-gray-500">Skala Kepuasan</p>
@@ -327,26 +299,8 @@
         </div>
     </div>
 
-    <!-- Toggle Status Modal -->
-    <div id="toggle-status-modal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-lg w-full max-w-md p-6">
-            <h3 class="text-lg font-semibold mb-4">Konfirmasi Perubahan Status</h3>
-            <p id="toggle-status-text" class="mb-6">Apakah Anda yakin ingin mengubah status pertanyaan ini?</p>
-            <div class="flex justify-end space-x-2">
-                <button onclick="hideToggleStatusModal()" class="px-4 py-2 border rounded-lg hover:bg-gray-50">
-                    Batal
-                </button>
-                <form id="toggle-status-form" method="POST">
-                    @csrf
-                    @method('PUT')
-                    <input type="hidden" id="toggle-status-value" name="is_active" value="">
-                    <button type="submit" class="px-4 py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700">
-                        Ubah Status
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
+   
+    
 
     <script>
         // Auto-hide alerts after 5 seconds
@@ -390,8 +344,7 @@
                     document.getElementById('edit-pertanyaan').value = data.pertanyaan || '';
                     
                     // Set status dropdown
-                    const statusSelect = document.getElementById('edit-is-active');
-                    statusSelect.value = data.is_active ? '1' : '0';
+                    
                     
                     // Show the modal
                     document.getElementById('edit-survei-modal').classList.remove('hidden');
@@ -422,7 +375,6 @@
                 .then(data => {
                     // Populate view fields with survei data
                     document.getElementById('view-pertanyaan').textContent = data.pertanyaan || '-';
-                    document.getElementById('view-status').textContent = data.is_active ? 'Aktif' : 'Tidak Aktif';
                     document.getElementById('view-kepuasan').textContent = data.kepuasan_pelayanan || '1 2 3 4 5';
                     
                     // Format the date
@@ -474,23 +426,10 @@
         }
         
         // Show Toggle Status Modal
-        function showToggleStatusModal(surveiId, isActive) {
-            const newStatus = isActive ? '0' : '1';
-            const statusText = isActive ? 'menonaktifkan' : 'mengaktifkan';
-            
-            document.getElementById('toggle-status-form').action = `/admin/datasurvei/${surveiId}/toggle-status`;
-            document.getElementById('toggle-status-value').value = newStatus;
-            document.getElementById('toggle-status-text').textContent = `Apakah Anda yakin ingin ${statusText} pertanyaan survei ini?`;
-            
-            document.getElementById('toggle-status-modal').classList.remove('hidden');
-            document.body.classList.add('overflow-hidden');
-        }
+        
         
         // Hide Toggle Status Modal
-        function hideToggleStatusModal() {
-            document.getElementById('toggle-status-modal').classList.add('hidden');
-            document.body.classList.remove('overflow-hidden');
-        }
+        
 
         // Add event listeners when the DOM is loaded
         document.addEventListener('DOMContentLoaded', function() {
@@ -522,16 +461,7 @@
             });
             
             // Toggle Status buttons
-            document.querySelectorAll('.btn-toggle-status').forEach(button => {
-                button.addEventListener('click', function() {
-                    const surveiId = this.getAttribute('data-survei-id');
-                    const row = this.closest('tr');
-                    const statusCell = row.querySelector('td:nth-child(3)');
-                    const isActive = statusCell.textContent.trim().includes('Aktif');
-                    
-                    showToggleStatusModal(surveiId, isActive);
-                });
-            });
+            
 
             // Add event listeners for search input
             document.getElementById('search-input').addEventListener('keyup', function(event) {

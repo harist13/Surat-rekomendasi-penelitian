@@ -32,6 +32,7 @@
                     <a href="{{ route('home') }}" class="hover:text-blue-200 transition">BERANDA</a>
                     <a href="{{ route('tentang') }}" class="hover:text-blue-200 transition">TENTANG KAMI</a>
                     <a href="{{ route('layanan') }}" class="hover:text-blue-200 transition">LAYANAN</a>
+                    <a href="{{ route('syarat') }}" class="hover:text-blue-200 transition">PERSYARATAN</a>
                     <!-- Dropdown Layanan -->
                     <a href="{{ route('kontak') }}" class="hover:text-blue-200 transition">KONTAK</a>
                     <a href="{{ route('login') }}" class="hover:text-blue-200 transition">LOGIN</a>
@@ -54,6 +55,7 @@
                 
                 <!-- Dropdown Layanan Mobile -->
                <a href="{{ route('layanan') }}" class="hover:text-blue-200 transition">LAYANAN</a>
+                <a href="{{ route('syarat') }}" class="hover:text-blue-200">PERSYARATAN</a>
 
                 <a href="{{ route('kontak') }}" class="hover:text-blue-200">KONTAK</a>
                 <a href="{{ route('login') }}" class="hover:text-blue-200">LOGIN</a>

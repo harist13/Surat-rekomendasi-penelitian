@@ -30,6 +30,10 @@ class HomeController extends Controller
         return view('pantau');
     }
 
+    public function syarat(){
+        return view('syarat');
+    }
+
     public function cekStatus(Request $request)
     {
         $request->validate(['no_pengajuan' => 'required|string']);

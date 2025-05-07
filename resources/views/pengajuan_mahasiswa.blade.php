@@ -180,6 +180,12 @@
                             </svg>
                             <p class="text-sm text-gray-600">Berkas yang diupload format PDF (maks. 2MB)</p>
                         </div>
+                        <div class="flex items-start space-x-2">
+                            <svg class="w-5 h-5 text-[#004aad] flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                            <p class="text-sm text-gray-600">Proposal Penelitian maks. 10 halaman jadi tidak perlu di sertakan semuanya</p>
+                        </div>
                     </div>
                 </div>
 
@@ -188,7 +194,7 @@
                     <h3 class="text-lg font-semibold text-[#004aad] mb-4">SURVEY PELAYANAN</h3>
                     <div class="space-y-4">
                         <p class="text-sm text-gray-600">
-                            Mohon kesediaan Bapak/Ibu/Saudara/i pengguna layanan PTSP melalui PEPADU IC dapat memberikan Feedback berupa kritik/saran yang membangun untuk meningkatkan pelayanan kami.
+                            Mohon kesediaan Bapak/Ibu/Saudara/i pengguna layanan SIRPENA dapat memberikan Feedback berupa kritik/saran yang membangun untuk meningkatkan pelayanan kami.
                         </p>
                         <a href="{{ route('survei') }}" class="w-full bg-[#004aad] text-white py-2 rounded-md hover:bg-[#003b8a] transition flex items-center justify-center gap-2">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

@@ -248,31 +248,29 @@ class StaffController extends Controller
      * @param int $suratId
      * @return string Path to the generated document
      */
-     private function generateSuratPenelitian($suratId) 
+     private function generateSuratPenelitian($suratId)
     {
-        // Get the PenerbitanSurat data with relations
+        // Ambil data surat dan relasi terkait
         $surat = PenerbitanSurat::with(['mahasiswa', 'nonMahasiswa', 'user'])->findOrFail($suratId);
-        
-        // Determine if it's mahasiswa or non-mahasiswa
+
+        // Penentuan data berdasarkan jenis surat
         if ($surat->jenis_surat === 'mahasiswa') {
             $peneliti = $surat->mahasiswa;
-            $kategori = 'Mahasiswa';
             $jabatan = 'Mahasiswa';
-            $nim = $peneliti->nim;
+            $nimFormatted = ' / NIM. ' . $peneliti->nim;
             $bidang = $peneliti->jurusan;
         } else {
             $peneliti = $surat->nonMahasiswa;
-            $kategori = 'Non-Mahasiswa';
             $jabatan = $peneliti->jabatan;
-            $nim = '-';
+            $nimFormatted = ''; // Hapus NIM jika non-mahasiswa
             $bidang = $peneliti->bidang;
         }
-        
-        // Format dates
+
+        // Format tanggal
         $tanggalSurat = Carbon::now()->locale('id')->isoFormat('D MMMM Y');
         $waktuPenelitian = $peneliti->tanggal_mulai . ' s.d ' . $peneliti->tanggal_selesai;
-        
-        // Process anggota peneliti
+
+        // Proses anggota peneliti
         $anggotaText = '';
         if (!empty($peneliti->anggota_peneliti)) {
             try {
@@ -288,43 +286,44 @@ class StaffController extends Controller
                 $anggotaText = $peneliti->anggota_peneliti;
             }
         }
-        
-        // Prepare data for the view
-        $data = [
-            'surat' => $surat,
-            'peneliti' => $peneliti,
-            'kategori' => $kategori,
+
+        // Path ke template Word
+        $templatePath = public_path('assets/surat_template.docx');
+        $templateProcessor = new TemplateProcessor($templatePath);
+
+        // Isi data ke template
+        $templateProcessor->setValues([
+            'nomor_surat' => $surat->nomor_surat,
+            'menimbang' => $surat->menimbang,
+            'nama_lengkap' => $peneliti->nama_lengkap,
             'jabatan' => $jabatan,
-            'nim' => $nim,
+            'nim' => $nimFormatted,
+            'no_hp' => $peneliti->no_hp,
+            'alamat_peneliti' => $peneliti->alamat_peneliti,
+            'nama_instansi' => $peneliti->nama_instansi,
+            'alamat_instansi' => $peneliti->alamat_instansi,
+            'judul_penelitian' => $peneliti->judul_penelitian,
             'bidang' => $bidang,
-            'tanggalSurat' => $tanggalSurat,
-            'waktuPenelitian' => $waktuPenelitian,
-            'anggotaText' => $anggotaText
-        ];
-        
-        // Generate PDF using DomPDF
-        $pdf = PDF::loadView('staff.surat.surat_penelitian', $data);
-        
-        // Set PDF options
-        $pdf->setPaper('a4');
-        $pdf->setOptions([
-            'isHtml5ParserEnabled' => true,
-            'isRemoteEnabled' => true,
-            'defaultFont' => 'Times New Roman'
+            'status_penelitian' => $surat->status_penelitian,
+            'anggota_peneliti' => $anggotaText,
+            'lokasi_penelitian' => $peneliti->lokasi_penelitian,
+            'waktu_penelitian' => $waktuPenelitian,
+            'tujuan_penelitian' => $peneliti->tujuan_penelitian,
         ]);
-        
-        // Create directory if it doesn't exist
+
+        // Buat folder jika belum ada
         $directory = storage_path('app/public/documents/surat_penelitian');
         if (!file_exists($directory)) {
             mkdir($directory, 0777, true);
         }
-        
-        // Save PDF to file
-        $fileName = 'surat_penelitian_' . $surat->nomor_surat . '_' . time() . '.pdf';
-        $filePath = 'documents/surat_penelitian/' . $fileName;
-        $pdf->save(storage_path('app/public/' . $filePath));
-        
-        return $filePath;
+
+        // Simpan file Word
+        $fileName = 'surat_penelitian_' . $surat->nomor_surat . '_' . time() . '.docx';
+        $filePath = $directory . '/' . $fileName;
+        $templateProcessor->saveAs($filePath);
+
+        // Return path relatif untuk disimpan di DB atau digunakan di frontend
+        return 'documents/surat_penelitian/' . $fileName;
     }
 
     /**

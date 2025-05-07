@@ -24,6 +24,7 @@ Route::get('/pantau/{no_pengajuan}', [HomeController::class, 'showStatus'])->nam
 Route::get('/layanan', [HomeController::class, 'layanan'])->name('layanan');
 Route::get('/survei', [HomeController::class, 'survei'])->name('survei');
 Route::post('/survei/submit', [HomeController::class, 'submitSurvei'])->name('survei.submit');
+Route::get('/syarat', [HomeController::class, 'syarat'])->name('syarat');
 
 // Authentication routes
 Route::get('/login', [LoginController::class, 'login'])->name('login');

@@ -454,7 +454,6 @@ class AdminController extends Controller
         SurveiQuestion::create([
             'pertanyaan' => $validated['pertanyaan'],
             'kepuasan_pelayanan' => '1 2 3 4 5', // Set default value
-            'is_active' => true
         ]);
         
         return redirect()->route('admin.datasurvei')->with('success', 'Pertanyaan survei berhasil ditambahkan');
