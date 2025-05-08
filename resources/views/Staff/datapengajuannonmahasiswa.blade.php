@@ -181,7 +181,7 @@
                                         <a href="{{ Storage::url($nonMahasiswa->proposal_penelitian) }}" class="text-blue-500 hover:text-blue-700">Download</a>
                                     </td>
                                     <td class="px-4 py-3 border border-gray-200">
-                                        <a href="{{ Storage::url($nonMahasiswa->lampiran_rincian_lokasi) }}" class="text-blue-500 hover:text-blue-700">Download</a>
+                                        <a href="{{ Storage::url($nonMahasiswa->surat_pernyataan) }}" class="text-blue-500 hover:text-blue-700">Download</a>
                                     </td>
                                     
                                     <td class="px-4 py-3 border border-gray-200">

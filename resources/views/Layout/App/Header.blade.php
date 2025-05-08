@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIPERNA</title>
+    <title>SIRPENA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Heroicons -->
     <script src="https://unpkg.com/@heroicons/v2.0.18/24/outline/index.js"></script>

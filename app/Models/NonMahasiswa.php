@@ -34,7 +34,7 @@ class NonMahasiswa extends Model
         'surat_terdaftar_kemenkumham',
         'ktp',
         'proposal_penelitian',
-        'lampiran_rincian_lokasi',
+        'surat_pernyataan',
         'status',
     ];
 

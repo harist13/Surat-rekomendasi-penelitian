@@ -156,8 +156,8 @@
                                     <input type="file" name="proposal_penelitian" class="w-full p-2 border rounded-md" required>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium mb-1">Surat pernyataan memberikan hasil survei<span class="text-red-500">*</span></label>
-                                    <input type="file" name="lampiran_rincian_lokasi" class="w-full p-2 border rounded-md" required>
+                                    <label class="block text-sm font-medium mb-1">Surat pernyataan bersedia memberikan hasil survei<span class="text-red-500">*</span></label>
+                                    <input type="file" name="surat_pernyataan" class="w-full p-2 border rounded-md" required>
                                 </div>
                             </div>
                         </div>

@@ -1087,9 +1087,9 @@ class StaffController extends Controller
                 }
             }
             
-            if ($nonMahasiswa->lampiran_rincian_lokasi) {
-                Storage::delete('public/' . $nonMahasiswa->lampiran_rincian_lokasi);
-                $uploadPath = public_path('storage/uploads/' . basename($nonMahasiswa->lampiran_rincian_lokasi));
+            if ($nonMahasiswa->surat_pernyataan) {
+                Storage::delete('public/' . $nonMahasiswa->surat_pernyataan);
+                $uploadPath = public_path('storage/uploads/' . basename($nonMahasiswa->surat_pernyataan));
                 if (file_exists($uploadPath)) {
                     unlink($uploadPath);
                 }
