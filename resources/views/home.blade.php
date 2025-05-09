@@ -28,8 +28,8 @@
                     <a href="{{ route('layanan') }}" class="bg-white text-[#004aad] px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-50 transition-transform transform hover:scale-105">
                         Ajukan Sekarang
                     </a>
-                    <a href="{{ route('tentang') }}" class="border-2 border-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-white hover:text-[#004aad] transition-transform transform hover:scale-105">
-                        Selengkapnya
+                    <a href="{{ route('syarat') }}" class="border-2 border-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-white hover:text-[#004aad] transition-transform transform hover:scale-105">
+                        Lihat Persyaratan
                     </a>
                 </div>
             </div>
