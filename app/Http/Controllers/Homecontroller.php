@@ -75,7 +75,7 @@ class HomeController extends Controller
     public function survei()
     {
         // Fetch active survey questions from the database
-        $surveiQuestions = SurveiQuestion::where('is_active', true)->get();
+        $surveiQuestions = SurveiQuestion::all();
         
         return view('survei', compact('surveiQuestions'));
     }
