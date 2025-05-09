@@ -24,7 +24,7 @@
                     <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zm-1 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"></path>
                 </svg>
                 <div class="ml-3 text-sm font-medium">
-                    Surat berhasil dibuat! Anda dapat mengunduh dokumen Pdf dengan klik tombol berikut:
+                    Surat berhasil dibuat! Anda dapat mengunduh dokumen Word dengan klik tombol berikut:
                     <a href="{{ route('penerbitan.download', ['id' => session('surat_id') ?? $penerbitanSurats->first()->id ?? 0]) }}" class="ml-2 inline-flex items-center px-3 py-1.5 text-white bg-green-700 rounded-md hover:bg-green-800 focus:ring-2 focus:ring-green-500">
                         <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
