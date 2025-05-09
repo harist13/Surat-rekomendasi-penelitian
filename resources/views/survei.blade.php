@@ -144,7 +144,6 @@
 
                     @if(isset($surveiQuestions) && $surveiQuestions->count() > 0)
                         @foreach($surveiQuestions as $index => $question)
-                            @if($question->is_active)
                             <!-- Question {{ $index + 1 }} -->
                             <div class="space-y-4">
                                 <label class="block text-gray-700">{{ $index + 1 }}. {{ $question->pertanyaan }}</label>
@@ -157,7 +156,6 @@
                                     @endfor
                                 </div>
                             </div>
-                            @endif
                         @endforeach
                     @else
                         <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4" role="alert">
