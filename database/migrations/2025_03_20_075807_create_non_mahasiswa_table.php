@@ -32,7 +32,7 @@ class CreateNonMahasiswaTable extends Migration
             $table->string('surat_terdaftar_kemenkumham', 255);
             $table->string('ktp', 255);
             $table->string('proposal_penelitian', 255);
-            $table->string('lampiran_rincian_lokasi', 255)->nullable();
+            $table->string('surat_pernyataan', 255);
             $table->timestamps();
         });
     }

@@ -12,7 +12,6 @@ class CreateSurveiQuestionsTable extends Migration
             $table->id();
             $table->text('pertanyaan');
             $table->string('kepuasan_pelayanan')->default('1 2 3 4 5');
-            $table->boolean('is_active')->default(true);
             $table->timestamps();
         });
     }

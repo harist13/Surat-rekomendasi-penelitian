@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIPERNA</title>
+    <title>SIRPENA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Heroicons -->
     <script src="https://unpkg.com/@heroicons/v2.0.18/24/outline/index.js"></script>
@@ -32,6 +32,7 @@
                     <a href="{{ route('home') }}" class="hover:text-blue-200 transition">BERANDA</a>
                     <a href="{{ route('tentang') }}" class="hover:text-blue-200 transition">TENTANG KAMI</a>
                     <a href="{{ route('layanan') }}" class="hover:text-blue-200 transition">LAYANAN</a>
+                    <a href="{{ route('syarat') }}" class="hover:text-blue-200 transition">PERSYARATAN</a>
                     <!-- Dropdown Layanan -->
                     <a href="{{ route('kontak') }}" class="hover:text-blue-200 transition">KONTAK</a>
                     <a href="{{ route('login') }}" class="hover:text-blue-200 transition">LOGIN</a>
@@ -54,6 +55,7 @@
                 
                 <!-- Dropdown Layanan Mobile -->
                <a href="{{ route('layanan') }}" class="hover:text-blue-200 transition">LAYANAN</a>
+                <a href="{{ route('syarat') }}" class="hover:text-blue-200">PERSYARATAN</a>
 
                 <a href="{{ route('kontak') }}" class="hover:text-blue-200">KONTAK</a>
                 <a href="{{ route('login') }}" class="hover:text-blue-200">LOGIN</a>

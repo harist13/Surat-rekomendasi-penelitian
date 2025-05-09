@@ -44,7 +44,7 @@ class PengajuanNonMahasiswaRequest extends FormRequest
             'surat_terdaftar_kemenkumham' => 'required|file|mimes:pdf|max:2048',
             'ktp' => 'required|file|mimes:pdf,jpeg,jpg,png|max:2048',
             'proposal_penelitian' => 'required|file|mimes:pdf|max:2048',
-            'lampiran_rincian_lokasi' => 'required|file|mimes:pdf|max:2048',
+            'surat_pernyataan' => 'required|file|mimes:pdf|max:2048',
             'status' => 'required|string',
         ];
     }
@@ -77,7 +77,7 @@ class PengajuanNonMahasiswaRequest extends FormRequest
             'surat_terdaftar_kemenkumham' => 'Surat terdaftar Kemenkumham',
             'ktp' => 'KTP',
             'proposal_penelitian' => 'Proposal penelitian',
-            'lampiran_rincian_lokasi' => 'Lampiran rincian lokasi penelitian',
+            'surat_pernyataan' => 'Surat Pernyataan bersedia memberikan hasil survei',
             'status' => 'Status',
         ];
     }

@@ -40,7 +40,7 @@
             </div>
             
             <div class="border-t border-gray-700 mt-8 pt-8 text-center">
-                <p>&copy; 2024 SIRPENA KALTIM. All rights reserved.</p>
+                <p>&copy; 2025 SIRPENA KALTIM. All rights reserved.</p>
             </div>
         </div>
     </footer>

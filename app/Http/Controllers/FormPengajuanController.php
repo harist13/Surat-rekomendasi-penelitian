@@ -89,7 +89,7 @@ class FormPengajuanController extends Controller
             $suratTerdaftarPath = $request->file('surat_terdaftar_kemenkumham')->store('uploads', 'public');
             $ktpPath = $request->file('ktp')->store('uploads', 'public');
             $proposalPath = $request->file('proposal_penelitian')->store('uploads', 'public');
-            $lampiranPath = $request->file('lampiran_rincian_lokasi')->store('uploads', 'public');
+            $pernyataanPath = $request->file('surat_pernyataan')->store('uploads', 'public');
 
             // Store the data in the database
             $nonMahasiswa = NonMahasiswa::create([
@@ -114,7 +114,7 @@ class FormPengajuanController extends Controller
                 'surat_terdaftar_kemenkumham' => $suratTerdaftarPath,
                 'ktp' => $ktpPath,
                 'proposal_penelitian' => $proposalPath,
-                'lampiran_rincian_lokasi' => $lampiranPath,
+                'surat_pernyataan' => $pernyataanPath,
                 'status' => $request->status,
             ]);
             
