@@ -593,4 +593,4 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 </body>
-@include('Layout.App.Footer')
+@include('Layout.App.footer')

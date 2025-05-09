@@ -41,7 +41,7 @@ class AdminController extends Controller
         // Get monthly statistics for chart
         $monthlyStats = $this->getMonthlyStatistics();
         
-        return view('admin.index', compact('totalUsers', 'totalPending', 'approvedDocuments', 'monthlyStats'));
+        return view('Admin.index', compact('totalUsers', 'totalPending', 'approvedDocuments', 'monthlyStats'));
     }
     
     /**
@@ -109,7 +109,7 @@ class AdminController extends Controller
 
         $users = $usersQuery->paginate($perPage); // Gunakan per_page untuk paginasi
         $roles = Role::all();
-        return view('admin.akun', compact('users', 'roles', 'search', 'perPage'));
+        return view('Admin.akun', compact('users', 'roles', 'search', 'perPage'));
     }
 
 
@@ -231,7 +231,7 @@ class AdminController extends Controller
     $penerbitanSurats = $query->paginate($perPage)->withQueryString();
     
     // Return view with data
-    return view('admin.datasurat', compact('penerbitanSurats', 'search', 'perPage', 'statusFilter'));
+    return view('Admin.datasurat', compact('penerbitanSurats', 'search', 'perPage', 'statusFilter'));
 }
 
     /**
@@ -340,7 +340,7 @@ class AdminController extends Controller
         ];
         
         // Generate PDF using DomPDF
-        $pdf = PDF::loadView('staff.surat.surat_penelitian', $data);
+        $pdf = PDF::loadview('Staff.surat.surat_penelitian', $data);
         
         // Set PDF options
         $pdf->setPaper('a4');
@@ -441,7 +441,7 @@ class AdminController extends Controller
         
         $surveiQuestions = $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString();
         
-        return view('admin.datasurvei', compact('surveiQuestions', 'search', 'perPage'));
+        return view('Admin.datasurvei', compact('surveiQuestions', 'search', 'perPage'));
     }
 
     // Update storeSurvei method to create questions
@@ -567,7 +567,7 @@ class AdminController extends Controller
         }
         $averageRating = $totalRatings > 0 ? round($weightedSum / $totalRatings, 1) : 0;
         
-        return view('admin.dataresponden', compact(
+        return view('Admin.dataresponden', compact(
             'responses', 
             'search', 
             'perPage', 
@@ -923,7 +923,7 @@ class AdminController extends Controller
         ];
         
         // Generate PDF using DomPDF
-        $pdf = PDF::loadView('admin.pdf.dataresponden', $data);
+        $pdf = PDF::loadview('Admin.pdf.dataresponden', $data);
         
         // Set PDF options
         $pdf->setPaper('a4', 'portrait');

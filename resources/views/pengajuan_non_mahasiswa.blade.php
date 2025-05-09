@@ -244,4 +244,4 @@
     
 </body>
 
-@include('Layout.App.Footer')
+@include('Layout.App.footer')
