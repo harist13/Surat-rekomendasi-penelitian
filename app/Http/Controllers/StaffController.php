@@ -36,7 +36,7 @@ class StaffController extends Controller
         // Get monthly statistics for chart
         $monthlyStats = $this->getMonthlyStatistics();
         
-        return view('Staff.index', compact('totalUsers', 'totalPending', 'approvedDocuments', 'monthlyStats'));
+        return view('staff.index', compact('totalUsers', 'totalPending', 'approvedDocuments', 'monthlyStats'));
     }
     
     /**
@@ -93,7 +93,7 @@ class StaffController extends Controller
         $approvedMahasiswa = Mahasiswa::where('status', 'diterima')->get();
         $approvedNonMahasiswa = NonMahasiswa::where('status', 'diterima')->get();
         
-        return view('Staff.penerbitan', compact('approvedMahasiswa', 'approvedNonMahasiswa'));
+        return view('staff.penerbitan', compact('approvedMahasiswa', 'approvedNonMahasiswa'));
     }
 
     public function getMahasiswaData(Request $request)
@@ -304,20 +304,6 @@ class StaffController extends Controller
             'alamat_instansi' => $peneliti->alamat_instansi,
             'judul_penelitian' => $peneliti->judul_penelitian,
             'bidang' => $bidang,
-            'tanggalSurat' => $tanggalSurat,
-            'waktuPenelitian' => $waktuPenelitian,
-            'anggotaText' => $anggotaText
-        ];
-        
-        // Generate PDF using DomPDF
-        $pdf = PDF::loadview('Staff.surat.surat_penelitian', $data);
-        
-        // Set PDF options
-        $pdf->setPaper('a4');
-        $pdf->setOptions([
-            'isHtml5ParserEnabled' => true,
-            'isRemoteEnabled' => true,
-            'defaultFont' => 'Times New Roman'
             'status_penelitian' => $surat->status_penelitian,
             'anggota_peneliti' => $anggotaText,
             'lokasi_penelitian' => $peneliti->lokasi_penelitian,
@@ -540,7 +526,7 @@ class StaffController extends Controller
                                                 ->withQueryString();
         
         // Return view with data for both tables
-        return view('Staff.datasurat', compact(
+        return view('staff.datasurat', compact(
             'penerbitanSurats',
             'penerbitanSuratsPublished',
             'search',
@@ -768,7 +754,7 @@ class StaffController extends Controller
         
         $ditolakMahasiswas = $ditolakMahasiswasQuery->paginate($perPageRejected, ['*'], 'page_rejected');
 
-        return view('Staff.datapengajuanmahasiswa', compact(
+        return view('staff.datapengajuanmahasiswa', compact(
             'mahasiswas', 
             'ditolakMahasiswas', 
             'search', 
@@ -960,7 +946,7 @@ class StaffController extends Controller
         
         $ditolakNonMahasiswas = $ditolakNonMahasiswasQuery->paginate($perPageRejected, ['*'], 'page_rejected');
 
-        return view('Staff.datapengajuannonmahasiswa', compact(
+        return view('staff.datapengajuannonmahasiswa', compact(
             'nonMahasiswas', 
             'ditolakNonMahasiswas', 
             'search', 
