@@ -12,8 +12,7 @@ class SurveiQuestion extends Model
 
     protected $fillable = [
         'pertanyaan',
-        'kepuasan_pelayanan',
-        'is_active'
+        'kepuasan_pelayanan'
     ];
 
     public function responses(): HasMany
