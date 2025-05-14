@@ -157,7 +157,7 @@
             <!-- Lembaga Survei -->
             <div class="bg-white rounded-lg shadow-md overflow-hidden">
                 <div class="accordion-header bg-[#004aad] text-white px-6 py-4 cursor-pointer flex justify-between items-center">
-                    <h2 class="text-xl font-semibold">PERSYARATAN PENGAJUAN SURAT PENERBITAN REKOMNDASI PENELITIAN BAGI NON MAHASISWA</h2>
+                    <h2 class="text-xl font-semibold">PERSYARATAN PENGAJUAN SURAT PENERBITAN REKOMENDASI PENELITIAN BAGI NON MAHASISWA</h2>
                     <svg class="w-6 h-6 transform transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
                     </svg>

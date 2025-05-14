@@ -293,6 +293,20 @@
     </div>
 
 <script>
+    function formatTanggalIndo(dateStr) {
+        const bulanIndo = [
+            'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+            'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        ];
+        
+        const dateObj = new Date(dateStr);
+        const tanggal = dateObj.getDate().toString().padStart(2, '0');
+        const bulan = bulanIndo[dateObj.getMonth()];
+        const tahun = dateObj.getFullYear();
+        
+        return `${tanggal}-${bulan}-${tahun}`;
+    }
+
     document.addEventListener('DOMContentLoaded', function() {
         // Initialize data from backend
         const mahasiswaData = @json($approvedMahasiswa);
@@ -407,7 +421,8 @@
                     // Format dates for the combined waktu_penelitian field
                     if (data.tanggal_mulai && data.tanggal_selesai) {
                         document.getElementById('waktu_penelitian').value = 
-                            `${data.tanggal_mulai} - ${data.tanggal_selesai}`;
+    `${formatTanggalIndo(data.tanggal_mulai)} s.d ${formatTanggalIndo(data.tanggal_selesai)}`;
+
                     }
                     
                     document.getElementById('tujuan_penelitian').value = data.tujuan_penelitian || '';

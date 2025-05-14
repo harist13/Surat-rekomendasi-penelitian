@@ -1,3 +1,6 @@
+@php use Carbon\Carbon; @endphp
+
+
 @include('Staff.Layout.App.Header')
 <body class="bg-gradient-to-r from-green-100 to-blue-100">
     @include('Staff.Layout.App.Sidebar')
@@ -140,8 +143,13 @@
                                     <!-- Data Penelitian -->
                                     <td class="px-4 py-3 border border-gray-200">{{ $nonMahasiswa->judul_penelitian }}</td>
                                     <td class="px-4 py-3 border border-gray-200">{{ $nonMahasiswa->lama_penelitian }}</td>
-                                    <td class="px-4 py-3 border border-gray-200">{{ $nonMahasiswa->tanggal_mulai }}</td>
-                                    <td class="px-4 py-3 border border-gray-200">{{ $nonMahasiswa->tanggal_selesai }}</td>
+                                    <td class="px-4 py-3 border border-gray-200">
+                                        {{ Carbon::parse($nonMahasiswa->tanggal_mulai)->locale('id')->translatedFormat('d-M-Y') }}
+                                    </td>
+                                    <td class="px-4 py-3 border border-gray-200">
+                                        {{ Carbon::parse($nonMahasiswa->tanggal_selesai)->locale('id')->translatedFormat('d-M-Y') }}
+                                    </td>
+
                                     <td class="px-4 py-3 border border-gray-200">{{ $nonMahasiswa->lokasi_penelitian }}</td>
                                     <td class="px-4 py-3 border border-gray-200">{{ $nonMahasiswa->tujuan_penelitian }}</td>
                                     <!-- In the Data Penelitian section, replace the anggota_peneliti cell with this: -->
@@ -338,7 +346,8 @@
                                             @endphp
                                             {{ $notifikasi ? $notifikasi->alasan_penolakan : 'Tidak ada alasan yang dicatat' }}
                                         </td>
-                                        <td class="px-4 py-3 border border-gray-200">{{ $nonMahasiswa->updated_at->format('d-m-Y') }}</td>
+                                        <td class="px-4 py-3 border border-gray-200">{{ $nonMahasiswa->updated_at->locale('id')->translatedFormat('d-M-Y') }}
+                                        </td>
                                         <td class="px-4 py-3 border border-gray-200">
                                             <div class="flex space-x-2 justify-center">
 

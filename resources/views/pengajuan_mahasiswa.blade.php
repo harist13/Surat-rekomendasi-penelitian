@@ -87,7 +87,7 @@
                                     <textarea name="alamat_instansi" class="w-full p-2 border rounded-md" rows="3" required></textarea>
                                 </div>
                                 <div>
-                                    <label class="block text-sm font-medium mb-1">Jurusan/Fakultas<span class="text-red-500">*</span></label>
+                                    <label class="block text-sm font-medium mb-1">Fakultas/Jurusan<span class="text-red-500">*</span></label>
                                     <input type="text" name="jurusan" class="w-full p-2 border rounded-md" required>
                                 </div>
                             </div>

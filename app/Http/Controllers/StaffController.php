@@ -268,7 +268,10 @@ class StaffController extends Controller
 
         // Format tanggal
         $tanggalSurat = Carbon::now()->locale('id')->isoFormat('D MMMM Y');
-        $waktuPenelitian = $peneliti->tanggal_mulai . ' s.d ' . $peneliti->tanggal_selesai;
+        $tanggalMulai = Carbon::parse($peneliti->tanggal_mulai)->locale('id')->translatedFormat('d-M-Y');
+        $tanggalSelesai = Carbon::parse($peneliti->tanggal_selesai)->locale('id')->translatedFormat('d-M-Y');
+        $waktuPenelitian = $tanggalMulai . ' s.d ' . $tanggalSelesai;
+
 
         // Proses anggota peneliti
         $anggotaText = '';

@@ -1,3 +1,5 @@
+@php use Carbon\Carbon; @endphp
+
 @include('Staff.Layout.App.Header')
 <body class="bg-gradient-to-r from-green-100 to-blue-100">
     @include('Staff.Layout.App.Sidebar')
@@ -210,7 +212,9 @@
                             <td class="px-4 py-3 border border-gray-200">
                                 @if($surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa)
                                     @if($surat->mahasiswa->tanggal_mulai && $surat->mahasiswa->tanggal_selesai)
-                                        {{ $surat->mahasiswa->tanggal_mulai }} - {{ $surat->mahasiswa->tanggal_selesai }}
+                                        {{ Carbon::parse($surat->mahasiswa->tanggal_mulai)->locale('id')->translatedFormat('d-M-Y') }}
+                                        s.d
+                                        {{ Carbon::parse($surat->mahasiswa->tanggal_selesai)->locale('id')->translatedFormat('d-M-Y') }}
                                         @if($surat->mahasiswa->lama_penelitian)
                                             ({{ $surat->mahasiswa->lama_penelitian }})
                                         @endif
@@ -221,7 +225,9 @@
                                     @endif
                                 @elseif($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa)
                                     @if($surat->nonMahasiswa->tanggal_mulai && $surat->nonMahasiswa->tanggal_selesai)
-                                        {{ $surat->nonMahasiswa->tanggal_mulai }} - {{ $surat->nonMahasiswa->tanggal_selesai }}
+                                        {{ Carbon::parse($surat->nonMahasiswa->tanggal_mulai)->locale('id')->translatedFormat('d-M-Y') }}
+                                        s.d
+                                        {{ Carbon::parse($surat->nonMahasiswa->tanggal_selesai)->locale('id')->translatedFormat('d-M-Y') }}
                                         @if($surat->nonMahasiswa->lama_penelitian)
                                             ({{ $surat->nonMahasiswa->lama_penelitian }})
                                         @endif
@@ -505,7 +511,9 @@
                                     <td class="px-4 py-3 border border-gray-200">
                                         @if($surat->jenis_surat === 'mahasiswa' && $surat->mahasiswa)
                                             @if($surat->mahasiswa->tanggal_mulai && $surat->mahasiswa->tanggal_selesai)
-                                                {{ $surat->mahasiswa->tanggal_mulai }} - {{ $surat->mahasiswa->tanggal_selesai }}
+                                                {{ Carbon::parse($surat->mahasiswa->tanggal_mulai)->locale('id')->translatedFormat('d-M-Y') }}
+                                                s.d
+                                                {{ Carbon::parse($surat->mahasiswa->tanggal_selesai)->locale('id')->translatedFormat('d-M-Y') }}
                                                 @if($surat->mahasiswa->lama_penelitian)
                                                     ({{ $surat->mahasiswa->lama_penelitian }})
                                                 @endif
@@ -516,7 +524,9 @@
                                             @endif
                                         @elseif($surat->jenis_surat === 'non_mahasiswa' && $surat->nonMahasiswa)
                                             @if($surat->nonMahasiswa->tanggal_mulai && $surat->nonMahasiswa->tanggal_selesai)
-                                                {{ $surat->nonMahasiswa->tanggal_mulai }} - {{ $surat->nonMahasiswa->tanggal_selesai }}
+                                                {{ Carbon::parse($surat->nonMahasiswa->tanggal_mulai)->locale('id')->translatedFormat('d-M-Y') }}
+                                                s.d
+                                                {{ Carbon::parse($surat->nonMahasiswa->tanggal_selesai)->locale('id')->translatedFormat('d-M-Y') }}
                                                 @if($surat->nonMahasiswa->lama_penelitian)
                                                     ({{ $surat->nonMahasiswa->lama_penelitian }})
                                                 @endif
