@@ -320,8 +320,10 @@ class StaffController extends Controller
             mkdir($directory, 0777, true);
         }
 
+        $nomorSuratSafe = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $surat->nomor_surat);
+
         // Simpan file Word
-        $fileName = 'surat_penelitian_' . $surat->nomor_surat . '_' . time() . '.docx';
+        $fileName = 'surat_penelitian_' . $nomorSuratSafe . '_' . time() . '.docx';
         $filePath = $directory . '/' . $fileName;
         $templateProcessor->saveAs($filePath);
 

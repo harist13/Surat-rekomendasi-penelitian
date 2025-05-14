@@ -19,6 +19,14 @@
             </div>
             
             <!-- Right side - User profile -->
+            <div class="flex items-center">
+    <!-- Notification Icon -->
+    <div class="relative mr-4 cursor-pointer" id="notificationButton">
+        <svg class="w-6 h-6 text-gray-600 hover:text-blue-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+        </svg>
+        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 rounded-full">3</span>
+    </div>
             <div class="flex items-center cursor-pointer" id="userProfileButton">
                 <div class="text-sm text-right mr-2">
                     <div class="font-medium">{{ Auth::user()->username }}</div>
@@ -71,6 +79,8 @@
             </div>
         </div>
     </div>
+    </div>
+
 
  <!-- Logout confirmation modal -->
     <div id="logoutModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
@@ -156,12 +166,159 @@
     </div>
 </div>
 
+
 </header>
+
+<!-- Modal Notifikasi -->
+<div id="notificationModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+    <div class="bg-white rounded-lg shadow-xl w-[600px] max-w-full max-h-[90vh] flex flex-col overflow-hidden">
+        
+        <!-- Header -->
+        <div class="bg-[#A7CDFF] px-6 py-4 flex justify-between items-center">
+            <h1 class="text-xl font-bold text-gray-900">Notifikasi</h1>
+            <button class="text-blue-700 text-sm font-medium hover:underline">Tandai Baca Semua</button>
+        </div>
+
+        <!-- Tabs -->
+<div class="flex justify-around items-center border-b bg-[#A7CDFF] text-gray-700">
+    <button class="tab-btn py-2 px-4 font-semibold text-gray-600" data-tab="masuk">
+        Pengajuan Masuk <span class="ml-1 bg-white text-xs px-2 py-0.5 rounded-full font-semibold">1</span>
+    </button>
+    <button class="tab-btn py-2 px-4 font-semibold text-gray-600" data-tab="revisi">
+        Pengajuan Revisi <span class="ml-1 bg-white text-xs px-2 py-0.5 rounded-full font-semibold">1</span>
+    </button>
+    <button class="tab-btn py-2 px-4 font-semibold text-gray-600" data-tab="history">
+        History <span class="ml-1 bg-white text-xs px-2 py-0.5 rounded-full font-semibold">1</span>
+    </button>
+</div>
+
+<!-- Konten Notifikasi -->
+<div class="p-4 space-y-4 overflow-y-auto max-h-[400px]">
+
+    <!-- Surat Masuk -->
+    <div id="tab-masuk" class="tab-content hidden">
+        <div class="border-b pb-2">
+            <p class="text-xs text-gray-500">17 Mei 2025 10:34 AM</p>
+            <p class="font-bold">PGN-83000-131902</p>
+            <p>Achmad Fauzan Universitas Mulawarman Program Gelar S1.</p>
+        </div>
+    </div>
+
+    <!-- Surat Revisi -->
+    <div id="tab-revisi" class="tab-content hidden">
+        <div class="border-b pb-2 flex justify-between items-center">
+            <div>
+                <p class="text-xs text-gray-500">17 Mei 2025 10:34 AM</p>
+                <p><span class="font-bold">PGN-83000-131902</span> Achmad Fauzan Universitas Mulawarman Program Gelar S1.</p>
+            </div>
+            <span class="bg-red-100 text-red-600 text-xs px-2 py-1 rounded">Revisi</span>
+        </div>
+    </div>
+
+    <!-- History -->
+    <div id="tab-history" class="tab-content hidden">
+        <div class="border-b pb-2 flex justify-between items-center">
+            <div>
+                <p class="text-xs text-gray-500">17 Mei 2025 10:34 AM</p>
+                <p><span class="font-bold">PGN-83000-131902</span> Achmad Harist Universitas Mulawarman Program Gelar S1.</p>
+            </div>
+            <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded">Rekomendasi</span>
+        </div>
+        <div class="border-b pb-2 flex justify-between items-center">
+            <div>
+                <p class="text-xs text-gray-500">17 Mei 2025 10:34 AM</p>
+                <p><span class="font-bold">PGN-83000-131902</span> Achmad Ibnu Universitas Mulawarman Program Gelar S1.</p>
+            </div>
+            <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded">Diterima</span>
+        </div>
+    </div>
+</div>
+
+
+        <!-- Footer -->
+        <div class="px-6 py-4 border-t bg-gray-50">
+            <button id="closeNotificationModal" 
+                class="w-full px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 rounded-lg transition">
+                Tutup
+            </button>
+        </div>
+    </div>
+</div>
 
 <!-- Add this in the head section of staff/layout/header.blade.php -->
 <!-- SweetAlert2 CDN -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const tabs = document.querySelectorAll('.tab-btn');
+    const contents = document.querySelectorAll('.tab-content');
 
+    // Set default tab
+    const defaultTab = document.querySelector('[data-tab="masuk"]');
+    const defaultContent = document.getElementById('tab-masuk');
+    if (defaultTab && defaultContent) {
+        defaultTab.classList.add('text-black', 'border-b-2', 'border-blue-600');
+        defaultContent.classList.remove('hidden');
+    }
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Remove active state
+            tabs.forEach(t => t.classList.remove('text-black', 'border-b-2', 'border-blue-600'));
+            contents.forEach(c => c.classList.add('hidden'));
+
+            // Add active state
+            tab.classList.add('text-black', 'border-b-2', 'border-blue-600');
+            const target = tab.getAttribute('data-tab');
+            document.getElementById(`tab-${target}`).classList.remove('hidden');
+        });
+    });
+});
+</script>
+
+<script>
+    // Notification Modal Logic
+    document.addEventListener('DOMContentLoaded', () => {
+        const notificationButton = document.getElementById('notificationButton');
+        const notificationModal = document.getElementById('notificationModal');
+        const closeNotificationModal = document.getElementById('closeNotificationModal');
+        const markAllAsRead = document.getElementById('markAllAsRead');
+
+        // Toggle Notification Modal
+        if (notificationButton) {
+            notificationButton.addEventListener('click', () => {
+                notificationModal.classList.toggle('hidden');
+            });
+        }
+
+        // Close Modal
+        if (closeNotificationModal) {
+            closeNotificationModal.addEventListener('click', () => {
+                notificationModal.classList.add('hidden');
+            });
+        }
+
+        // Close when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target === notificationModal) {
+                notificationModal.classList.add('hidden');
+            }
+        });
+
+        // Mark all as read (example implementation)
+        if (markAllAsRead) {
+            markAllAsRead.addEventListener('click', () => {
+                // Implement your mark all as read logic here
+                Swal.fire({
+                    title: 'Berhasil!',
+                    text: 'Semua notifikasi ditandai telah dibaca',
+                    icon: 'success',
+                    confirmButtonText: 'OK'
+                });
+            });
+        }
+    });
+</script>
 <!-- Add this at the end of the staff header.blade.php file, after the existing script section -->
 <script>
     // Make sure DOM is fully loaded before accessing elements
