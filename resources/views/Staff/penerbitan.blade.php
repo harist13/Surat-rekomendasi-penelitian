@@ -147,6 +147,10 @@
                             <label for="menimbang" class="block mb-2 text-sm font-medium text-gray-700">menimbang</label>
                             <textarea id="menimbang" name="menimbang" rows="4" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Masukkan pertimbangan untuk penerbitan surat ini"></textarea>
                         </div>
+                        <div>
+                            <label for="tembusan" class="block mb-2 text-sm font-medium text-gray-700">tembusan</label>
+                            <textarea id="tembusan" name="tembusan" rows="4" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5" placeholder="Masukkan tembusan untuk penerbitan surat ini"></textarea>
+                        </div>
                         
 
                     </div>
@@ -540,6 +544,8 @@
         const waktuPenelitian = document.getElementById('waktu_penelitian').value;
         const tujuanPenelitian = document.getElementById('tujuan_penelitian').value;
         const menimbang = document.getElementById('menimbang').value;
+        const tembusan = document.getElementById('tembusan').value;
+
         
         let isValid = true;
         let errorMessages = [];
@@ -654,6 +660,8 @@
         document.getElementById('no_hp').value = '';
         document.getElementById('no_pengajuan').value = '';
         document.getElementById('menimbang').value = '';
+        document.getElementById('tembusan').value = '';
+
         
         // Reset the additional fields
         document.getElementById('nim').value = '';

@@ -16,6 +16,7 @@ class PenerbitanSurat extends Model
         'jenis_surat',
         'nomor_surat',
         'menimbang',
+        'tembusan',
         'status_penelitian',
         'status_surat',
         'file_path',

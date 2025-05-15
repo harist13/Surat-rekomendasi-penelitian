@@ -124,6 +124,7 @@ class StaffController extends Controller
                 'pemohon_id' => 'required',
                 'nomor_surat' => 'required|string',
                 'menimbang' => 'required|string',
+                'tembusan' => 'required|string',
                 'status_penelitian' => 'required|in:baru,lama,perpanjangan',
                 'status_surat' => 'required|string',
                 // Remove no_pengajuan from validation as it's only for display
@@ -165,6 +166,7 @@ class StaffController extends Controller
             $penerbitanSurat->jenis_surat = $validatedData['jenis_surat'];
             $penerbitanSurat->nomor_surat = $validatedData['nomor_surat'];
             $penerbitanSurat->menimbang = $validatedData['menimbang'] ?? null;
+            $penerbitanSurat->tembusan = $validatedData['tembusan'] ?? null;
             $penerbitanSurat->status_penelitian = $validatedData['status_penelitian'];
             $penerbitanSurat->status_surat = $validatedData['status_surat'];
             $penerbitanSurat->user_id = auth()->id();
@@ -298,6 +300,7 @@ class StaffController extends Controller
         $templateProcessor->setValues([
             'nomor_surat' => $surat->nomor_surat,
             'menimbang' => $surat->menimbang,
+            'tembusan' => $surat->tembusan,
             'nama_lengkap' => $peneliti->nama_lengkap,
             'jabatan' => $jabatan,
             'nim' => $nimFormatted,
@@ -556,6 +559,7 @@ class StaffController extends Controller
             $request->validate([
                 'nomor_surat' => 'required|string',
                 'menimbang' => 'nullable|string',
+                'tembusan' => 'nullable|string',
                 'file_surat' => 'nullable|file|mimes:doc,docx,pdf|max:5120', // Max 5MB
             ], [
                 'nomor_surat.required' => 'Nomor surat harus diisi',
@@ -570,6 +574,7 @@ class StaffController extends Controller
             // Update basic data
             $surat->nomor_surat = $request->nomor_surat;
             $surat->menimbang = $request->menimbang;
+            $surat->tembusan = $request->tembusan;
             
             // Handle file upload if a new file is provided
             if ($request->hasFile('file_surat')) {
