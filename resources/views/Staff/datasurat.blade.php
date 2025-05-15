@@ -138,6 +138,7 @@
                             <th class="px-4 py-3 border border-gray-300 w-32">Status Penelitian</th>
                             <th class="px-4 py-3 border border-gray-300 w-32">Nomor Surat</th>
                             <th class="px-4 py-3 border border-gray-300 w-32">Menimbang</th>
+                            <th class="px-4 py-3 border border-gray-300 w-32">Tembusan</th>  <!-- Add this line -->
                             <th class="px-4 py-3 border border-gray-300 min-w-[120px]">Status surat</th>
                             <th class="px-4 py-3 border border-gray-300 w-40">Aksi</th>
                         </tr>
@@ -280,9 +281,22 @@
                             <td class="px-4 py-3 border border-gray-200">
                                 @if($surat->menimbang)
                                     <button type="button" class="text-blue-500 hover:text-blue-700" 
-                                            onclick="showMenimbangModal('{{ addslashes($surat->menimbang) }}', 
-                                            '{{ $surat->nomor_surat }}')">
+                                            data-menimbang="{!! $surat->menimbang !!}" 
+                                            data-nomor-surat="{{ $surat->nomor_surat }}" 
+                                            onclick="showMenimbangModal(this)">
                                         Lihat Pertimbangan
+                                    </button>
+                                @else
+                                    <span class="text-gray-500">Tidak ada</span>
+                                @endif
+                            </td>
+                            <td class="px-4 py-3 border border-gray-200">
+                                @if($surat->tembusan)
+                                    <button type="button" class="text-blue-500 hover:text-blue-700" 
+                                            data-tembusan="{!! $surat->tembusan !!}" 
+                                            data-nomor-surat="{{ $surat->nomor_surat }}" 
+                                            onclick="showTembusanModal(this)">
+                                        Lihat Tembusan
                                     </button>
                                 @else
                                     <span class="text-gray-500">Tidak ada</span>
@@ -317,7 +331,12 @@
                                         </button>
                                     @endif
                                      <button type="button" class="text-blue-500 hover:text-blue-700 p-1" 
-                                        onclick="openEditSuratModal('{{ $surat->id }}', '{{ $surat->nomor_surat }}', '{{ addslashes($surat->menimbang ?? '') }}', {{ isset($surat->file_path) ? 'true' : 'false' }})" 
+                                        data-id="{{ $surat->id }}" 
+                                        data-nomor-surat="{{ $surat->nomor_surat }}" 
+                                        data-menimbang="{{ $surat->menimbang }}" 
+                                        data-tembusan="{{ $surat->tembusan }}"
+                                        data-has-file="{{ isset($surat->file_path) ? 'true' : 'false' }}"
+                                        onclick="openEditSuratModal(this)" 
                                         title="Edit Surat">
                                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path>
@@ -437,6 +456,7 @@
                                     <th class="px-4 py-3 border border-gray-300 w-32">Status Penelitian</th>
                                     <th class="px-4 py-3 border border-gray-300 w-32">Nomor Surat</th>
                                     <th class="px-4 py-3 border border-gray-300 w-32">Menimbang</th>
+                                    <th class="px-4 py-3 border border-gray-300 w-32">Tembusan</th>  <!-- Add this line -->
                                     <th class="px-4 py-3 border border-gray-300 min-w-[120px]">Status surat</th>
                                     <th class="px-4 py-3 border border-gray-300 w-40">Aksi</th>
                                 </tr>
@@ -561,9 +581,22 @@
                                     <td class="px-4 py-3 border border-gray-200">
                                         @if($surat->menimbang)
                                             <button type="button" class="text-blue-500 hover:text-blue-700" 
-                                                    onclick="showMenimbangModal('{{ addslashes($surat->menimbang) }}', 
-                                                    '{{ $surat->nomor_surat }}')">
+                                                    data-menimbang="{!! $surat->menimbang !!}" 
+                                                    data-nomor-surat="{{ $surat->nomor_surat }}" 
+                                                    onclick="showMenimbangModal(this)">
                                                 Lihat Pertimbangan
+                                            </button>
+                                        @else
+                                            <span class="text-gray-500">Tidak ada</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 border border-gray-200">
+                                        @if($surat->tembusan)
+                                            <button type="button" class="text-blue-500 hover:text-blue-700" 
+                                                    data-tembusan="{!! $surat->tembusan !!}" 
+                                                    data-nomor-surat="{{ $surat->nomor_surat }}" 
+                                                    onclick="showTembusanModal(this)">
+                                                Lihat Tembusan
                                             </button>
                                         @else
                                             <span class="text-gray-500">Tidak ada</span>
@@ -751,6 +784,12 @@
                     <div>
                         <label for="edit_menimbang" class="block text-sm font-medium text-gray-700">Menimbang</label>
                         <textarea id="edit_menimbang" name="menimbang" rows="4" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Masukkan pertimbangan untuk penerbitan surat ini"></textarea>
+                    </div>
+                    
+                    <!-- Add Tembusan field -->
+                    <div>
+                        <label for="edit_tembusan" class="block text-sm font-medium text-gray-700">Tembusan</label>
+                        <textarea id="edit_tembusan" name="tembusan" rows="3" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm" placeholder="Masukkan daftar tembusan"></textarea>
                     </div>
                     
                     <!-- File Upload -->
@@ -1043,13 +1082,20 @@
 
     <script>
         // Function to open edit surat modal
-        function openEditSuratModal(id, nomorSurat, menimbang, hasFile) {
+        function openEditSuratModal(button) {
+            const id = button.dataset.id;
+            const nomorSurat = button.dataset.nomorSurat;
+            const menimbang = button.dataset.menimbang?.trim();
+            const tembusan = button.dataset.tembusan?.trim();
+            const hasFile = button.dataset.hasFile === 'true';
+
             const form = document.getElementById('editSuratForm');
             form.action = `/staff/penerbitan/${id}/update`;
             
             // Set form values
             document.getElementById('edit_nomor_surat').value = nomorSurat;
             document.getElementById('edit_menimbang').value = menimbang;
+            document.getElementById('edit_tembusan').value = tembusan || '';
             
             // Show file status if a file exists
             const existingFileInfo = document.getElementById('existing_file_info');
@@ -1305,7 +1351,10 @@
 
     // Function to show menimbang modal
     // Function to show menimbang modal
-    function showMenimbangModal(menimbangText, nomorSurat) {
+    function showMenimbangModal(button) {
+        const menimbangText = button.dataset.menimbang?.trim();
+        const nomorSurat = button.dataset.nomorSurat;
+
         const menimbangModal = document.getElementById('menimbangModal');
         const menimbangTextarea = document.getElementById('menimbangTextarea');
         const modalNomorSurat = document.getElementById('menimbang_nomor_surat');
@@ -1603,5 +1652,76 @@
         }, 50);
     }
 </script>
+
+<!-- Add this modal just after the menimbang modal -->
+<!-- Modal for Tembusan Details -->
+<div id="tembusanModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+    <div class="flex items-center justify-center h-full">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b p-4">
+                <h3 class="text-xl font-semibold text-gray-800">Daftar Tembusan</h3>
+                <button type="button" class="text-gray-400 hover:text-gray-600" onclick="closeTembusanModal()">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <div class="mb-4">
+                    <p class="text-sm text-gray-700 mb-2">Nomor Surat: <span id="tembusan_nomor_surat" class="font-medium text-gray-900"></span></p>
+                </div>
+                <div class="mb-6">
+                    <h4 class="text-lg font-medium text-gray-700 mb-3">Tembusan</h4>
+                    <textarea id="tembusanTextarea" class="w-full h-64 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" readonly></textarea>
+                </div>
+            </div>
+            
+            <div class="border-t p-4 flex justify-end">
+                <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700" onclick="closeTembusanModal()">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Add these functions with your other JavaScript code
+function showTembusanModal(button) {
+    const tembusanText = button.dataset.tembusan?.trim();
+    const nomorSurat = button.dataset.nomorSurat;
+
+    const tembusanModal = document.getElementById('tembusanModal');
+    const tembusanTextarea = document.getElementById('tembusanTextarea');
+    const modalNomorSurat = document.getElementById('tembusan_nomor_surat');
+    
+    // Set the nomor surat in the modal
+    modalNomorSurat.textContent = nomorSurat;
+    
+    // Set the tembusan text in the textarea
+    tembusanTextarea.value = tembusanText || 'Tidak ada tembusan';
+    
+    // Show the modal
+    tembusanModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden'; // Prevent scrolling behind modal
+}
+
+function closeTembusanModal() {
+    document.getElementById('tembusanModal').classList.add('hidden');
+    document.body.style.overflow = 'auto'; // Re-enable scrolling
+}
+
+// Add to the list of modals in your existing modal close event handlers
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        // ...existing modal close handlers...
+        if (!document.getElementById('tembusanModal').classList.contains('hidden')) {
+            closeTembusanModal();
+        }
+    }
+});
+</script>
+
 </body>
 @include('Staff.Layout.App.Footer')

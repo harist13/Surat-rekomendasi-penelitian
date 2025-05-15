@@ -25,7 +25,9 @@
         <svg class="w-6 h-6 text-gray-600 hover:text-blue-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
         </svg>
-        <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 rounded-full">3</span>
+        @if(isset($unreadNotifications) && $unreadNotifications->count() > 0)
+            <span class="absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 rounded-full">{{ $unreadNotifications->count() }}</span>
+        @endif
     </div>
             <div class="flex items-center cursor-pointer" id="userProfileButton">
                 <div class="text-sm text-right mr-2">
@@ -176,69 +178,74 @@
         <!-- Header -->
         <div class="bg-[#A7CDFF] px-6 py-4 flex justify-between items-center">
             <h1 class="text-xl font-bold text-gray-900">Notifikasi</h1>
-            <button class="text-blue-700 text-sm font-medium hover:underline">Tandai Baca Semua</button>
+            <button id="markAllAsRead" class="text-blue-700 text-sm font-medium hover:underline">Tandai Baca Semua</button>
         </div>
 
         <!-- Tabs -->
-<div class="flex justify-around items-center border-b bg-[#A7CDFF] text-gray-700">
-    <button class="tab-btn py-2 px-4 font-semibold text-gray-600" data-tab="masuk">
-        Pengajuan Masuk <span class="ml-1 bg-white text-xs px-2 py-0.5 rounded-full font-semibold">1</span>
-    </button>
-    <button class="tab-btn py-2 px-4 font-semibold text-gray-600" data-tab="revisi">
-        Pengajuan Revisi <span class="ml-1 bg-white text-xs px-2 py-0.5 rounded-full font-semibold">1</span>
-    </button>
-    <button class="tab-btn py-2 px-4 font-semibold text-gray-600" data-tab="history">
-        History <span class="ml-1 bg-white text-xs px-2 py-0.5 rounded-full font-semibold">1</span>
-    </button>
-</div>
-
-<!-- Konten Notifikasi -->
-<div class="p-4 space-y-4 overflow-y-auto max-h-[400px]">
-
-    <!-- Surat Masuk -->
-    <div id="tab-masuk" class="tab-content hidden">
-        <div class="border-b pb-2">
-            <p class="text-xs text-gray-500">17 Mei 2025 10:34 AM</p>
-            <p class="font-bold">PGN-83000-131902</p>
-            <p>Achmad Fauzan Universitas Mulawarman Program Gelar S1.</p>
+        <div class="flex justify-around items-center border-b bg-[#A7CDFF] text-gray-700">
+            <button class="tab-btn py-2 px-4 font-semibold text-gray-600" data-tab="masuk">
+                Pengajuan Masuk
+                @if(isset($unreadNotifications) && $unreadNotifications->count() > 0)
+                    <span class="ml-1 bg-white text-xs px-2 py-0.5 rounded-full font-semibold">{{ $unreadNotifications->count() }}</span>
+                @endif
+            </button>
+            <button class="tab-btn py-2 px-4 font-semibold text-gray-600" data-tab="history">
+                History 
+                @if(isset($notificationHistory) && $notificationHistory->count() > 0)
+                    <span class="ml-1 bg-white text-xs px-2 py-0.5 rounded-full font-semibold">{{ $notificationHistory->count() }}</span>
+                @endif
+            </button>
         </div>
-    </div>
 
-    <!-- Surat Revisi -->
-    <div id="tab-revisi" class="tab-content hidden">
-        <div class="border-b pb-2 flex justify-between items-center">
-            <div>
-                <p class="text-xs text-gray-500">17 Mei 2025 10:34 AM</p>
-                <p><span class="font-bold">PGN-83000-131902</span> Achmad Fauzan Universitas Mulawarman Program Gelar S1.</p>
+        <!-- Konten Notifikasi -->
+        <div class="p-4 space-y-4 overflow-y-auto max-h-[400px]">
+            <!-- Surat Masuk -->
+            <div id="tab-masuk" class="tab-content hidden">
+                @if(isset($unreadNotifications) && $unreadNotifications->count() > 0)
+                    @foreach($unreadNotifications as $notification)
+                        <div class="border-b pb-2">
+                            <p class="text-xs text-gray-500">{{ $notification->created_at->format('d M Y H:i A') }}</p>
+                            <p class="font-bold">{{ $notification->tipe_peneliti === 'mahasiswa' ? $notification->mahasiswa->no_pengajuan : $notification->nonMahasiswa->no_pengajuan }}</p>
+                            <p>{{ $notification->pesan }}</p>
+                        </div>
+                    @endforeach
+                @else
+                    <div class="text-center text-gray-500 py-4">
+                        Tidak ada notifikasi baru
+                    </div>
+                @endif
             </div>
-            <span class="bg-red-100 text-red-600 text-xs px-2 py-1 rounded">Revisi</span>
-        </div>
-    </div>
 
-    <!-- History -->
-    <div id="tab-history" class="tab-content hidden">
-        <div class="border-b pb-2 flex justify-between items-center">
-            <div>
-                <p class="text-xs text-gray-500">17 Mei 2025 10:34 AM</p>
-                <p><span class="font-bold">PGN-83000-131902</span> Achmad Harist Universitas Mulawarman Program Gelar S1.</p>
+            <!-- History -->
+            <div id="tab-history" class="tab-content hidden">
+                @if(isset($notificationHistory) && $notificationHistory->count() > 0)
+                    @foreach($notificationHistory as $notification)
+                        <div class="border-b pb-2 flex justify-between items-center">
+                            <div>
+                                <p class="text-xs text-gray-500">{{ $notification->created_at->format('d M Y H:i A') }}</p>
+                                <p>
+                                    <span class="font-bold">
+                                        {{ $notification->tipe_peneliti === 'mahasiswa' ? $notification->mahasiswa->no_pengajuan : $notification->nonMahasiswa->no_pengajuan }}
+                                    </span>
+                                    {{ $notification->pesan }}
+                                </p>
+                            </div>
+                            <span class="bg-{{ $notification->tipe === 'success' ? 'green' : ($notification->tipe === 'warning' ? 'yellow' : ($notification->tipe === 'danger' ? 'red' : 'blue')) }}-100 text-{{ $notification->tipe === 'success' ? 'green' : ($notification->tipe === 'warning' ? 'yellow' : ($notification->tipe === 'danger' ? 'red' : 'blue')) }}-700 text-xs px-2 py-1 rounded">
+                                {{ ucfirst($notification->tipe) }}
+                            </span>
+                        </div>
+                    @endforeach
+                @else
+                    <div class="text-center text-gray-500 py-4">
+                        Tidak ada riwayat notifikasi
+                    </div>
+                @endif
             </div>
-            <span class="bg-yellow-100 text-yellow-700 text-xs px-2 py-1 rounded">Rekomendasi</span>
         </div>
-        <div class="border-b pb-2 flex justify-between items-center">
-            <div>
-                <p class="text-xs text-gray-500">17 Mei 2025 10:34 AM</p>
-                <p><span class="font-bold">PGN-83000-131902</span> Achmad Ibnu Universitas Mulawarman Program Gelar S1.</p>
-            </div>
-            <span class="bg-green-100 text-green-700 text-xs px-2 py-1 rounded">Diterima</span>
-        </div>
-    </div>
-</div>
-
 
         <!-- Footer -->
         <div class="px-6 py-4 border-t bg-gray-50">
-            <button id="closeNotificationModal" 
-                class="w-full px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 rounded-lg transition">
+            <button id="closeNotificationModal" class="w-full px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 rounded-lg transition">
                 Tutup
             </button>
         </div>
@@ -305,15 +312,53 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
-        // Mark all as read (example implementation)
+        // Handle mark all as read
         if (markAllAsRead) {
             markAllAsRead.addEventListener('click', () => {
-                // Implement your mark all as read logic here
-                Swal.fire({
-                    title: 'Berhasil!',
-                    text: 'Semua notifikasi ditandai telah dibaca',
-                    icon: 'success',
-                    confirmButtonText: 'OK'
+                fetch('{{ route("notification.markAllRead") }}', {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update UI to reflect all notifications are read
+                        document.querySelectorAll('#tab-masuk .border-b').forEach(el => {
+                            el.remove();
+                        });
+                        document.querySelector('#tab-masuk').innerHTML = `
+                            <div class="text-center text-gray-500 py-4">
+                                Tidak ada notifikasi baru
+                            </div>
+                        `;
+                        
+                        // Update notification counter badge
+                        const notifBadge = document.querySelector('#notificationButton .bg-red-500');
+                        if (notifBadge) {
+                            notifBadge.remove();
+                        }
+
+                        // Show success message
+                        Swal.fire({
+                            title: 'Berhasil!',
+                            text: 'Semua notifikasi telah ditandai sebagai dibaca',
+                            icon: 'success',
+                            confirmButtonText: 'OK'
+                        });
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        title: 'Error!',
+                        text: 'Gagal menandai notifikasi sebagai dibaca',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
                 });
             });
         }

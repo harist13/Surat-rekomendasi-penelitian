@@ -95,4 +95,6 @@ Route::prefix('staff')->middleware(['auth', 'role:staff'])->group(function () {
     Route::put('/penerbitan/{id}/update', [StaffController::class, 'updateSurat'])->name('penerbitan.update');
     Route::post('/send-email-notification', [NotificationController::class, 'sendEmailNotification'])->name('send.email.notification');
     Route::post('/send-approval-email-notification', [NotificationController::class, 'sendApprovalEmailNotification'])->name('send.approval.email.notification');
+    // Notification routes
+    Route::post('/notifications/mark-all-read', [StaffController::class, 'markAllNotificationsAsRead'])->name('notification.markAllRead');
 });

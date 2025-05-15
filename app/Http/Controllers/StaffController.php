@@ -20,6 +20,25 @@ use PDF;
 
 class StaffController extends Controller
 { 
+    private function getUnreadNotifications()
+    {
+        $unreadNotifications = Notifikasi::where('telah_dibaca', false)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return $unreadNotifications;
+    }
+
+    private function getNotificationHistory()
+    {
+        $notificationHistory = Notifikasi::where('telah_dibaca', true)
+            ->orderBy('created_at', 'desc')
+            ->take(10)  // Get last 10 read notifications
+            ->get();
+
+        return $notificationHistory;
+    }
+
     public function index()
     {
         // Count total users
@@ -36,7 +55,18 @@ class StaffController extends Controller
         // Get monthly statistics for chart
         $monthlyStats = $this->getMonthlyStatistics();
         
-        return view('staff.index', compact('totalUsers', 'totalPending', 'approvedDocuments', 'monthlyStats'));
+        // Get notifications
+        $unreadNotifications = $this->getUnreadNotifications();
+        $notificationHistory = $this->getNotificationHistory();
+        
+        return view('staff.index', compact(
+            'totalUsers', 
+            'totalPending', 
+            'approvedDocuments', 
+            'monthlyStats',
+            'unreadNotifications',
+            'notificationHistory'
+        ));
     }
     
     /**
@@ -1148,5 +1178,13 @@ class StaffController extends Controller
         }
     }
 
-
+    public function markAllNotificationsAsRead()
+    {
+        try {
+            Notifikasi::where('telah_dibaca', false)->update(['telah_dibaca' => true]);
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
 }
