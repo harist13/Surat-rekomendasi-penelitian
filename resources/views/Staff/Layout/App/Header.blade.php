@@ -172,7 +172,7 @@
 </header>
 
 <!-- Modal Notifikasi -->
-<div id="notificationModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+<div id="notifmodal" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
     <div class="bg-white rounded-lg shadow-xl w-[600px] max-w-full max-h-[90vh] flex flex-col overflow-hidden">
         
         <!-- Header -->
@@ -245,7 +245,7 @@
 
         <!-- Footer -->
         <div class="px-6 py-4 border-t bg-gray-50">
-            <button id="closeNotificationModal" class="w-full px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 rounded-lg transition">
+            <button id="closenotifmodal" class="w-full px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 rounded-lg transition">
                 Tutup
             </button>
         </div>
@@ -287,28 +287,28 @@ document.addEventListener('DOMContentLoaded', () => {
     // Notification Modal Logic
     document.addEventListener('DOMContentLoaded', () => {
         const notificationButton = document.getElementById('notificationButton');
-        const notificationModal = document.getElementById('notificationModal');
-        const closeNotificationModal = document.getElementById('closeNotificationModal');
+        const notifmodal = document.getElementById('notifmodal');
+        const closenotifmodal = document.getElementById('closenotifmodal');
         const markAllAsRead = document.getElementById('markAllAsRead');
 
         // Toggle Notification Modal
         if (notificationButton) {
             notificationButton.addEventListener('click', () => {
-                notificationModal.classList.toggle('hidden');
+                notifmodal.classList.toggle('hidden');
             });
         }
 
         // Close Modal
-        if (closeNotificationModal) {
-            closeNotificationModal.addEventListener('click', () => {
-                notificationModal.classList.add('hidden');
+        if (closenotifmodal) {
+            closenotifmodal.addEventListener('click', () => {
+                notifmodal.classList.add('hidden');
             });
         }
 
         // Close when clicking outside
         window.addEventListener('click', (e) => {
-            if (e.target === notificationModal) {
-                notificationModal.classList.add('hidden');
+            if (e.target === notifmodal) {
+                notifmodal.classList.add('hidden');
             }
         });
 

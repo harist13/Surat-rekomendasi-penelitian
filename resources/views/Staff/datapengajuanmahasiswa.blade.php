@@ -30,6 +30,12 @@
 
                      <div class="flex items-center space-x-2">
                         <form id="main-filter-form" action="{{ route('datapengajuanmahasiswa') }}" method="GET" class="flex items-center space-x-2">
+                        <div class="relative">
+                                <select id="sort_by" name="sort_by" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                    <option value="latest" {{ request('sort_by') == 'latest' ? 'selected' : '' }}>Terbaru</option>
+                                    <option value="oldest" {{ request('sort_by') == 'oldest' ? 'selected' : '' }}>Terlama</option>
+                                </select>
+                            </div>
                             <div class="relative">
                                 <select id="main-entries-select" name="per_page" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                                     <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
@@ -54,6 +60,7 @@
                             <!-- Keep rejected table parameters when submitting main form -->
                             <input type="hidden" name="search_rejected" value="{{ request('search_rejected') }}">
                             <input type="hidden" name="per_page_rejected" value="{{ $perPageRejected ?? 10 }}">
+                            <input type="hidden" name="sort_by_rejected" value="{{ request('sort_by_rejected', 'latest') }}">
                         </form>
                     </div>
                 </div>
@@ -257,8 +264,10 @@
                         {{ $mahasiswas->appends([
                             'search' => request('search'), 
                             'per_page' => $perPage,
+                            'sort_by' => request('sort_by', 'latest'),
                             'search_rejected' => request('search_rejected'),
-                            'per_page_rejected' => $perPageRejected ?? 10
+                            'per_page_rejected' => $perPageRejected ?? 10,
+                            'sort_by_rejected' => request('sort_by_rejected', 'latest')
                         ])->links('vendor.pagination.tailwind') }}
                     </div>
                 </div>
@@ -273,6 +282,12 @@
                         <!-- Add search and per-page for rejected table -->
                         <div class="flex items-center space-x-2">
                             <form id="rejected-filter-form" action="{{ route('datapengajuanmahasiswa') }}" method="GET" class="flex items-center space-x-2">
+                            <div class="relative">
+                                <select id="sort_by_rejected" name="sort_by_rejected" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5">
+                                    <option value="latest" {{ request('sort_by_rejected', 'latest') == 'latest' ? 'selected' : '' }}>Terbaru</option>
+                                    <option value="oldest" {{ request('sort_by_rejected') == 'oldest' ? 'selected' : '' }}>Terlama</option>
+                                </select>
+                            </div>
                                 <div class="relative">
                                     <select id="rejected-entries-select" name="per_page_rejected" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-red-500 focus:border-red-500 block w-full p-2.5">
                                         <option value="10" {{ ($perPageRejected ?? 10) == 10 ? 'selected' : '' }}>10</option>
@@ -297,6 +312,7 @@
                                 <!-- Keep main table parameters when submitting rejected form -->
                                 <input type="hidden" name="search" value="{{ request('search') }}">
                                 <input type="hidden" name="per_page" value="{{ $perPage }}">
+                                <input type="hidden" name="sort_by" value="{{ request('sort_by', 'latest') }}">
                             </form>
                         </div>
                     </div>
@@ -389,8 +405,10 @@
                             {{ $ditolakMahasiswas->appends([
                                 'search' => request('search'),
                                 'per_page' => $perPage,
+                                'sort_by' => request('sort_by', 'latest'),
                                 'search_rejected' => request('search_rejected'),
-                                'per_page_rejected' => $perPageRejected ?? 10
+                                'per_page_rejected' => $perPageRejected ?? 10,
+                                'sort_by_rejected' => request('sort_by_rejected', 'latest')
                             ])->links('vendor.pagination.tailwind') }}
                         </div>
                     </div>
@@ -695,6 +713,17 @@
                 });
             }, 5000);
 
+
+            // Event listener for sort dropdown
+            document.getElementById('sort_by').addEventListener('change', function() {
+                document.getElementById('main-filter-form').submit();
+            });
+
+            // Event listener for rejected table sort dropdown
+            document.getElementById('sort_by_rejected').addEventListener('change', function() {
+                document.getElementById('rejected-filter-form').submit();
+            });
+            
             // Event listeners for select boxes to change items per page
             // Main table entries select
             document.getElementById('main-entries-select').addEventListener('change', function() {

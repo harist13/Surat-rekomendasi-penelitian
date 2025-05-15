@@ -485,10 +485,12 @@ class StaffController extends Controller
         // Get search and per_page parameters for main table (draft surat)
         $search = $request->input('search', '');
         $perPage = $request->input('per_page', 10); // Default 10 items per page
+        $sortBy = $request->input('sort_by', 'latest'); // Default to latest
         
         // Get search and per_page parameters for published table (surat diterbitkan)
         $searchPublished = $request->input('search_published', '');
         $perPagePublished = $request->input('per_page_published', 10); // Default 10 items per page
+        $sortByPublished = $request->input('sort_by_published', 'latest'); // Default to latest
         
         // Base query with relationships
         $baseQuery = PenerbitanSurat::with(['mahasiswa', 'nonMahasiswa', 'user']);
@@ -553,10 +555,22 @@ class StaffController extends Controller
                 });
             });
         }
+
+        // Apply sorting for draft table
+        if ($sortBy === 'latest') {
+            $draftQuery->orderBy('created_at', 'desc');
+        } else {
+            $draftQuery->orderBy('created_at', 'asc');
+        }
         
-        // Order by created date, descending for both queries
-        $draftQuery->orderBy('created_at', 'desc');
-        $publishedQuery->orderBy('created_at', 'desc');
+        // Apply sorting for published table
+        if ($sortByPublished === 'latest') {
+            $publishedQuery->orderBy('created_at', 'desc');
+        } else {
+            $publishedQuery->orderBy('created_at', 'asc');
+        }
+        
+        
         
         // Get paginated results for both tables
         $penerbitanSurats = $draftQuery->paginate($perPage)->withQueryString();
@@ -570,7 +584,9 @@ class StaffController extends Controller
             'search',
             'perPage',
             'searchPublished',
-            'perPagePublished'
+            'perPagePublished',
+            'sortBy',
+            'sortByPublished'
         ));
     }
 
@@ -748,10 +764,12 @@ class StaffController extends Controller
         // Main table search and pagination params
         $search = $request->input('search', '');
         $perPage = $request->input('per_page', 10);
+        $sortBy = $request->input('sort_by', 'latest'); // Default to latest
 
         // Rejected table search and pagination params
         $searchRejected = $request->input('search_rejected', '');
         $perPageRejected = $request->input('per_page_rejected', 10);
+        $sortByRejected = $request->input('sort_by_rejected', 'latest'); // Default to latest for rejected table
 
         // Query for non-rejected applications
         $mahasiswasQuery = Mahasiswa::query()->where('status', '!=', 'ditolak');
@@ -762,6 +780,13 @@ class StaffController extends Controller
                 ->orWhere('nim', 'like', '%' . $search . '%')
                 ->orWhere('email', 'like', '%' . $search . '%');
             });
+        }
+
+         // Apply sorting
+        if ($sortBy === 'latest') {
+            $mahasiswasQuery->orderBy('created_at', 'desc');
+        } else {
+            $mahasiswasQuery->orderBy('created_at', 'asc');
         }
 
         // Get list of mahasiswa IDs that already have associated letters
@@ -791,6 +816,13 @@ class StaffController extends Controller
                 ->orWhere('judul_penelitian', 'like', '%' . $searchRejected . '%');
             });
         }
+
+        // Apply sorting to rejected table using its own parameter
+        if ($sortByRejected === 'latest') {
+            $ditolakMahasiswasQuery->orderBy('updated_at', 'desc');
+        } else {
+            $ditolakMahasiswasQuery->orderBy('updated_at', 'asc');
+        }
         
         $ditolakMahasiswas = $ditolakMahasiswasQuery->paginate($perPageRejected, ['*'], 'page_rejected');
 
@@ -800,7 +832,9 @@ class StaffController extends Controller
             'search', 
             'perPage',
             'searchRejected',
-            'perPageRejected'
+            'perPageRejected',
+            'sortBy',
+            'sortByRejected'
         ));
     }
 
@@ -940,10 +974,12 @@ class StaffController extends Controller
         // Main table search and pagination params
         $search = $request->input('search', '');
         $perPage = $request->input('per_page', 10);
+        $sortBy = $request->input('sort_by', 'latest'); // Default to latest
 
         // Rejected table search and pagination params
         $searchRejected = $request->input('search_rejected', '');
         $perPageRejected = $request->input('per_page_rejected', 10);
+        $sortByRejected = $request->input('sort_by_rejected', 'latest'); // Add separate sort parameter for rejected table
 
         // Query for non-rejected applications
         $nonMahasiswasQuery = NonMahasiswa::query()->where('status', '!=', 'ditolak');
@@ -954,6 +990,13 @@ class StaffController extends Controller
                 ->orWhere('email', 'like', '%' . $search . '%')
                 ->orWhere('nama_instansi', 'like', '%' . $search . '%');
             });
+        }
+
+        // Apply sorting for main table
+        if ($sortBy === 'latest') {
+            $nonMahasiswasQuery->orderBy('created_at', 'desc');
+        } else {
+            $nonMahasiswasQuery->orderBy('created_at', 'asc');
         }
 
         // Get list of non_mahasiswa IDs that already have associated letters
@@ -983,6 +1026,13 @@ class StaffController extends Controller
                 ->orWhere('judul_penelitian', 'like', '%' . $searchRejected . '%');
             });
         }
+
+        // Apply sorting to rejected table using its own parameter
+        if ($sortByRejected === 'latest') {
+            $ditolakNonMahasiswasQuery->orderBy('updated_at', 'desc');
+        } else {
+            $ditolakNonMahasiswasQuery->orderBy('updated_at', 'asc');
+        }
         
         $ditolakNonMahasiswas = $ditolakNonMahasiswasQuery->paginate($perPageRejected, ['*'], 'page_rejected');
 
@@ -992,7 +1042,9 @@ class StaffController extends Controller
             'search', 
             'perPage',
             'searchRejected',
-            'perPageRejected'
+            'perPageRejected',
+            'sortBy',
+            'sortByRejected'
         ));
     }
 

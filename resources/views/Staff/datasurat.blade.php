@@ -90,6 +90,12 @@
 
                     <div class="flex items-center space-x-2">
                          <form id="main-filter-form" action="{{ route('datasurat') }}" method="GET" class="flex items-center space-x-2">
+                         <div class="relative">
+                            <select id="sort_by" name="sort_by" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-40 p-2.5">
+                                <option value="latest" {{ request('sort_by', 'latest') == 'latest' ? 'selected' : '' }}>Terbaru</option>
+                                <option value="oldest" {{ request('sort_by') == 'oldest' ? 'selected' : '' }}>Terlama</option>
+                            </select>
+                        </div>
                             <div class="relative">
                                 <select id="main-entries-select" name="per_page" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                                     <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
@@ -114,6 +120,8 @@
                             <!-- Keep published table parameters when submitting main form -->
                             <input type="hidden" name="search_published" value="{{ request('search_published') }}">
                             <input type="hidden" name="per_page_published" value="{{ request('per_page_published', 10) }}">
+
+
                         
                             
                         </form>
@@ -411,6 +419,12 @@
                         <!-- Add search and per-page for published table -->
                         <div class="flex items-center space-x-2">
                             <form id="published-filter-form" action="{{ route('datasurat') }}" method="GET" class="flex items-center space-x-2">
+                            <div class="relative">
+                                <select id="sort_by_published" name="sort_by_published" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-40 p-2.5">
+                                    <option value="latest" {{ request('sort_by_published', 'latest') == 'latest' ? 'selected' : '' }}>Terbaru</option>
+                                    <option value="oldest" {{ request('sort_by_published') == 'oldest' ? 'selected' : '' }}>Terlama</option>
+                                </select>
+                            </div>
                                 <div class="relative">
                                     <select id="published-entries-select" name="per_page_published" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-green-500 focus:border-green-500 block w-full p-2.5">
                                         <option value="10" {{ (request('per_page_published', 10) == 10) ? 'selected' : '' }}>10</option>
@@ -1041,6 +1055,25 @@
             </form>
         </div>
     </div>
+
+    <script>
+        // Sort dropdowns for surat tables
+        document.addEventListener('DOMContentLoaded', function() {
+            const sortBySurat = document.getElementById('sort_by');
+            if (sortBySurat) {
+                sortBySurat.addEventListener('change', function() {
+                    document.getElementById('main-filter-form').submit();
+                });
+            }
+            
+            const sortByPublished = document.getElementById('sort_by_published');
+            if (sortByPublished) {
+                sortByPublished.addEventListener('change', function() {
+                    document.getElementById('published-filter-form').submit();
+                });
+            }
+        });
+    </script>
 
 
     <script>
