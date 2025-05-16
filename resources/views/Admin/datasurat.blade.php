@@ -142,6 +142,8 @@
                                 <th class="px-4 py-3 border border-gray-300 w-32">Status Penelitian</th>
                                 <th class="px-4 py-3 border border-gray-300 w-32">Nomor Surat</th>
                                 <th class="px-4 py-3 border border-gray-300 w-32">Menimbang</th>
+                                <th class="px-4 py-3 border border-gray-300 w-32">Tembusan</th>
+
                                 <th class="px-4 py-3 border border-gray-300 min-w-[120px]">Status surat</th>
                                 <th class="px-4 py-3 border border-gray-300 min-w-[120px]">Tanggal</th>
                                 <th class="px-4 py-3 border border-gray-300 w-40">Aksi</th>
@@ -289,6 +291,18 @@
                                     @endif
                                 </td>
                                 <td class="px-4 py-3 border border-gray-200">
+                                @if($surat->tembusan)
+                                    <button type="button" class="text-blue-500 hover:text-blue-700" 
+                                            data-tembusan="{!! $surat->tembusan !!}" 
+                                            data-nomor-surat="{{ $surat->nomor_surat }}" 
+                                            onclick="showTembusanModal(this)">
+                                        Lihat Tembusan
+                                    </button>
+                                @else
+                                    <span class="text-gray-500">Tidak ada</span>
+                                @endif
+                            </td>
+                                <td class="px-4 py-3 border border-gray-200">
                                     @if($surat->status_surat == 'draft')
                                         <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">
                                             Draft
@@ -409,6 +423,74 @@
             </div>
         </div>
     </div>
+
+    <div id="tembusanModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden">
+    <div class="flex items-center justify-center h-full">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center border-b p-4">
+                <h3 class="text-xl font-semibold text-gray-800">Daftar Tembusan</h3>
+                <button type="button" class="text-gray-400 hover:text-gray-600" onclick="closeTembusanModal()">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+                    </svg>
+                </button>
+            </div>
+            
+            <div class="p-6">
+                <div class="mb-4">
+                    <p class="text-sm text-gray-700 mb-2">Nomor Surat: <span id="tembusan_nomor_surat" class="font-medium text-gray-900"></span></p>
+                </div>
+                <div class="mb-6">
+                    <h4 class="text-lg font-medium text-gray-700 mb-3">Tembusan</h4>
+                    <textarea id="tembusanTextarea" class="w-full h-64 p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 text-sm" readonly></textarea>
+                </div>
+            </div>
+            
+            <div class="border-t p-4 flex justify-end">
+                <button type="button" class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700" onclick="closeTembusanModal()">
+                    Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Add these functions with your other JavaScript code
+function showTembusanModal(button) {
+    const tembusanText = button.dataset.tembusan?.trim();
+    const nomorSurat = button.dataset.nomorSurat;
+
+    const tembusanModal = document.getElementById('tembusanModal');
+    const tembusanTextarea = document.getElementById('tembusanTextarea');
+    const modalNomorSurat = document.getElementById('tembusan_nomor_surat');
+    
+    // Set the nomor surat in the modal
+    modalNomorSurat.textContent = nomorSurat;
+    
+    // Set the tembusan text in the textarea
+    tembusanTextarea.value = tembusanText || 'Tidak ada tembusan';
+    
+    // Show the modal
+    tembusanModal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden'; // Prevent scrolling behind modal
+}
+
+function closeTembusanModal() {
+    document.getElementById('tembusanModal').classList.add('hidden');
+    document.body.style.overflow = 'auto'; // Re-enable scrolling
+}
+
+// Add to the list of modals in your existing modal close event handlers
+document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+        // ...existing modal close handlers...
+        if (!document.getElementById('tembusanModal').classList.contains('hidden')) {
+            closeTembusanModal();
+        }
+    }
+});
+</script>
 
     <script>
         // Handle sort_by dropdown change
