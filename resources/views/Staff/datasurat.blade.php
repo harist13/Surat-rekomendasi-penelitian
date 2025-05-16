@@ -120,6 +120,8 @@
                             <!-- Keep published table parameters when submitting main form -->
                             <input type="hidden" name="search_published" value="{{ request('search_published') }}">
                             <input type="hidden" name="per_page_published" value="{{ request('per_page_published', 10) }}">
+                            <input type="hidden" name="sort_by_published" value="{{ request('sort_by_published', 'latest') }}">
+
 
 
                         
@@ -148,6 +150,8 @@
                             <th class="px-4 py-3 border border-gray-300 w-32">Menimbang</th>
                             <th class="px-4 py-3 border border-gray-300 w-32">Tembusan</th>  <!-- Add this line -->
                             <th class="px-4 py-3 border border-gray-300 min-w-[120px]">Status surat</th>
+                            <th class="px-4 py-3 border border-gray-300 min-w-[120px]">Tanggal Dibuat</th>
+
                             <th class="px-4 py-3 border border-gray-300 w-40">Aksi</th>
                         </tr>
                     </thead>
@@ -325,6 +329,10 @@
                                     </span>
                                 @endif
                             </td>
+                            
+
+                            <td class="px-4 py-3 border border-gray-200">{{ $surat->updated_at->locale('id')->translatedFormat('d-M-Y') }}</td>
+
                             <td class="px-4 py-3 border border-gray-200">
                                 <div class="flex space-x-2 justify-center">
                                     @if($surat->status_surat == 'draft')
@@ -401,8 +409,10 @@
                         {{ $penerbitanSurats->appends([
                             'search' => request('search'), 
                             'per_page' => $perPage,
+                            'sort_by' => request('sort_by', 'latest'),
                             'search_published' => request('search_published'),
-                            'per_page_published' => request('per_page_published', 10)
+                            'per_page_published' => request('per_page_published', 10),
+                            'sort_by_published' => request('sort_by_published', 'latest')
                         ])->links() }}
                     </div>
                 </div>
@@ -449,6 +459,7 @@
                                 <!-- Keep main table parameters when submitting published form -->
                                 <input type="hidden" name="search" value="{{ request('search') }}">
                                 <input type="hidden" name="per_page" value="{{ $perPage }}">
+                                <input type="hidden" name="sort_by" value="{{ request('sort_by', 'latest') }}">
                             </form>
                         </div>
                     </div>
@@ -472,6 +483,8 @@
                                     <th class="px-4 py-3 border border-gray-300 w-32">Menimbang</th>
                                     <th class="px-4 py-3 border border-gray-300 w-32">Tembusan</th>  <!-- Add this line -->
                                     <th class="px-4 py-3 border border-gray-300 min-w-[120px]">Status surat</th>
+                                    <th class="px-4 py-3 border border-gray-300 min-w-[120px]">Tanggal Diterbitkan</th>
+
                                     <th class="px-4 py-3 border border-gray-300 w-40">Aksi</th>
                                 </tr>
                             </thead>
@@ -621,6 +634,10 @@
                                             Diterbitkan
                                         </span>
                                     </td>
+
+                                    <td class="px-4 py-3 border border-gray-200">{{ $surat->updated_at->locale('id')->translatedFormat('d-M-Y') }}</td>
+
+                                    
                                     <td class="px-4 py-3 border border-gray-200">
                                         <div class="flex space-x-2 justify-center">
                                             <button type="button" 
@@ -697,8 +714,10 @@
                                 {{ $penerbitanSuratsPublished->appends([
                                     'search' => request('search'),
                                     'per_page' => $perPage,
+                                    'sort_by' => request('sort_by', 'latest'),
                                     'search_published' => request('search_published'),
-                                    'per_page_published' => request('per_page_published', 10)
+                                    'per_page_published' => request('per_page_published', 10),
+                                    'sort_by_published' => request('sort_by_published', 'latest')
                                 ])->links() }}
                             @else
                                 <!-- Placeholder for pagination links -->

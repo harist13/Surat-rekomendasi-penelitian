@@ -91,7 +91,7 @@
                             <tr class="border-b border-gray-300">
                                 <th colspan="7" class="px-4 py-3 text-center font-medium border-r border-gray-300">Data Pemohon</th>
                                 <th colspan="3" class="px-4 py-3 text-center font-medium border-r border-gray-300">Data Instansi</th>
-                                <th colspan="8" class="px-4 py-3 text-center font-medium border-r border-gray-300">Data Penelitian</th>
+                                <th colspan="9" class="px-4 py-3 text-center font-medium border-r border-gray-300">Data Penelitian</th>
                                 <th colspan="6" class="px-4 py-3 text-center font-medium">Berkas Pendukung</th>
                                 <th class="px-4 py-3 border-l border-gray-300">Aksi</th>
                             </tr>
@@ -119,6 +119,8 @@
                                 <th class="px-4 py-3 border border-gray-300 min-w-[200px]">Tujuan Penelitian</th>
                                 <th class="px-4 py-3 border border-gray-300 min-w-[200px]">Anggota Peneliti</th>
                                 <th class="px-4 py-3 border border-gray-300 w-24">Status</th>
+                                <th class="px-4 py-3 border border-gray-300 w-24">Tanggal Pengajuan</th>
+
                                 
                                 <!-- Berkas Pendukung Sub Columns -->
                                 <th class="px-4 py-3 border border-gray-300 w-40">Surat Pengantar instansi</th>
@@ -178,6 +180,9 @@
                                             <span class="px-2 py-1 text-xs rounded-full bg-gray-100 text-gray-800">{{ $nonMahasiswa->status }}</span>
                                         @endif
                                     </td>
+
+                                    <td class="px-4 py-3 border border-gray-200">{{ $nonMahasiswa->updated_at->locale('id')->translatedFormat('d-M-Y') }}</td>
+
                                     
                                     <!-- Berkas Pendukung -->
                                     <td class="px-4 py-3 border border-gray-200">
