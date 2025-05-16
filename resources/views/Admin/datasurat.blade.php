@@ -63,22 +63,22 @@
                         
                         <!-- Status Filter Tabs -->
                         <div class="flex items-center space-x-2 ml-4 bg-gray-100 rounded-lg p-1">
-                            <a href="{{ route('admin.datasurat', ['status' => 'all', 'search' => $search, 'per_page' => $perPage]) }}" 
-                               class="px-3 py-1.5 rounded-md text-sm font-medium {{ $statusFilter === 'all' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-200' }}">
+                            <a href="{{ route('admin.datasurat', ['status' => 'all', 'search' => $search, 'per_page' => $perPage, 'sort_by' => $sortBy]) }}" 
+                            class="px-3 py-1.5 rounded-md text-sm font-medium {{ $statusFilter === 'all' ? 'bg-blue-600 text-white' : 'text-gray-700 hover:bg-gray-200' }}">
                                 Semua
                                 <span class="inline-flex items-center justify-center ml-1 px-2 py-0.5 text-xs font-medium rounded-full {{ $statusFilter === 'all' ? 'bg-blue-500 text-white' : 'bg-gray-200 text-gray-800' }}">
                                     {{ \App\Models\PenerbitanSurat::count() }}
                                 </span>
                             </a>
-                            <a href="{{ route('admin.datasurat', ['status' => 'draft', 'search' => $search, 'per_page' => $perPage]) }}" 
-                               class="px-3 py-1.5 rounded-md text-sm font-medium {{ $statusFilter === 'draft' ? 'bg-yellow-500 text-white' : 'text-gray-700 hover:bg-gray-200' }}">
+                            <a href="{{ route('admin.datasurat', ['status' => 'draft', 'search' => $search, 'per_page' => $perPage, 'sort_by' => $sortBy]) }}" 
+                            class="px-3 py-1.5 rounded-md text-sm font-medium {{ $statusFilter === 'draft' ? 'bg-yellow-500 text-white' : 'text-gray-700 hover:bg-gray-200' }}">
                                 Draft
                                 <span class="inline-flex items-center justify-center ml-1 px-2 py-0.5 text-xs font-medium rounded-full {{ $statusFilter === 'draft' ? 'bg-yellow-400 text-white' : 'bg-gray-200 text-gray-800' }}">
                                     {{ \App\Models\PenerbitanSurat::where('status_surat', 'draft')->count() }}
                                 </span>
                             </a>
-                            <a href="{{ route('admin.datasurat', ['status' => 'diterbitkan', 'search' => $search, 'per_page' => $perPage]) }}" 
-                               class="px-3 py-1.5 rounded-md text-sm font-medium {{ $statusFilter === 'diterbitkan' ? 'bg-green-600 text-white' : 'text-gray-700 hover:bg-gray-200' }}">
+                            <a href="{{ route('admin.datasurat', ['status' => 'diterbitkan', 'search' => $search, 'per_page' => $perPage, 'sort_by' => $sortBy]) }}" 
+                            class="px-3 py-1.5 rounded-md text-sm font-medium {{ $statusFilter === 'diterbitkan' ? 'bg-green-600 text-white' : 'text-gray-700 hover:bg-gray-200' }}">
                                 Diterbitkan
                                 <span class="inline-flex items-center justify-center ml-1 px-2 py-0.5 text-xs font-medium rounded-full {{ $statusFilter === 'diterbitkan' ? 'bg-green-500 text-white' : 'bg-gray-200 text-gray-800' }}">
                                     {{ \App\Models\PenerbitanSurat::where('status_surat', 'diterbitkan')->count() }}
@@ -88,30 +88,39 @@
                     </div>
 
                     <div class="flex items-center space-x-2">
-                         <div class="relative">
-                            <select id="entries-select" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
-                                <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
-                                <option value="25" {{ $perPage == 25 ? 'selected' : '' }}>25</option>
-                                <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
-                                <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100</option>
-                            </select>
-                        </div>
-                        
-                        <div class="relative">
-                            <form action="{{ route('admin.datasurat') }}" method="GET" class="flex items-center">
+                        <form id="filter-form" action="{{ route('admin.datasurat') }}" method="GET" class="flex items-center space-x-2">
+                            <!-- Sort By Dropdown -->
+                            <div class="relative">
+                                <select id="sort_by" name="sort_by" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                    <option value="latest" {{ ($sortBy ?? 'latest') == 'latest' ? 'selected' : '' }}>Terbaru</option>
+                                    <option value="oldest" {{ ($sortBy ?? 'latest') == 'oldest' ? 'selected' : '' }}>Terlama</option>
+                                </select>
+                            </div>
+                            
+                            <!-- Entries Per Page Dropdown -->
+                            <div class="relative">
+                                <select id="entries-select" name="per_page" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
+                                    <option value="10" {{ $perPage == 10 ? 'selected' : '' }}>10</option>
+                                    <option value="25" {{ $perPage == 25 ? 'selected' : '' }}>25</option>
+                                    <option value="50" {{ $perPage == 50 ? 'selected' : '' }}>50</option>
+                                    <option value="100" {{ $perPage == 100 ? 'selected' : '' }}>100</option>
+                                </select>
+                            </div>
+
+                            <!-- Search Input -->
+                            <div class="relative">
                                 <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
                                     <svg class="w-4 h-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
                                         <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
                                     </svg>
                                 </div>
-                                <input type="hidden" name="per_page" id="per-page-input" value="{{ $perPage }}">
                                 <input type="hidden" name="status" value="{{ $statusFilter }}">
                                 <input type="text" name="search" id="search-input" class="block w-60 p-2.5 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg bg-gray-50 focus:ring-blue-500 focus:border-blue-500" placeholder="Cari Data Surat" value="{{ $search }}">
                                 <button type="submit" class="absolute inset-y-0 right-0 flex items-center px-4 text-sm font-medium text-white bg-blue-600 rounded-r-lg hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300">
                                     Cari
                                 </button>
-                            </form>
-                        </div>
+                            </div>
+                        </form>
                     </div>
                 </div>
                 
@@ -342,7 +351,12 @@
                         Menampilkan {{ $penerbitanSurats->firstItem() ?? 0 }} sampai {{ $penerbitanSurats->lastItem() ?? 0 }} dari {{ $penerbitanSurats->total() }} Total Data
                     </div>
                     <div class="flex">
-                        {{ $penerbitanSurats->links() }}
+                        {{ $penerbitanSurats->appends([
+                            'search' => $search,
+                            'status' => $statusFilter, 
+                            'per_page' => $perPage,
+                            'sort_by' => $sortBy
+                        ])->links() }}
                     </div>
                 </div>
             </div>
@@ -395,6 +409,24 @@
             </div>
         </div>
     </div>
+
+    <script>
+        // Handle sort_by dropdown change
+        const sortBySelect = document.getElementById('sort_by');
+        if (sortBySelect) {
+            sortBySelect.addEventListener('change', function() {
+                document.getElementById('filter-form').submit();
+            });
+        }
+        
+        // Handle entries per page selector
+        const entriesSelect = document.getElementById('entries-select');
+        if (entriesSelect) {
+            entriesSelect.addEventListener('change', function() {
+                document.getElementById('filter-form').submit();
+            });
+        }
+    </script>
 
     <script>
         // Function to show anggota penelitian modal

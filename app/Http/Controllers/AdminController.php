@@ -192,6 +192,7 @@ class AdminController extends Controller
     $search = $request->input('search', '');
     $perPage = $request->input('per_page', 10);
     $statusFilter = $request->input('status', 'all'); // Default to 'all'
+    $sortBy = $request->input('sort_by', 'latest'); // Default to latest
     
     // Base query with relationships
     $query = PenerbitanSurat::with(['mahasiswa', 'nonMahasiswa', 'user']);
@@ -226,15 +227,23 @@ class AdminController extends Controller
             });
         });
     }
+
+    // Apply sorting based on sortBy parameter
+    if ($sortBy === 'latest') {
+        $query->orderBy('created_at', 'desc');
+    } else {
+        $query->orderBy('created_at', 'asc');
+    }
+
+
     
-    // Order by created date, descending
-    $query->orderBy('created_at', 'desc');
+    
     
     // Get paginated results
     $penerbitanSurats = $query->paginate($perPage)->withQueryString();
     
     // Return view with data
-    return view('Admin.datasurat', compact('penerbitanSurats', 'search', 'perPage', 'statusFilter'));
+    return view('Admin.datasurat', compact('penerbitanSurats', 'search', 'perPage', 'statusFilter', 'sortBy'));
 }
 
     /**
