@@ -20,6 +20,75 @@ use PDF;
 
 class StaffController extends Controller
 { 
+    /**
+     * Get notifications for new applications
+     */
+    private function getNewApplicationNotifications()
+    {
+        $newApplicationNotifications = Notifikasi::where(function($query) {
+                $query->where('judul', 'like', '%Pengajuan Baru%')
+                      ->orWhere('pesan', 'like', '%pengajuan baru%')
+                      ->orWhere('pesan', 'like', '%mengirimkan pengajuan%');
+            })
+            ->where(function($query) {
+                // Exclude verification and surat-related notifications
+                $query->whereNull('penerbitan_surat_id')
+                    ->whereNull('alasan_penolakan');
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return $newApplicationNotifications;
+    }
+
+    /**
+     * Get notifications related to verification (approval/rejection)
+     */
+    private function getVerificationNotifications()
+    {
+        $verificationNotifications = Notifikasi::where(function($query) {
+                // Verification related notifications
+                $query->where('tipe', 'success')
+                    ->orWhere('tipe', 'danger')
+                    ->orWhere('pesan', 'like', '%diterima%')
+                    ->orWhere('pesan', 'like', '%ditolak%')
+                    ->orWhereNotNull('alasan_penolakan');
+            })
+            ->where(function($query) {
+                // But exclude surat-related notifications
+                $query->whereNull('penerbitan_surat_id')
+                    ->where('judul', 'not like', '%Surat%');
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return $verificationNotifications;
+    }
+
+    /**
+     * Get surat-related notifications
+     */
+    private function getSuratNotifications()
+    {
+        $suratNotifications = Notifikasi::where(function($query) {
+                // Look for notifications with specific titles related to surat
+                $query->where('judul', 'like', '%Surat%')
+                      ->orWhere('pesan', 'like', '%surat%')
+                      ->orWhere('pesan', 'like', '%diterbitkan%');
+            })
+            ->orWhere(function($query) {
+                // Include all notifications with penerbitan_surat_id
+                $query->whereNotNull('penerbitan_surat_id');
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return $suratNotifications;
+    }
+
+    /**
+     * Get all unread notifications (for the counter badge)
+     */
     private function getUnreadNotifications()
     {
         $unreadNotifications = Notifikasi::where('telah_dibaca', false)
@@ -27,16 +96,6 @@ class StaffController extends Controller
             ->get();
 
         return $unreadNotifications;
-    }
-
-    private function getNotificationHistory()
-    {
-        $notificationHistory = Notifikasi::where('telah_dibaca', true)
-            ->orderBy('created_at', 'desc')
-            ->take(10)  // Get last 10 read notifications
-            ->get();
-
-        return $notificationHistory;
     }
 
     public function index()
@@ -57,7 +116,9 @@ class StaffController extends Controller
         
         // Get notifications
         $unreadNotifications = $this->getUnreadNotifications();
-        $notificationHistory = $this->getNotificationHistory();
+        $newApplicationNotifications = $this->getNewApplicationNotifications();
+        $verificationNotifications = $this->getVerificationNotifications();
+        $suratNotifications = $this->getSuratNotifications();
         
         return view('staff.index', compact(
             'totalUsers', 
@@ -65,7 +126,9 @@ class StaffController extends Controller
             'approvedDocuments', 
             'monthlyStats',
             'unreadNotifications',
-            'notificationHistory'
+            'newApplicationNotifications',
+            'verificationNotifications',
+            'suratNotifications'
         ));
     }
     
@@ -123,7 +186,20 @@ class StaffController extends Controller
         $approvedMahasiswa = Mahasiswa::where('status', 'diterima')->get();
         $approvedNonMahasiswa = NonMahasiswa::where('status', 'diterima')->get();
         
-        return view('staff.penerbitan', compact('approvedMahasiswa', 'approvedNonMahasiswa'));
+        // Get notifications for the layout
+        $unreadNotifications = $this->getUnreadNotifications();
+        $newApplicationNotifications = $this->getNewApplicationNotifications();
+        $verificationNotifications = $this->getVerificationNotifications();
+        $suratNotifications = $this->getSuratNotifications();
+        
+        return view('staff.penerbitan', compact(
+            'approvedMahasiswa', 
+            'approvedNonMahasiswa',
+            'unreadNotifications',
+            'newApplicationNotifications',
+            'verificationNotifications',
+            'suratNotifications'
+        ));
     }
 
     public function getMahasiswaData(Request $request)
@@ -242,6 +318,26 @@ class StaffController extends Controller
             // Commit transaction if we reach this point (everything successful)
             DB::commit();
 
+            // Create notification for surat creation
+            $notifikasi = new Notifikasi();
+            $notifikasi->judul = 'Surat Penelitian Dibuat';
+            $notifikasi->pesan = 'Surat penelitian telah dibuat dengan nomor ' . $validatedData['nomor_surat'];
+            $notifikasi->tipe = 'info';
+            $notifikasi->tipe_peneliti = $validatedData['jenis_surat'];
+            $notifikasi->user_id = auth()->id();
+            
+            if ($validatedData['jenis_surat'] === 'mahasiswa') {
+                $notifikasi->mahasiswa_id = $validatedData['pemohon_id'];
+                $notifikasi->non_mahasiswa_id = null;
+            } else {
+                $notifikasi->mahasiswa_id = null;
+                $notifikasi->non_mahasiswa_id = $validatedData['pemohon_id'];
+            }
+            
+            // Save the notification after the penerbitan_surat is created to get its ID
+            $notifikasi->penerbitan_surat_id = $penerbitanSurat->id;
+            $notifikasi->save();
+            
             return redirect()->route('datasurat')->with([
                 'success' => 'Data surat berhasil dibuat',
                 'document_path' => $documentPath
@@ -441,6 +537,17 @@ class StaffController extends Controller
                         'surat_diupdate', 
                         'File surat dengan nomor ' . $surat->nomor_surat . ' telah diperbarui'
                     );
+
+                    // Create notification for surat update
+                    $notifikasi = new Notifikasi();
+                    $notifikasi->judul = 'Surat Penelitian Diperbarui';
+                    $notifikasi->pesan = 'File surat penelitian dengan nomor ' . $surat->nomor_surat . ' telah diperbarui';
+                    $notifikasi->tipe = 'info';
+                    $notifikasi->tipe_peneliti = 'mahasiswa';
+                    $notifikasi->mahasiswa_id = $surat->mahasiswa_id;
+                    $notifikasi->user_id = auth()->id();
+                    $notifikasi->penerbitan_surat_id = $surat->id;
+                    $notifikasi->save();
                 } else {
                     $this->addStatusHistory(
                         'non_mahasiswa', 
@@ -448,6 +555,17 @@ class StaffController extends Controller
                         'surat_diupdate', 
                         'File surat dengan nomor ' . $surat->nomor_surat . ' telah diperbarui'
                     );
+
+                    // Create notification for surat update
+                    $notifikasi = new Notifikasi();
+                    $notifikasi->judul = 'Surat Penelitian Diperbarui';
+                    $notifikasi->pesan = 'File surat penelitian dengan nomor ' . $surat->nomor_surat . ' telah diperbarui';
+                    $notifikasi->tipe = 'info';
+                    $notifikasi->tipe_peneliti = 'non_mahasiswa';
+                    $notifikasi->non_mahasiswa_id = $surat->non_mahasiswa_id;
+                    $notifikasi->user_id = auth()->id();
+                    $notifikasi->penerbitan_surat_id = $surat->id;
+                    $notifikasi->save();
                 }
                 
                 return redirect()->route('datasurat')->with('success', 'File surat berhasil diperbarui');
@@ -570,12 +688,16 @@ class StaffController extends Controller
             $publishedQuery->orderBy('created_at', 'asc');
         }
         
-        
-        
         // Get paginated results for both tables
         $penerbitanSurats = $draftQuery->paginate($perPage)->withQueryString();
         $penerbitanSuratsPublished = $publishedQuery->paginate($perPagePublished, ['*'], 'page_published')
                                                 ->withQueryString();
+        
+        // Get notifications for the layout
+        $unreadNotifications = $this->getUnreadNotifications();
+        $newApplicationNotifications = $this->getNewApplicationNotifications();
+        $verificationNotifications = $this->getVerificationNotifications();
+        $suratNotifications = $this->getSuratNotifications();
         
         // Return view with data for both tables
         return view('staff.datasurat', compact(
@@ -586,7 +708,11 @@ class StaffController extends Controller
             'searchPublished',
             'perPagePublished',
             'sortBy',
-            'sortByPublished'
+            'sortByPublished',
+            'unreadNotifications',
+            'newApplicationNotifications',
+            'verificationNotifications',
+            'suratNotifications'
         ));
     }
 
@@ -656,6 +782,17 @@ class StaffController extends Controller
                         'surat_diupdate', 
                         'File surat dengan nomor ' . $surat->nomor_surat . ' telah diperbarui'
                     );
+
+                    // Create notification for surat update
+                    $notifikasi = new Notifikasi();
+                    $notifikasi->judul = 'Surat Penelitian Diperbarui';
+                    $notifikasi->pesan = 'Data surat penelitian dengan nomor ' . $surat->nomor_surat . ' telah diperbarui';
+                    $notifikasi->tipe = 'info';
+                    $notifikasi->tipe_peneliti = 'mahasiswa';
+                    $notifikasi->mahasiswa_id = $surat->mahasiswa_id;
+                    $notifikasi->user_id = auth()->id();
+                    $notifikasi->penerbitan_surat_id = $surat->id;
+                    $notifikasi->save();
                 } else {
                     $this->addStatusHistory(
                         'non_mahasiswa', 
@@ -663,6 +800,17 @@ class StaffController extends Controller
                         'surat_diupdate', 
                         'File surat dengan nomor ' . $surat->nomor_surat . ' telah diperbarui'
                     );
+
+                    // Create notification for surat update
+                    $notifikasi = new Notifikasi();
+                    $notifikasi->judul = 'Surat Penelitian Diperbarui';
+                    $notifikasi->pesan = 'Data surat penelitian dengan nomor ' . $surat->nomor_surat . ' telah diperbarui';
+                    $notifikasi->tipe = 'info';
+                    $notifikasi->tipe_peneliti = 'non_mahasiswa';
+                    $notifikasi->non_mahasiswa_id = $surat->non_mahasiswa_id;
+                    $notifikasi->user_id = auth()->id();
+                    $notifikasi->penerbitan_surat_id = $surat->id;
+                    $notifikasi->save();
                 }
             }
             
@@ -691,6 +839,17 @@ class StaffController extends Controller
                     'surat_diterbitkan', 
                     'Surat penelitian dengan nomor ' . $penerbitanSurat->nomor_surat . ' telah diterbitkan dan siap untuk diambil'
                 );
+                
+                // Create notification for surat publishing
+                $notifikasi = new Notifikasi();
+                $notifikasi->judul = 'Surat Penelitian Diterbitkan';
+                $notifikasi->pesan = 'Surat penelitian dengan nomor ' . $penerbitanSurat->nomor_surat . ' telah diterbitkan dan siap untuk diambil';
+                $notifikasi->tipe = 'success';
+                $notifikasi->tipe_peneliti = 'mahasiswa';
+                $notifikasi->mahasiswa_id = $penerbitanSurat->mahasiswa_id;
+                $notifikasi->user_id = auth()->id();
+                $notifikasi->penerbitan_surat_id = $penerbitanSurat->id;
+                $notifikasi->save();
             } else {
                 $this->addStatusHistory(
                     'non_mahasiswa', 
@@ -698,6 +857,17 @@ class StaffController extends Controller
                     'surat_diterbitkan', 
                     'Surat penelitian dengan nomor ' . $penerbitanSurat->nomor_surat . ' telah diterbitkan dan siap untuk diambil'
                 );
+                
+                // Create notification for surat publishing
+                $notifikasi = new Notifikasi();
+                $notifikasi->judul = 'Surat Penelitian Diterbitkan';
+                $notifikasi->pesan = 'Surat penelitian dengan nomor ' . $penerbitanSurat->nomor_surat . ' telah diterbitkan dan siap untuk diambil';
+                $notifikasi->tipe = 'success';
+                $notifikasi->tipe_peneliti = 'non_mahasiswa';
+                $notifikasi->non_mahasiswa_id = $penerbitanSurat->non_mahasiswa_id;
+                $notifikasi->user_id = auth()->id();
+                $notifikasi->penerbitan_surat_id = $penerbitanSurat->id;
+                $notifikasi->save();
             }
             
             return redirect()->route('datasurat')->with('success', 'Status surat berhasil diubah menjadi diterbitkan');
@@ -826,6 +996,12 @@ class StaffController extends Controller
         
         $ditolakMahasiswas = $ditolakMahasiswasQuery->paginate($perPageRejected, ['*'], 'page_rejected');
 
+        // Get notifications for the layout
+        $unreadNotifications = $this->getUnreadNotifications();
+        $newApplicationNotifications = $this->getNewApplicationNotifications();
+        $verificationNotifications = $this->getVerificationNotifications();
+        $suratNotifications = $this->getSuratNotifications();
+        
         return view('staff.datapengajuanmahasiswa', compact(
             'mahasiswas', 
             'ditolakMahasiswas', 
@@ -834,7 +1010,11 @@ class StaffController extends Controller
             'searchRejected',
             'perPageRejected',
             'sortBy',
-            'sortByRejected'
+            'sortByRejected',
+            'unreadNotifications',
+            'newApplicationNotifications',
+            'verificationNotifications',
+            'suratNotifications'
         ));
     }
 
@@ -886,6 +1066,16 @@ class StaffController extends Controller
                 'diterima', 
                 'Berkas pengajuan telah diterima dan sedang diproses lebih lanjut'
             );
+
+            // Create notification for acceptance
+            $notifikasi = new Notifikasi();
+            $notifikasi->judul = 'Pengajuan Penelitian Diterima';
+            $notifikasi->pesan = 'Pengajuan penelitian dengan judul "' . $mahasiswa->judul_penelitian . '" telah diterima dan sedang diproses lebih lanjut.';
+            $notifikasi->tipe = 'success';
+            $notifikasi->tipe_peneliti = 'mahasiswa';
+            $notifikasi->mahasiswa_id = $mahasiswa->id;
+            $notifikasi->user_id = auth()->id();
+            $notifikasi->save();
             
             return redirect()->route('datapengajuanmahasiswa')->with('success', 'Status pengajuan berhasil diubah menjadi Diterima');
         } catch (\Exception $e) {
@@ -1036,6 +1226,12 @@ class StaffController extends Controller
         
         $ditolakNonMahasiswas = $ditolakNonMahasiswasQuery->paginate($perPageRejected, ['*'], 'page_rejected');
 
+        // Get notifications for the layout
+        $unreadNotifications = $this->getUnreadNotifications();
+        $newApplicationNotifications = $this->getNewApplicationNotifications();
+        $verificationNotifications = $this->getVerificationNotifications();
+        $suratNotifications = $this->getSuratNotifications();
+        
         return view('staff.datapengajuannonmahasiswa', compact(
             'nonMahasiswas', 
             'ditolakNonMahasiswas', 
@@ -1044,7 +1240,11 @@ class StaffController extends Controller
             'searchRejected',
             'perPageRejected',
             'sortBy',
-            'sortByRejected'
+            'sortByRejected',
+            'unreadNotifications',
+            'newApplicationNotifications',
+            'verificationNotifications',
+            'suratNotifications'
         ));
     }
 
@@ -1096,6 +1296,16 @@ class StaffController extends Controller
                 'diterima', 
                 'Berkas pengajuan telah diterima dan sedang diproses lebih lanjut'
             );
+
+            // Create notification for acceptance
+            $notifikasi = new Notifikasi();
+            $notifikasi->judul = 'Pengajuan Penelitian Diterima';
+            $notifikasi->pesan = 'Pengajuan penelitian dengan judul "' . $nonMahasiswa->judul_penelitian . '" telah diterima dan sedang diproses lebih lanjut.';
+            $notifikasi->tipe = 'success';
+            $notifikasi->tipe_peneliti = 'non_mahasiswa';
+            $notifikasi->non_mahasiswa_id = $nonMahasiswa->id;
+            $notifikasi->user_id = auth()->id();
+            $notifikasi->save();
             
             return redirect()->route('datapengajuannonmahasiswa')->with('success', 'Status pengajuan berhasil diubah menjadi Diterima');
         } catch (\Exception $e) {
@@ -1233,7 +1443,9 @@ class StaffController extends Controller
     public function markAllNotificationsAsRead()
     {
         try {
+            // Update all unread notifications to read
             Notifikasi::where('telah_dibaca', false)->update(['telah_dibaca' => true]);
+            
             return response()->json(['success' => true]);
         } catch (\Exception $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Mahasiswa;
 use App\Models\NonMahasiswa;
 use App\Models\StatusHistory;
+use App\Models\Notifikasi; // Tambahkan import untuk model Notifikasi
 use App\Http\Requests\PengajuanMahasiswaRequest;
 use App\Http\Requests\PengajuanNonMahasiswaRequest;
 use Illuminate\Support\Facades\Storage;
@@ -62,6 +63,16 @@ class FormPengajuanController extends Controller
                 'pengajuan_diterima', 
                 'Pengajuan diterima oleh sistem'
             );
+            
+            // Buat notifikasi untuk pengajuan baru
+            $notifikasi = new Notifikasi();
+            $notifikasi->judul = 'Pengajuan Baru';
+            $notifikasi->pesan = 'Pengajuan mahasiswa baru dari ' . $request->nama_lengkap . ' dengan NIM ' . $request->nim . ' judul penelitian: ' . $request->judul_penelitian;
+            $notifikasi->tipe = 'info';
+            $notifikasi->tipe_peneliti = 'mahasiswa';
+            $notifikasi->mahasiswa_id = $mahasiswa->id;
+            $notifikasi->telah_dibaca = false;
+            $notifikasi->save();
 
             return redirect()->route('pengajuanmahasiswa')->with('success', "Pengajuan berhasil disimpan dengan nomor pengajuan {$noPengajuan} Simpan nomor pengajuan dengan baik agar bisa melacak status pengajuan.");
         } catch (\Exception $e) {
@@ -125,6 +136,16 @@ class FormPengajuanController extends Controller
                 'pengajuan_diterima', 
                 'Pengajuan diterima oleh sistem'
             );
+            
+            // Buat notifikasi untuk pengajuan baru
+            $notifikasi = new Notifikasi();
+            $notifikasi->judul = 'Pengajuan Baru';
+            $notifikasi->pesan = 'Pengajuan non-mahasiswa baru dari ' . $request->nama_lengkap . ' (' . $request->nama_instansi . ') judul penelitian: ' . $request->judul_penelitian;
+            $notifikasi->tipe = 'info';
+            $notifikasi->tipe_peneliti = 'non_mahasiswa';
+            $notifikasi->non_mahasiswa_id = $nonMahasiswa->id;
+            $notifikasi->telah_dibaca = false;
+            $notifikasi->save();
 
             return redirect()->route('pengajuannonmahasiswa')->with('success', "Pengajuan berhasil disimpan dengan nomor pengajuan {$noPengajuan} Simpan nomor pengajuan dengan baik agar bisa melacak status pengajuan.");
         } catch (\Exception $e) {

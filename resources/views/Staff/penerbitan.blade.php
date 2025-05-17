@@ -1,6 +1,6 @@
-@include('Staff.Layout.App.Header')
+@include('staff.Layout.App.Header')
 <body class="bg-gradient-to-r from-green-100 to-blue-100">
-    @include('Staff.Layout.App.Sidebar')
+    @include('staff.Layout.App.Sidebar')
     
     <div class="md:ml-64 pt-16 min-h-screen transition-all duration-300" id="main-content">
         <button id="menu-toggle" class="md:hidden fixed top-4 left-4 z-50 p-2 bg-white rounded-lg shadow">
@@ -21,7 +21,7 @@
                 <div class="flex justify-between items-center mb-6">
                     <div class="flex items-center space-x-2">
                         <div class="px-4 py-2 bg-blue-600 text-white rounded-lg font-medium">
-                            Form Pembuatan Surat
+                            Form Pembuatan Surat Rekomendasi Penelitian
                         </div>
                     </div>
 
@@ -782,4 +782,4 @@
     }
 </script>
 </body>
-@include('Staff.Layout.App.Footer')
+@include('staff.Layout.App.Footer')

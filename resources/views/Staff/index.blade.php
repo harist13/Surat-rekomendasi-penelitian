@@ -1,6 +1,6 @@
-@include('Staff.Layout.App.Header')
+@include('staff.Layout.App.Header')
 <body class="bg-gradient-to-r from-green-100 to-blue-100">
-    @include('Staff.Layout.App.Sidebar')
+    @include('staff.Layout.App.Sidebar')
     
     <!-- Main Content -->
     <div class="md:ml-64 pt-16 min-h-screen transition-all duration-300" id="main-content">
@@ -141,4 +141,4 @@
         });
     </script>
 </body>
-@include('Staff.Layout.App.Footer')
+@include('staff.Layout.App.Footer')

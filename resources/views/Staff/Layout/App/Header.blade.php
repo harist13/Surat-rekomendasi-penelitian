@@ -185,59 +185,99 @@
         <div class="flex justify-around items-center border-b bg-[#A7CDFF] text-gray-700">
             <button class="tab-btn py-2 px-4 font-semibold text-gray-600" data-tab="masuk">
                 Pengajuan Masuk
-                @if(isset($unreadNotifications) && $unreadNotifications->count() > 0)
-                    <span class="ml-1 bg-white text-xs px-2 py-0.5 rounded-full font-semibold">{{ $unreadNotifications->count() }}</span>
+                @if(isset($newApplicationNotifications) && $newApplicationNotifications->where('telah_dibaca', false)->count() > 0)
+                    <span class="ml-1 bg-white text-xs px-2 py-0.5 rounded-full font-semibold">{{ $newApplicationNotifications->where('telah_dibaca', false)->count() }}</span>
                 @endif
             </button>
-            <button class="tab-btn py-2 px-4 font-semibold text-gray-600" data-tab="history">
-                History 
-                @if(isset($notificationHistory) && $notificationHistory->count() > 0)
-                    <span class="ml-1 bg-white text-xs px-2 py-0.5 rounded-full font-semibold">{{ $notificationHistory->count() }}</span>
+            <button class="tab-btn py-2 px-4 font-semibold text-gray-600" data-tab="verifikasi">
+                Verifikasi Pengajuan
+                @if(isset($verificationNotifications) && $verificationNotifications->where('telah_dibaca', false)->count() > 0)
+                    <span class="ml-1 bg-white text-xs px-2 py-0.5 rounded-full font-semibold">{{ $verificationNotifications->where('telah_dibaca', false)->count() }}</span>
+                @endif
+            </button>
+            <button class="tab-btn py-2 px-4 font-semibold text-gray-600" data-tab="surat">
+                Data Surat
+                @if(isset($suratNotifications) && $suratNotifications->where('telah_dibaca', false)->count() > 0)
+                    <span class="ml-1 bg-white text-xs px-2 py-0.5 rounded-full font-semibold">{{ $suratNotifications->where('telah_dibaca', false)->count() }}</span>
                 @endif
             </button>
         </div>
 
         <!-- Konten Notifikasi -->
         <div class="p-4 space-y-4 overflow-y-auto max-h-[400px]">
-            <!-- Surat Masuk -->
+            <!-- Pengajuan Masuk Tab -->
             <div id="tab-masuk" class="tab-content hidden">
-                @if(isset($unreadNotifications) && $unreadNotifications->count() > 0)
-                    @foreach($unreadNotifications as $notification)
+                @if(isset($newApplicationNotifications) && $newApplicationNotifications->where('telah_dibaca', false)->count() > 0)
+                    @foreach($newApplicationNotifications->where('telah_dibaca', false) as $notification)
                         <div class="border-b pb-2">
                             <p class="text-xs text-gray-500">{{ $notification->created_at->format('d M Y H:i A') }}</p>
-                            <p class="font-bold">{{ $notification->tipe_peneliti === 'mahasiswa' ? $notification->mahasiswa->no_pengajuan : $notification->nonMahasiswa->no_pengajuan }}</p>
+                            <p class="font-bold">{{ $notification->tipe_peneliti === 'mahasiswa' ? ($notification->mahasiswa ? $notification->mahasiswa->no_pengajuan : 'N/A') : ($notification->nonMahasiswa ? $notification->nonMahasiswa->no_pengajuan : 'N/A') }}</p>
                             <p>{{ $notification->pesan }}</p>
                         </div>
                     @endforeach
                 @else
                     <div class="text-center text-gray-500 py-4">
-                        Tidak ada notifikasi baru
+                        Tidak ada pengajuan baru
                     </div>
                 @endif
             </div>
 
-            <!-- History -->
-            <div id="tab-history" class="tab-content hidden">
-                @if(isset($notificationHistory) && $notificationHistory->count() > 0)
-                    @foreach($notificationHistory as $notification)
-                        <div class="border-b pb-2 flex justify-between items-center">
-                            <div>
-                                <p class="text-xs text-gray-500">{{ $notification->created_at->format('d M Y H:i A') }}</p>
-                                <p>
-                                    <span class="font-bold">
-                                        {{ $notification->tipe_peneliti === 'mahasiswa' ? $notification->mahasiswa->no_pengajuan : $notification->nonMahasiswa->no_pengajuan }}
-                                    </span>
-                                    {{ $notification->pesan }}
-                                </p>
-                            </div>
-                            <span class="bg-{{ $notification->tipe === 'success' ? 'green' : ($notification->tipe === 'warning' ? 'yellow' : ($notification->tipe === 'danger' ? 'red' : 'blue')) }}-100 text-{{ $notification->tipe === 'success' ? 'green' : ($notification->tipe === 'warning' ? 'yellow' : ($notification->tipe === 'danger' ? 'red' : 'blue')) }}-700 text-xs px-2 py-1 rounded">
-                                {{ ucfirst($notification->tipe) }}
-                            </span>
+            <!-- Verifikasi Pengajuan Tab -->
+            <div id="tab-verifikasi" class="tab-content hidden">
+                @if(isset($verificationNotifications) && $verificationNotifications->where('telah_dibaca', false)->count() > 0)
+                    @foreach($verificationNotifications->where('telah_dibaca', false) as $notification)
+                        <div class="border-b pb-2">
+                            <p class="text-xs text-gray-500">{{ $notification->created_at->format('d M Y H:i A') }}</p>
+                            <p class="font-bold">
+                                @if($notification->tipe_peneliti === 'mahasiswa' && $notification->mahasiswa)
+                                    {{ $notification->mahasiswa->no_pengajuan }}
+                                @elseif($notification->tipe_peneliti === 'non_mahasiswa' && $notification->nonMahasiswa)
+                                    {{ $notification->nonMahasiswa->no_pengajuan }}
+                                @endif
+                            </p>
+                            <p>{{ $notification->pesan }}</p>
+                            @if($notification->alasan_penolakan)
+                                <p class="mt-1 text-sm text-red-600">Alasan: {{ $notification->alasan_penolakan }}</p>
+                            @endif
                         </div>
                     @endforeach
                 @else
                     <div class="text-center text-gray-500 py-4">
-                        Tidak ada riwayat notifikasi
+                        Tidak ada notifikasi verifikasi
+                    </div>
+                @endif
+            </div>
+
+            <!-- Data Surat Tab -->
+            <div id="tab-surat" class="tab-content hidden">
+                @if(isset($suratNotifications) && $suratNotifications->where('telah_dibaca', false)->count() > 0)
+                    @foreach($suratNotifications->where('telah_dibaca', false) as $notification)
+                        <div class="border-b pb-2">
+                            <p class="text-xs text-gray-500">{{ $notification->created_at->format('d M Y H:i A') }}</p>
+                            @if($notification->tipe_peneliti === 'mahasiswa' && $notification->mahasiswa)
+                                <p class="font-bold">{{ $notification->mahasiswa->no_pengajuan }}</p>
+                            @elseif($notification->tipe_peneliti === 'non_mahasiswa' && $notification->nonMahasiswa)
+                                <p class="font-bold">{{ $notification->nonMahasiswa->no_pengajuan }}</p>
+                            @endif
+                            <p>{{ $notification->pesan }}</p>
+                            
+                            @if($notification->penerbitan_surat_id)
+                                <div class="mt-1">
+                                    @php
+                                        $penerbitanSurat = \App\Models\PenerbitanSurat::find($notification->penerbitan_surat_id);
+                                    @endphp
+                                    @if($penerbitanSurat)
+                                        <span class="text-xs text-blue-600">
+                                            Nomor Surat: {{ $penerbitanSurat->nomor_surat }}
+                                        </span>
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
+                @else
+                    <div class="text-center text-gray-500 py-4">
+                        Tidak ada notifikasi terkait surat
                     </div>
                 @endif
             </div>
@@ -327,20 +367,29 @@ document.addEventListener('DOMContentLoaded', () => {
                 .then(data => {
                     if (data.success) {
                         // Update UI to reflect all notifications are read
-                        document.querySelectorAll('#tab-masuk .border-b').forEach(el => {
+                        document.querySelectorAll('.tab-content .border-b').forEach(el => {
                             el.remove();
                         });
-                        document.querySelector('#tab-masuk').innerHTML = `
-                            <div class="text-center text-gray-500 py-4">
-                                Tidak ada notifikasi baru
-                            </div>
-                        `;
                         
-                        // Update notification counter badge
+                        // Add "no notifications" message to each tab
+                        document.querySelectorAll('.tab-content').forEach(tab => {
+                            tab.innerHTML = `
+                                <div class="text-center text-gray-500 py-4">
+                                    Tidak ada notifikasi baru
+                                </div>
+                            `;
+                        });
+                        
+                        // Update notification counter badge in main notification icon
                         const notifBadge = document.querySelector('#notificationButton .bg-red-500');
                         if (notifBadge) {
                             notifBadge.remove();
                         }
+
+                        // Update tab counters - remove all counter badges in tabs
+                        document.querySelectorAll('.tab-btn span').forEach(counter => {
+                            counter.remove();
+                        });
 
                         // Show success message
                         Swal.fire({
@@ -487,4 +536,36 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 </script>
-
+            <!-- Surat Notifications Tab -->
+            <div id="tab-Data surat" class="tab-content hidden">
+                @if(isset($suratNotifications) && $suratNotifications->count() > 0)
+                    @foreach($suratNotifications as $notification)
+                        <div class="border-b pb-2">
+                            <p class="text-xs text-gray-500">{{ $notification->created_at->format('d M Y H:i A') }}</p>
+                            @if($notification->tipe_peneliti === 'mahasiswa' && $notification->mahasiswa)
+                                <p class="font-bold">{{ $notification->mahasiswa->no_pengajuan }}</p>
+                            @elseif($notification->tipe_peneliti === 'non_mahasiswa' && $notification->nonMahasiswa)
+                                <p class="font-bold">{{ $notification->nonMahasiswa->no_pengajuan }}</p>
+                            @endif
+                            <p>{{ $notification->pesan }}</p>
+                            
+                            @if($notification->penerbitan_surat_id)
+                                <div class="mt-1">
+                                    @php
+                                        $penerbitanSurat = \App\Models\PenerbitanSurat::find($notification->penerbitan_surat_id);
+                                    @endphp
+                                    @if($penerbitanSurat)
+                                        <span class="text-xs text-blue-600">
+                                            Nomor Surat: {{ $penerbitanSurat->nomor_surat }}
+                                        </span>
+                                    @endif
+                                </div>
+                            @endif
+                        </div>
+                    @endforeach
+                @else
+                    <div class="text-center text-gray-500 py-4">
+                        Tidak ada notifikasi terkait surat
+                    </div>
+                @endif
+            </div>
