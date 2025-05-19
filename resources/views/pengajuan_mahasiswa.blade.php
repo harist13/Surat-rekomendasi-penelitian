@@ -261,7 +261,7 @@
 
                 <!-- Status Check -->
                 <div class="bg-white rounded-lg shadow-md p-6">
-                    <h3 class="text-lg font-semibold text-[#004aad] mb-4">CEK STATUS PENGAJUAN</h3>
+                    <h3 class="text-lg font-semibold text-[#004aad] mb-4">CEK STATUS PERMOHONAN</h3>
                     <form method="POST" action="{{ route('pantau.cek') }}" class="flex gap-2">
                         @csrf
                         <input 

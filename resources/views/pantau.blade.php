@@ -39,82 +39,179 @@
                     
                     <!-- Alert Status -->
                     <!-- Alert Status -->
-                    @if($data->status == 'ditolak' || (isset($statusHistories) && $statusHistories->where('status', 'ditolak')->count() > 0))
-                        <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
-                            <div class="flex">
-                                <div class="flex-shrink-0">
-                                    <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
-                                <div class="ml-3">
-                                    <p class="text-sm text-red-700">
-                                        Maaf untuk pengajuan surat dengan no permohonan <strong>{{ $data->no_pengajuan }}</strong>
-                                        @if($penerbitan)
-                                            dan no surat <strong>{{ $penerbitan->nomor_surat }}</strong>
-                                        @endif
-                                        tidak dapat kami proses dikarenakan alasan <strong>"{{ $notifikasis->first()->alasan_penolakan ?? 'Tidak memenuhi persyaratan' }}"</strong>. Mohon untuk mengajukan ulang dengan data dan berkas yang valid.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    @elseif($penerbitan && $penerbitan->status_surat == 'diterbitkan')
-                        <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-6">
-                            <div class="flex">
-                                <div class="flex-shrink-0">
-                                    <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
-                                <div class="ml-3">
-                                    <p class="text-sm text-green-700">
-                                        Kami informasikan untuk pengajuan surat dengan no permohonan <strong>{{ $data->no_pengajuan }}</strong>
-                                        @if($penerbitan)
-                                            dan no surat <strong>{{ $penerbitan->nomor_surat }}</strong>
-                                        @endif
-                                        telah kami terbitkan. Untuk detail permohonan dan pengambilan surat akan di kirimkan melalui whatsapp atau email <strong>{{ $data->no_hp ?? 'nomor terdaftar' }}</strong> atau <strong>{{ $data->email }}</strong>.
-                                    </p>
+                    @if(isset($statusHistories) && $statusHistories->count() > 0)
+                        @php
+                            // Get the most recent status
+                            $latestStatus = $statusHistories->first()->status;
+                            $latestNotes = $statusHistories->first()->notes;
+                            
+                            // Define status types for alerts
+                            $rejectedStatuses = ['ditolak', 'surat_dihapus', 'dihapus'];
+                            $publishedStatuses = ['surat_diterbitkan'];
+                            $acceptedStatuses = ['diterima', 'pengajuan_ulang', 'surat_dibuat', 'surat_diupdate'];
+                            $processingStatuses = ['pengajuan_diterima', 'diproses'];
+                        @endphp
+                        
+                        @if(in_array($latestStatus, $rejectedStatuses))
+                            <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-red-700">
+                                            Maaf untuk pengajuan surat dengan no permohonan <strong>{{ $data->no_pengajuan }}</strong>
+                                            @if($penerbitan)
+                                                dan no surat <strong>{{ $penerbitan->nomor_surat }}</strong>
+                                            @endif
+                                            tidak dapat kami proses dikarenakan alasan <strong>"{{ $notifikasis->where('alasan_penolakan', '!=', null)->first()->alasan_penolakan ?? 'Tidak memenuhi persyaratan' }}"</strong>. Mohon untuk mengajukan ulang dengan data dan berkas yang valid.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    @elseif($data->status == 'diterima' || (isset($statusHistories) && $statusHistories->where('status', 'diterima')->count() > 0))
-                        <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
-                            <div class="flex">
-                                <div class="flex-shrink-0">
-                                    <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
-                                <div class="ml-3">
-                                    <p class="text-sm text-blue-700">
-                                        Pengajuan dengan No. Permohonan: <strong>{{ $data->no_pengajuan }}</strong>
-                                        @if($penerbitan)
-                                            dan no surat: <strong>{{ $penerbitan->nomor_surat }}</strong>
-                                        @endif
-                                        telah kami verifikasi dan proses pembuatan surat sedang di proses.
-                                    </p>
+                        @elseif($penerbitan && $penerbitan->status_surat == 'diterbitkan' || in_array($latestStatus, $publishedStatuses))
+                            <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-6">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-green-700">
+                                            Kami informasikan untuk pengajuan surat dengan no permohonan <strong>{{ $data->no_pengajuan }}</strong>
+                                            @if($penerbitan)
+                                                dan no surat <strong>{{ $penerbitan->nomor_surat }}</strong>
+                                            @endif
+                                            telah kami terbitkan. Untuk detail permohonan dan pengambilan surat akan di kirimkan melalui whatsapp atau email <strong>{{ $data->no_hp ?? 'nomor terdaftar' }}</strong> atau <strong>{{ $data->email }}</strong>.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        @elseif(in_array($latestStatus, $acceptedStatuses) || $data->status == 'diterima')
+                            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-blue-700">
+                                            Pengajuan dengan No. Permohonan: <strong>{{ $data->no_pengajuan }}</strong>
+                                            @if($penerbitan)
+                                                dan no surat: <strong>{{ $penerbitan->nomor_surat }}</strong>
+                                            @endif
+                                            @if(in_array($latestStatus, ['pengajuan_ulang']) && $statusHistories->where('status', 'diterima')->count() > 0)
+                                                telah diterima kembali setelah pengajuan ulang dan sedang dalam proses pembuatan surat.
+                                            @else
+                                                telah kami verifikasi dan proses pembuatan surat sedang di proses.
+                                            @endif
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        @else
+                            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-blue-700">
+                                            Pengajuan dengan no. Permohonan: <strong>{{ $data->no_pengajuan }}</strong>
+                                            @if($penerbitan)
+                                                dan No. Surat: <strong>{{ $penerbitan->nomor_surat }}</strong>
+                                            @endif
+                                            akan segera kami proses
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     @else
-                        <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
-                            <div class="flex">
-                                <div class="flex-shrink-0">
-                                    <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
-                                    </svg>
-                                </div>
-                                <div class="ml-3">
-                                    <p class="text-sm text-blue-700">
-                                        Pengajuan dengan no. Permohonan: <strong>{{ $data->no_pengajuan }}</strong>
-                                        @if($penerbitan)
-                                            dan No. Surat: <strong>{{ $penerbitan->nomor_surat }}</strong>
-                                        @endif
-                                        akan segera kami proses
-                                    </p>
+                        <!-- Default Alert for backward compatibility -->
+                        @if($data->status == 'ditolak' || (isset($notifikasis) && $notifikasis->where('alasan_penolakan', '!=', null)->count() > 0))
+                            <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <svg class="h-5 w-5 text-red-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-red-700">
+                                            Maaf untuk pengajuan surat dengan no permohonan <strong>{{ $data->no_pengajuan }}</strong>
+                                            @if($penerbitan)
+                                                dan no surat <strong>{{ $penerbitan->nomor_surat }}</strong>
+                                            @endif
+                                            tidak dapat kami proses dikarenakan alasan <strong>"{{ $notifikasis->first()->alasan_penolakan ?? 'Tidak memenuhi persyaratan' }}"</strong>. Mohon untuk mengajukan ulang dengan data dan berkas yang valid.
+                                        </p>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        @elseif($penerbitan && $penerbitan->status_surat == 'diterbitkan')
+                            <div class="bg-green-50 border-l-4 border-green-400 p-4 mb-6">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <svg class="h-5 w-5 text-green-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-green-700">
+                                            Kami informasikan untuk pengajuan surat dengan no permohonan <strong>{{ $data->no_pengajuan }}</strong>
+                                            @if($penerbitan)
+                                                dan no surat <strong>{{ $penerbitan->nomor_surat }}</strong>
+                                            @endif
+                                            telah kami terbitkan. Untuk detail permohonan dan pengambilan surat akan di kirimkan melalui whatsapp atau email <strong>{{ $data->no_hp ?? 'nomor terdaftar' }}</strong> atau <strong>{{ $data->email }}</strong>.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        @elseif($data->status == 'diterima')
+                            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-blue-700">
+                                            Pengajuan dengan No. Permohonan: <strong>{{ $data->no_pengajuan }}</strong>
+                                            @if($penerbitan)
+                                                dan no surat: <strong>{{ $penerbitan->nomor_surat }}</strong>
+                                            @endif
+                                            telah kami verifikasi dan proses pembuatan surat sedang di proses.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        @else
+                            <div class="bg-blue-50 border-l-4 border-blue-400 p-4 mb-6">
+                                <div class="flex">
+                                    <div class="flex-shrink-0">
+                                        <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/>
+                                        </svg>
+                                    </div>
+                                    <div class="ml-3">
+                                        <p class="text-sm text-blue-700">
+                                            Pengajuan dengan no. Permohonan: <strong>{{ $data->no_pengajuan }}</strong>
+                                            @if($penerbitan)
+                                                dan No. Surat: <strong>{{ $penerbitan->nomor_surat }}</strong>
+                                            @endif
+                                            akan segera kami proses
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        @endif
                     @endif
 
                     @if($data->status == 'ditolak')
