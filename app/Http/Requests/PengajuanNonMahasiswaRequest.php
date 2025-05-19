@@ -23,30 +23,53 @@ class PengajuanNonMahasiswaRequest extends FormRequest
      */
     public function rules()
     {
-        return [
+        $rules = [
             'nama_lengkap' => 'required|string|max:255',
-            'jabatan' => 'required|string|max:255',
-            'email' => 'required|email|max:255|unique:non_mahasiswa',
-            'no_hp' => 'required|numeric|unique:non_mahasiswa',
+            'jabatan' => 'required|string|max:100',
             'alamat_peneliti' => 'required|string',
             'nama_instansi' => 'required|string|max:255',
             'alamat_instansi' => 'required|string',
-            'bidang' => 'required|string|max:255',
+            'bidang' => 'required|string|max:100',
             'judul_penelitian' => 'required|string',
-            'lama_penelitian' => 'required|string',
+            'lama_penelitian' => 'required|string|max:50',
             'tanggal_mulai' => 'required|date',
             'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
             'lokasi_penelitian' => 'required|string',
             'tujuan_penelitian' => 'required|string',
             'anggota_peneliti' => 'required|string',
-            'surat_pengantar_instansi' => 'required|file|mimes:pdf|max:2048',
-            'akta_notaris_lembaga' => 'required|file|mimes:pdf|max:2048',
-            'surat_terdaftar_kemenkumham' => 'required|file|mimes:pdf|max:2048',
-            'ktp' => 'required|file|mimes:pdf,jpeg,jpg,png|max:2048',
-            'proposal_penelitian' => 'required|file|mimes:pdf|max:2048',
-            'surat_pernyataan' => 'required|file|mimes:pdf|max:2048',
             'status' => 'required|string',
         ];
+        
+        // Cek apakah ada existing_id (pengajuan ulang)
+        if ($this->filled('existing_id')) {
+            $nonMahasiswaId = $this->input('existing_id');
+            
+            // Untuk pengajuan ulang, tambahkan pengecualian pada aturan unique
+            $rules['email'] = 'required|email|max:255|unique:non_mahasiswa,email,'.$nonMahasiswaId;
+            $rules['no_hp'] = 'required|string|max:15|unique:non_mahasiswa,no_hp,'.$nonMahasiswaId;
+            
+            // File tidak wajib jika ini pengajuan ulang (bisa gunakan file yang sudah ada)
+            $rules['surat_pengantar_instansi'] = 'nullable|file|mimes:pdf|max:2048';
+            $rules['akta_notaris_lembaga'] = 'nullable|file|mimes:pdf|max:2048';
+            $rules['surat_terdaftar_kemenkumham'] = 'nullable|file|mimes:pdf|max:2048';
+            $rules['ktp'] = 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048';
+            $rules['proposal_penelitian'] = 'nullable|file|mimes:pdf|max:2048';
+            $rules['surat_pernyataan'] = 'nullable|file|mimes:pdf|max:2048';
+        } else {
+            // Untuk pengajuan baru, tetap gunakan validasi unique tanpa pengecualian
+            $rules['email'] = 'required|email|max:255|unique:non_mahasiswa,email';
+            $rules['no_hp'] = 'required|string|max:15|unique:non_mahasiswa,no_hp';
+            
+            // File wajib untuk pengajuan baru
+            $rules['surat_pengantar_instansi'] = 'required|file|mimes:pdf|max:2048';
+            $rules['akta_notaris_lembaga'] = 'required|file|mimes:pdf|max:2048';
+            $rules['surat_terdaftar_kemenkumham'] = 'required|file|mimes:pdf|max:2048';
+            $rules['ktp'] = 'required|file|mimes:pdf,jpg,jpeg,png|max:2048';
+            $rules['proposal_penelitian'] = 'required|file|mimes:pdf|max:2048';
+            $rules['surat_pernyataan'] = 'required|file|mimes:pdf|max:2048';
+        }
+        
+        return $rules;
     }
 
     /**

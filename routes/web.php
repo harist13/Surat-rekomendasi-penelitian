@@ -99,3 +99,7 @@ Route::prefix('staff')->middleware(['auth', 'role:staff'])->group(function () {
     // Notification routes
     Route::post('/notifications/mark-all-read', [StaffController::class, 'markAllNotificationsAsRead'])->name('notification.markAllRead');
 });
+
+// Pengajuan ulang routes
+Route::get('/pengajuanmahasiswa/resubmit/{no_pengajuan}', [FormPengajuanController::class, 'resubmitMahasiswa'])->name('pengajuanmahasiswa.resubmit');
+Route::get('/pengajuannonmahasiswa/resubmit/{no_pengajuan}', [FormPengajuanController::class, 'resubmitNonMahasiswa'])->name('pengajuannonmahasiswa.resubmit');

@@ -653,7 +653,9 @@
 
         Alasan: ${alasan_penolakan}
 
-        Anda dapat mengajukan kembali permohonan dengan memperbaiki persyaratan sesuai dengan alasan penolakan di atas. Jika ada pertanyaan, silakan hubungi kantor kami pada jam kerja (Senin-Jumat, 08.00-16.00).
+        Anda dapat mengajukan kembali permohonan dengan memasukkan nomor pengajuan Anda, yaitu "${no_pengajuan}" pada formulir cek status permohonan, kemudian klik tombol 'Ajukan Ulang Permohonan' lalu anda bisa memperbaiki persyaratan sesuai dengan alasan penolakan di atas.
+        
+        Jika ada pertanyaan, silakan hubungi kantor kami pada jam kerja (Senin-Jumat, 08.00-16.00).
 
         Terima kasih atas pengertian Anda.
 
@@ -686,7 +688,9 @@
 
         Alasan: ${alasan_penolakan}
 
-        Anda dapat mengajukan kembali permohonan dengan memperbaiki persyaratan sesuai dengan alasan penolakan di atas. Jika ada pertanyaan, silakan hubungi kantor kami pada jam kerja (Senin-Jumat, 08.00-16.00).
+        Anda dapat mengajukan kembali permohonan dengan memasukkan nomor pengajuan Anda, yaitu "${no_pengajuan}" pada formulir cek status permohonan, kemudian klik tombol 'Ajukan Ulang Permohonan' lalu anda bisa memperbaiki persyaratan sesuai dengan alasan penolakan di atas.
+        
+        Jika ada pertanyaan, silakan hubungi kantor kami pada jam kerja (Senin-Jumat, 08.00-16.00).
 
         Terima kasih atas pengertian Anda.
 

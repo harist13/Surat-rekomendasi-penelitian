@@ -53,6 +53,15 @@ class HomeController extends Controller
             return redirect()->route('pantau')->with('error', 'Nomor pengajuan tidak ditemukan');
         }
 
+        // Cek apakah ini adalah permintaan untuk mengajukan ulang
+        if (request()->has('resubmit') && $data->status == 'ditolak') {
+            if ($tipe == 'mahasiswa') {
+                return redirect()->route('pengajuanmahasiswa', ['no_pengajuan' => $no_pengajuan]);
+            } else {
+                return redirect()->route('pengajuannonmahasiswa', ['no_pengajuan' => $no_pengajuan]);
+            }
+        }
+
         // Get related data
         $penerbitan = PenerbitanSurat::where($tipe.'_id', $data->id)->first();
         $notifikasis = Notifikasi::where($tipe.'_id', $data->id)
