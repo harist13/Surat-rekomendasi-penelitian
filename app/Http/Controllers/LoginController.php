@@ -23,6 +23,7 @@ class LoginController extends Controller
             $request->session()->regenerate();
 
             $user = Auth::user();
+            $request->session()->flash('login_success', true);
             
             // Redirect based on role
             if ($user->hasRole('admin')) {

@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Mahasiswa;
+use App\Models\Notifikasi;
+
 use App\Models\NonMahasiswa;
 use App\Models\PenerbitanSurat;
 use App\Models\SurveiKepuasan;
@@ -28,7 +30,7 @@ use PhpOffice\PhpWord\IOFactory;
 
 class AdminController extends Controller
 {
-     public function index()
+    public function index()
     {
         // Count total users
         $totalUsers = User::count();
@@ -44,7 +46,22 @@ class AdminController extends Controller
         // Get monthly statistics for chart
         $monthlyStats = $this->getMonthlyStatistics();
         
-        return view('Admin.index', compact('totalUsers', 'totalPending', 'approvedDocuments', 'monthlyStats'));
+        // Get notifications
+        $unreadNotifications = $this->getUnreadNotifications();
+        $newApplicationNotifications = $this->getNewApplicationNotifications();
+        $verificationNotifications = $this->getVerificationNotifications();
+        $suratNotifications = $this->getSuratNotifications();
+        
+        return view('Admin.index', compact(
+            'totalUsers', 
+            'totalPending', 
+            'approvedDocuments', 
+            'monthlyStats',
+            'unreadNotifications',
+            'newApplicationNotifications',
+            'verificationNotifications',
+            'suratNotifications'
+        ));
     }
     
     /**
@@ -96,7 +113,7 @@ class AdminController extends Controller
         ];
     }
 
-   public function akun(Request $request)
+    public function akun(Request $request)
     {
         $search = $request->input('search', ''); // Ambil kata kunci pencarian dari request
         $perPage = $request->input('per_page', 10); // Ambil jumlah item per halaman dari request, default 10
@@ -112,11 +129,26 @@ class AdminController extends Controller
 
         $users = $usersQuery->paginate($perPage); // Gunakan per_page untuk paginasi
         $roles = Role::all();
-        return view('Admin.akun', compact('users', 'roles', 'search', 'perPage'));
+        
+        // Get notifications for the view
+        $unreadNotifications = $this->getUnreadNotifications();
+        $newApplicationNotifications = $this->getNewApplicationNotifications();
+        $verificationNotifications = $this->getVerificationNotifications();
+        $suratNotifications = $this->getSuratNotifications();
+        
+        return view('Admin.akun', compact(
+            'users', 
+            'roles', 
+            'search', 
+            'perPage',
+            'unreadNotifications',
+            'newApplicationNotifications',
+            'verificationNotifications',
+            'suratNotifications'
+        ));
     }
 
-
-     public function storeUser(StoreUserRequest $request)
+    public function storeUser(StoreUserRequest $request)
     {
         // Validasi sudah dilakukan oleh StoreUserRequest
         $validated = $request->validated();
@@ -187,64 +219,76 @@ class AdminController extends Controller
     }
 
     public function datasurats(Request $request)
-{
-    // Get filter parameters
-    $search = $request->input('search', '');
-    $perPage = $request->input('per_page', 10);
-    $statusFilter = $request->input('status', 'all'); // Default to 'all'
-    $sortBy = $request->input('sort_by', 'latest'); // Default to latest
-    
-    // Base query with relationships
-    $query = PenerbitanSurat::with(['mahasiswa', 'nonMahasiswa', 'user']);
-    
-    // Apply status filter if provided and not 'all'
-    if ($statusFilter !== 'all') {
-        $query->where('status_surat', $statusFilter);
-    }
-    
-    // Apply search filter if provided
-    if ($search) {
-        $query->where(function($q) use ($search) {
-            // Search in PenerbitanSurat table
-            $q->where('nomor_surat', 'like', '%' . $search . '%')
-              ->orWhere('status_penelitian', 'like', '%' . $search . '%')
-              ->orWhere('status_surat', 'like', '%' . $search . '%');
-            
-            // Search in related Mahasiswa
-            $q->orWhereHas('mahasiswa', function($mq) use ($search) {
-                $mq->where('nama_lengkap', 'like', '%' . $search . '%')
-                   ->orWhere('no_hp', 'like', '%' . $search . '%')
-                   ->orWhere('nama_instansi', 'like', '%' . $search . '%')
-                   ->orWhere('judul_penelitian', 'like', '%' . $search . '%');
+    {
+        // Get filter parameters
+        $search = $request->input('search', '');
+        $perPage = $request->input('per_page', 10);
+        $statusFilter = $request->input('status', 'all'); // Default to 'all'
+        $sortBy = $request->input('sort_by', 'latest'); // Default to latest
+        
+        // Base query with relationships
+        $query = PenerbitanSurat::with(['mahasiswa', 'nonMahasiswa', 'user']);
+        
+        // Apply status filter if provided and not 'all'
+        if ($statusFilter !== 'all') {
+            $query->where('status_surat', $statusFilter);
+        }
+        
+        // Apply search filter if provided
+        if ($search) {
+            $query->where(function($q) use ($search) {
+                // Search in PenerbitanSurat table
+                $q->where('nomor_surat', 'like', '%' . $search . '%')
+                  ->orWhere('status_penelitian', 'like', '%' . $search . '%')
+                  ->orWhere('status_surat', 'like', '%' . $search . '%');
+                
+                // Search in related Mahasiswa
+                $q->orWhereHas('mahasiswa', function($mq) use ($search) {
+                    $mq->where('nama_lengkap', 'like', '%' . $search . '%')
+                       ->orWhere('no_hp', 'like', '%' . $search . '%')
+                       ->orWhere('nama_instansi', 'like', '%' . $search . '%')
+                       ->orWhere('judul_penelitian', 'like', '%' . $search . '%');
+                });
+                
+                // Search in related NonMahasiswa
+                $q->orWhereHas('nonMahasiswa', function($nmq) use ($search) {
+                    $nmq->where('nama_lengkap', 'like', '%' . $search . '%')
+                        ->orWhere('no_hp', 'like', '%' . $search . '%')
+                        ->orWhere('nama_instansi', 'like', '%' . $search . '%')
+                        ->orWhere('judul_penelitian', 'like', '%' . $search . '%');
+                });
             });
-            
-            // Search in related NonMahasiswa
-            $q->orWhereHas('nonMahasiswa', function($nmq) use ($search) {
-                $nmq->where('nama_lengkap', 'like', '%' . $search . '%')
-                    ->orWhere('no_hp', 'like', '%' . $search . '%')
-                    ->orWhere('nama_instansi', 'like', '%' . $search . '%')
-                    ->orWhere('judul_penelitian', 'like', '%' . $search . '%');
-            });
-        });
+        }
+
+        // Apply sorting based on sortBy parameter
+        if ($sortBy === 'latest') {
+            $query->orderBy('created_at', 'desc');
+        } else {
+            $query->orderBy('created_at', 'asc');
+        }
+        
+        // Get paginated results
+        $penerbitanSurats = $query->paginate($perPage)->withQueryString();
+        
+        // Get notifications
+        $unreadNotifications = $this->getUnreadNotifications();
+        $newApplicationNotifications = $this->getNewApplicationNotifications();
+        $verificationNotifications = $this->getVerificationNotifications();
+        $suratNotifications = $this->getSuratNotifications();
+        
+        // Return view with data
+        return view('Admin.datasurat', compact(
+            'penerbitanSurats', 
+            'search', 
+            'perPage', 
+            'statusFilter', 
+            'sortBy',
+            'unreadNotifications',
+            'newApplicationNotifications',
+            'verificationNotifications',
+            'suratNotifications'
+        ));
     }
-
-    // Apply sorting based on sortBy parameter
-    if ($sortBy === 'latest') {
-        $query->orderBy('created_at', 'desc');
-    } else {
-        $query->orderBy('created_at', 'asc');
-    }
-
-
-    
-    
-    
-    // Get paginated results
-    $penerbitanSurats = $query->paginate($perPage)->withQueryString();
-    
-    // Return view with data
-    return view('Admin.datasurat', compact('penerbitanSurats', 'search', 'perPage', 'statusFilter', 'sortBy'));
-}
 
     /**
      * Download document for admin
@@ -317,7 +361,9 @@ class AdminController extends Controller
 
         // Format tanggal
         $tanggalSurat = Carbon::now()->locale('id')->isoFormat('D MMMM Y');
-        $waktuPenelitian = $peneliti->tanggal_mulai . ' s.d ' . $peneliti->tanggal_selesai;
+        $tanggalMulai = Carbon::parse($peneliti->tanggal_mulai)->locale('id')->translatedFormat('d-M-Y');
+        $tanggalSelesai = Carbon::parse($peneliti->tanggal_selesai)->locale('id')->translatedFormat('d-M-Y');
+        $waktuPenelitian = $tanggalMulai . ' s.d ' . $tanggalSelesai;
 
         // Proses anggota peneliti
         $anggotaText = '';
@@ -344,6 +390,7 @@ class AdminController extends Controller
         $templateProcessor->setValues([
             'nomor_surat' => $surat->nomor_surat,
             'menimbang' => $surat->menimbang,
+            'tembusan' => $surat->tembusan,
             'nama_lengkap' => $peneliti->nama_lengkap,
             'jabatan' => $jabatan,
             'nim' => $nimFormatted,
@@ -366,16 +413,16 @@ class AdminController extends Controller
             mkdir($directory, 0777, true);
         }
 
+        $nomorSuratSafe = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $surat->nomor_surat);
+
         // Simpan file Word
-        $fileName = 'surat_penelitian_' . $surat->nomor_surat . '_' . time() . '.docx';
+        $fileName = 'surat_penelitian_' . $nomorSuratSafe . '_' . time() . '.docx';
         $filePath = $directory . '/' . $fileName;
         $templateProcessor->saveAs($filePath);
 
         // Return path relatif untuk disimpan di DB atau digunakan di frontend
         return 'documents/surat_penelitian/' . $fileName;
     }
-
-    // Add this method to AdminController.php
 
     /**
      * Update the authenticated user's profile
@@ -438,7 +485,6 @@ class AdminController extends Controller
         }
     }
 
-
     public function datasurvei(Request $request)
     {
         $search = $request->input('search', '');
@@ -452,7 +498,21 @@ class AdminController extends Controller
         
         $surveiQuestions = $query->orderBy('created_at', 'desc')->paginate($perPage)->withQueryString();
         
-        return view('Admin.datasurvei', compact('surveiQuestions', 'search', 'perPage'));
+        // Get notifications
+        $unreadNotifications = $this->getUnreadNotifications();
+        $newApplicationNotifications = $this->getNewApplicationNotifications();
+        $verificationNotifications = $this->getVerificationNotifications();
+        $suratNotifications = $this->getSuratNotifications();
+        
+        return view('Admin.datasurvei', compact(
+            'surveiQuestions', 
+            'search', 
+            'perPage',
+            'unreadNotifications',
+            'newApplicationNotifications',
+            'verificationNotifications',
+            'suratNotifications'
+        ));
     }
 
     // Update storeSurvei method to create questions
@@ -501,13 +561,6 @@ class AdminController extends Controller
         return redirect()->route('admin.datasurvei')->with('success', 'Pertanyaan survei berhasil dihapus');
     }
 
-    // Add method to view responses
-    /**
-     * Display survey responses grouped by user
-     */
-    /**
-     * Display survey responses grouped by user
-     */
     /**
      * Display survey responses grouped by user
      */
@@ -578,6 +631,12 @@ class AdminController extends Controller
         }
         $averageRating = $totalRatings > 0 ? round($weightedSum / $totalRatings, 1) : 0;
         
+        // Get notifications
+        $unreadNotifications = $this->getUnreadNotifications();
+        $newApplicationNotifications = $this->getNewApplicationNotifications();
+        $verificationNotifications = $this->getVerificationNotifications();
+        $suratNotifications = $this->getSuratNotifications();
+        
         return view('Admin.dataresponden', compact(
             'responses', 
             'search', 
@@ -587,7 +646,11 @@ class AdminController extends Controller
             'averageRating', 
             'highestRating',
             'lowestRating',
-            'totalRatings'
+            'totalRatings',
+            'unreadNotifications',
+            'newApplicationNotifications',
+            'verificationNotifications',
+            'suratNotifications'
         ));
     }
 
@@ -865,7 +928,6 @@ class AdminController extends Controller
         ])->deleteFileAfterSend(true);
     }
     
-
     /**
      * Export survey responses to PDF
      */
@@ -951,9 +1013,6 @@ class AdminController extends Controller
     /**
      * Generate chart image URL using QuickChart.io
      */
-    /**
-     * Generate chart image URL using QuickChart.io
-     */
     private function generateChartImageUrl($ratingStats)
     {
         // Calculate total responses for percentage calculation
@@ -965,20 +1024,17 @@ class AdminController extends Controller
             $percentages[$rating] = $totalResponses > 0 ? round(($count / $totalResponses) * 100, 1) : 0;
         }
         
-        // Create labels with percentages
-        
-        
         // Prepare chart data
         $chartData = [
             'type' => 'pie',
             'data' => [
-                        'labels' => [
-                        "1 - Sangat Tidak Setuju", 
-                        "2 - Tidak Setuju", 
-                        "3 - Kurang Setuju", 
-                        "4 - Setuju", 
-                        "5 - Sangat Setuju"
-                    ],
+                'labels' => [
+                    "1 - Sangat Tidak Setuju", 
+                    "2 - Tidak Setuju", 
+                    "3 - Kurang Setuju", 
+                    "4 - Setuju", 
+                    "5 - Sangat Setuju"
+                ],
                 'datasets' => [
                     [
                         'data' => [
@@ -1022,4 +1078,104 @@ class AdminController extends Controller
         return "https://quickchart.io/chart?c={$chartConfig}&w=500&h=300";
     }
 
+    /**
+     * Get notifications for new applications
+     */
+    private function getNewApplicationNotifications()
+    {
+        $newApplicationNotifications = Notifikasi::where(function($query) {
+                $query->where('judul', 'like', '%Pengajuan Baru%')
+                      ->orWhere('pesan', 'like', '%pengajuan baru%')
+                      ->orWhere('pesan', 'like', '%mengirimkan pengajuan%');
+            })
+            ->where(function($query) {
+                // Exclude verification and surat-related notifications
+                $query->whereNull('penerbitan_surat_id')
+                    ->whereNull('alasan_penolakan');
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return $newApplicationNotifications;
+    }
+
+    /**
+     * Get notifications related to verification (approval/rejection)
+     */
+    private function getVerificationNotifications()
+    {
+        $verificationNotifications = Notifikasi::where(function($query) {
+                // Verification related notifications
+                $query->where('tipe', 'success')
+                    ->orWhere('tipe', 'danger')
+                    ->orWhere('pesan', 'like', '%diterima%')
+                    ->orWhere('pesan', 'like', '%ditolak%')
+                    ->orWhereNotNull('alasan_penolakan');
+            })
+            ->where(function($query) {
+                // But exclude surat-related notifications
+                $query->whereNull('penerbitan_surat_id')
+                    ->where('judul', 'not like', '%Surat%');
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return $verificationNotifications;
+    }
+
+    /**
+     * Get surat-related notifications
+     */
+    private function getSuratNotifications()
+    {
+        $suratNotifications = Notifikasi::where(function($query) {
+                // Look for notifications with specific titles related to surat
+                $query->where('judul', 'like', '%Surat%')
+                      ->orWhere('pesan', 'like', '%surat%')
+                      ->orWhere('pesan', 'like', '%diterbitkan%');
+            })
+            ->orWhere(function($query) {
+                // Include all notifications with penerbitan_surat_id
+                $query->whereNotNull('penerbitan_surat_id');
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return $suratNotifications;
+    }
+
+    /**
+     * Get all unread notifications (for the counter badge)
+     */
+    private function getUnreadNotifications()
+    {
+        $unreadNotifications = Notifikasi::where('telah_dibaca', false)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return $unreadNotifications;
+    }
+
+    /**
+     * Mark all notifications as read
+     */
+    public function markAllNotificationsAsRead()
+    {
+        try {
+            // Update hanya notifikasi terkait surat yang dibaca
+            Notifikasi::where('telah_dibaca', false)
+                ->where(function($query) {
+                    // Notifikasi terkait surat
+                    $query->where('judul', 'like', '%Surat%')
+                          ->orWhere('pesan', 'like', '%surat%')
+                          ->orWhere('pesan', 'like', '%diterbitkan%')
+                          ->orWhereNotNull('penerbitan_surat_id');
+                })
+                ->update(['telah_dibaca' => true]);
+            
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
 }

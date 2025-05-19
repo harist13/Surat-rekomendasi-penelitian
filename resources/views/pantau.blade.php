@@ -73,7 +73,6 @@
                                             dan no surat <strong>{{ $penerbitan->nomor_surat }}</strong>
                                         @endif
                                         telah kami terbitkan. Untuk detail permohonan dan pengambilan surat akan di kirimkan melalui whatsapp atau email <strong>{{ $data->no_hp ?? 'nomor terdaftar' }}</strong> atau <strong>{{ $data->email }}</strong>.
-                                        <span>untuk meningkatkan kualitas pelayanan kami mohon mengisi survei kepuasan pelayanan dengan mengklik link <strong><a href="{{ route('survei') }}"> isi survei</a></strong></span>
                                     </p>
                                 </div>
                             </div>

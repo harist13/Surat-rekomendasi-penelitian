@@ -64,6 +64,7 @@ Route::get('/dataresponden/export', [AdminController::class, 'exportResponden'])
     Route::put('/datasurvei/{id}', [AdminController::class, 'updateSurvei'])->name('admin.datasurvei.update');
     Route::delete('/datasurvei/{id}', [AdminController::class, 'deleteSurvei'])->name('admin.datasurvei.delete');
     Route::get('/dataresponden/export-pdf', [AdminController::class, 'exportRespondenPdf'])->name('admin.dataresponden.export-pdf');
+Route::post('/notifications/mark-all-read', [AdminController::class, 'markAllNotificationsAsRead'])->name('admin.notification.markAllRead');
 
 
 });

@@ -139,6 +139,19 @@
         document.getElementById('menu-toggle').addEventListener('click', function() {
             document.querySelector('.sidebar').classList.toggle('-translate-x-full');
         });
+
+        // Show login success message
+        @if(session('login_success'))
+        document.addEventListener('DOMContentLoaded', function() {
+            Swal.fire({
+                icon: 'success',
+                title: 'Login Berhasil',
+                text: 'Selamat datang di halaman staff',
+                timer: 2000,
+                showConfirmButton: false
+            });
+        });
+        @endif
     </script>
 </body>
 @include('staff.Layout.App.Footer')
