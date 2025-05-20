@@ -1045,7 +1045,7 @@ class StaffController extends Controller
                 'Pengajuan ditolak dengan alasan: ' . ($request->alasan_penolakan ?? 'Tidak memenuhi persyaratan')
             );
             
-            return redirect()->route('datapengajuanmahasiswa')->with('success', 'Status pengajuan berhasil diubah menjadi Ditolak dan notifikasi telah dikirim');
+            return redirect()->route('datapengajuanmahasiswa')->with('success', 'Status pengajuan berhasil diubah menjadi Ditolak');
         } catch (\Exception $e) {
             return redirect()->route('datapengajuanmahasiswa')->with('error', 'Gagal mengubah status: ' . $e->getMessage());
         }
@@ -1275,7 +1275,7 @@ class StaffController extends Controller
                 'Pengajuan ditolak dengan alasan: ' . ($request->alasan_penolakan ?? 'Tidak memenuhi persyaratan')
             );
             
-            return redirect()->route('datapengajuannonmahasiswa')->with('success', 'Status pengajuan berhasil diubah menjadi Ditolak dan notifikasi telah dikirim');
+            return redirect()->route('datapengajuannonmahasiswa')->with('success', 'Status pengajuan berhasil diubah menjadi Ditolak');
         } catch (\Exception $e) {
             return redirect()->route('datapengajuannonmahasiswa')->with('error', 'Gagal mengubah status: ' . $e->getMessage());
         }
