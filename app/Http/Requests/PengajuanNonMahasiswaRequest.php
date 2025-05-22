@@ -46,7 +46,7 @@ class PengajuanNonMahasiswaRequest extends FormRequest
             
             // Untuk pengajuan ulang, tambahkan pengecualian pada aturan unique
             $rules['email'] = 'required|email|max:255|unique:non_mahasiswa,email,'.$nonMahasiswaId;
-            $rules['no_hp'] = 'required|string|max:15|unique:non_mahasiswa,no_hp,'.$nonMahasiswaId;
+            $rules['no_hp'] = 'required|string|max:15|regex:/^[0-9]+$/|unique:non_mahasiswa,no_hp,'.$nonMahasiswaId;
             
             // File tidak wajib jika ini pengajuan ulang (bisa gunakan file yang sudah ada)
             $rules['surat_pengantar_instansi'] = 'nullable|file|mimes:pdf|max:2048';
@@ -58,7 +58,7 @@ class PengajuanNonMahasiswaRequest extends FormRequest
         } else {
             // Untuk pengajuan baru, tetap gunakan validasi unique tanpa pengecualian
             $rules['email'] = 'required|email|max:255|unique:non_mahasiswa,email';
-            $rules['no_hp'] = 'required|string|max:15|unique:non_mahasiswa,no_hp';
+            $rules['no_hp'] = 'required|string|max:15|regex:/^[0-9]+$/|unique:non_mahasiswa,no_hp';
             
             // File wajib untuk pengajuan baru
             $rules['surat_pengantar_instansi'] = 'required|file|mimes:pdf|max:2048';
@@ -115,15 +115,31 @@ class PengajuanNonMahasiswaRequest extends FormRequest
         return [
             'required' => ':attribute wajib diisi.',
             'string' => ':attribute harus berupa teks.',
-            'max' => ':attribute maksimal :max karakter.',
             'email' => ':attribute harus berupa alamat email yang valid.',
             'date' => ':attribute harus berupa tanggal yang valid.',
             'after_or_equal' => ':attribute harus setelah atau sama dengan tanggal mulai.',
             'unique' => ':attribute sudah terdaftar.',
             'file' => ':attribute harus berupa file.',
             'mimes' => ':attribute harus berupa file dengan tipe: :values.',
-            'max' => ':attribute tidak boleh lebih dari 2 MB.',
             'numeric' => ':attribute harus berupa angka.',
+            'regex' => ':attribute hanya boleh berisi angka.',
+            
+            // Text field size limits
+            'no_hp.max' => 'Nomor HP tidak boleh lebih dari 15 angka.',
+            'nama_lengkap.max' => 'Nama lengkap maksimal :max karakter.',
+            'jabatan.max' => 'Jabatan maksimal :max karakter.',
+            'nama_instansi.max' => 'Nama instansi maksimal :max karakter.',
+            'bidang.max' => 'Bidang maksimal :max karakter.',
+            'lama_penelitian.max' => 'Lama penelitian maksimal :max karakter.',
+            'email.max' => 'Email maksimal :max karakter.',
+            
+            // File size limits
+            'surat_pengantar_instansi.max' => 'Surat pengantar instansi tidak boleh lebih dari 2 MB.',
+            'akta_notaris_lembaga.max' => 'Akta notaris lembaga tidak boleh lebih dari 2 MB.',
+            'surat_terdaftar_kemenkumham.max' => 'Surat terdaftar Kemenkumham tidak boleh lebih dari 2 MB.',
+            'ktp.max' => 'KTP tidak boleh lebih dari 2 MB.',
+            'proposal_penelitian.max' => 'Proposal penelitian tidak boleh lebih dari 2 MB.',
+            'surat_pernyataan.max' => 'Surat pernyataan tidak boleh lebih dari 2 MB.',
         ];
     }
 }
