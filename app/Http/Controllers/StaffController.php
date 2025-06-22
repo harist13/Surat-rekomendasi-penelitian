@@ -1037,12 +1037,12 @@ class StaffController extends Controller
             $notifikasi->alasan_penolakan = $request->alasan_penolakan ?? 'Tidak memenuhi persyaratan';
             $notifikasi->save();
             
-            // Add to status history
+            // Add to status history with additional message about resubmission
             $this->addStatusHistory(
                 'mahasiswa', 
                 $mahasiswa->id, 
                 'ditolak', 
-                'Pengajuan ditolak dengan alasan: ' . ($request->alasan_penolakan ?? 'Tidak memenuhi persyaratan')
+                'Pengajuan ditolak dengan alasan: ' . ($request->alasan_penolakan ?? 'Tidak memenuhi persyaratan') . '. Silahkan perbaiki berkas Anda dan kirimkan kembali dalam waktu maksimal 3 hari setelah pemberitahuan penolakan.'
             );
             
             return redirect()->route('datapengajuanmahasiswa')->with('success', 'Status pengajuan berhasil diubah menjadi Ditolak');
@@ -1267,12 +1267,12 @@ class StaffController extends Controller
             $notifikasi->alasan_penolakan = $request->alasan_penolakan ?? 'Tidak memenuhi persyaratan';
             $notifikasi->save();
             
-            // Add to status history
+            // Add to status history with additional message about resubmission
             $this->addStatusHistory(
                 'non_mahasiswa', 
                 $nonMahasiswa->id, 
                 'ditolak', 
-                'Pengajuan ditolak dengan alasan: ' . ($request->alasan_penolakan ?? 'Tidak memenuhi persyaratan')
+                'Pengajuan ditolak dengan alasan: ' . ($request->alasan_penolakan ?? 'Tidak memenuhi persyaratan') . '. Silahkan perbaiki berkas Anda dan kirimkan kembali dalam waktu maksimal 3 hari setelah pemberitahuan penolakan.'
             );
             
             return redirect()->route('datapengajuannonmahasiswa')->with('success', 'Status pengajuan berhasil diubah menjadi Ditolak');
