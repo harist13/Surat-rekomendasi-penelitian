@@ -40,8 +40,18 @@ class AdminController extends Controller
         $pendingNonMahasiswa = NonMahasiswa::whereNotIn('status', ['diterima', 'ditolak'])->count();
         $totalPending = $pendingMahasiswa + $pendingNonMahasiswa;
         
-        // Count approved documents
+        // Count approved documents (surat yang diterbitkan)
         $approvedDocuments = PenerbitanSurat::where('status_surat', 'diterbitkan')->count();
+        
+        // Count accepted documents (pengajuan yang diterima)
+        $acceptedMahasiswa = Mahasiswa::where('status', 'diterima')->count();
+        $acceptedNonMahasiswa = NonMahasiswa::where('status', 'diterima')->count();
+        $acceptedDocuments = $acceptedMahasiswa + $acceptedNonMahasiswa;
+        
+        // Count rejected documents (pengajuan yang ditolak)
+        $rejectedMahasiswa = Mahasiswa::where('status', 'ditolak')->count();
+        $rejectedNonMahasiswa = NonMahasiswa::where('status', 'ditolak')->count();
+        $rejectedDocuments = $rejectedMahasiswa + $rejectedNonMahasiswa;
         
         // Get monthly statistics for chart
         $monthlyStats = $this->getMonthlyStatistics();
@@ -55,7 +65,9 @@ class AdminController extends Controller
         return view('Admin.index', compact(
             'totalUsers', 
             'totalPending', 
-            'approvedDocuments', 
+            'approvedDocuments',
+            'acceptedDocuments',
+            'rejectedDocuments', 
             'monthlyStats',
             'unreadNotifications',
             'newApplicationNotifications',
@@ -85,6 +97,8 @@ class AdminController extends Controller
         $userStats = [];
         $requestStats = [];
         $documentStats = [];
+        $acceptedStats = []; // Stats untuk dokumen diterima
+        $rejectedStats = []; // Stats untuk dokumen ditolak
         
         // For each month, get the counts
         foreach ($months as $index => $month) {
@@ -103,13 +117,33 @@ class AdminController extends Controller
             $documentStats[] = PenerbitanSurat::where('status_surat', 'diterbitkan')
                                 ->whereBetween('created_at', [$monthStart, $monthEnd])
                                 ->count();
+            
+            // Accepted documents in this month
+            $mahasiswaAccepted = Mahasiswa::where('status', 'diterima')
+                                ->whereBetween('updated_at', [$monthStart, $monthEnd])
+                                ->count();
+            $nonMahasiswaAccepted = NonMahasiswa::where('status', 'diterima')
+                                ->whereBetween('updated_at', [$monthStart, $monthEnd])
+                                ->count();
+            $acceptedStats[] = $mahasiswaAccepted + $nonMahasiswaAccepted;
+            
+            // Rejected documents in this month
+            $mahasiswaRejected = Mahasiswa::where('status', 'ditolak')
+                                ->whereBetween('updated_at', [$monthStart, $monthEnd])
+                                ->count();
+            $nonMahasiswaRejected = NonMahasiswa::where('status', 'ditolak')
+                                 ->whereBetween('updated_at', [$monthStart, $monthEnd])
+                                 ->count();
+            $rejectedStats[] = $mahasiswaRejected + $nonMahasiswaRejected;
         }
         
         return [
             'months' => $months,
             'userStats' => $userStats,
             'requestStats' => $requestStats,
-            'documentStats' => $documentStats
+            'documentStats' => $documentStats,
+            'acceptedStats' => $acceptedStats, // Tambahkan data dokumen diterima
+            'rejectedStats' => $rejectedStats // Tambahkan data dokumen ditolak
         ];
     }
 

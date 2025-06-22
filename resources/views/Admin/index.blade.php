@@ -21,7 +21,7 @@
             </div>
 
             <!-- Stats Cards -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
                 <!-- Total Users -->
                 <div class="bg-white p-6 rounded-lg shadow-sm">
                     <h3 class="text-gray-500 text-sm mb-2">Total Users</h3>
@@ -44,13 +44,35 @@
                     </div>
                 </div>
 
-                <!-- Dokumen Diterima -->
+                <!-- Dokumen Diterbitkan -->
                 <div class="bg-white p-6 rounded-lg shadow-sm">
-                    <h3 class="text-gray-500 text-sm mb-2">Dokumen diterima</h3>
+                    <h3 class="text-gray-500 text-sm mb-2">Surat Diterbitkan</h3>
                     <div class="flex justify-between items-center">
                         <span class="text-3xl font-bold text-gray-800">{{ $approvedDocuments }}</span>
                         <span class="text-green-500 text-sm bg-green-100 px-2 py-1 rounded-full">
                             Diterbitkan
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Dokumen Diterima -->
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-gray-500 text-sm mb-2">Dokumen Diterima</h3>
+                    <div class="flex justify-between items-center">
+                        <span class="text-3xl font-bold text-gray-800">{{ $acceptedDocuments }}</span>
+                        <span class="text-blue-500 text-sm bg-blue-100 px-2 py-1 rounded-full">
+                            Diterima
+                        </span>
+                    </div>
+                </div>
+                
+                <!-- Dokumen Ditolak -->
+                <div class="bg-white p-6 rounded-lg shadow-sm">
+                    <h3 class="text-gray-500 text-sm mb-2">Dokumen Ditolak</h3>
+                    <div class="flex justify-between items-center">
+                        <span class="text-3xl font-bold text-gray-800">{{ $rejectedDocuments }}</span>
+                        <span class="text-red-500 text-sm bg-red-100 px-2 py-1 rounded-full">
+                            Ditolak
                         </span>
                     </div>
                 </div>
@@ -59,12 +81,12 @@
             <!-- Statistics Section -->
             <div class="bg-white p-6 rounded-lg shadow-sm">
                 <div class="flex justify-between items-center mb-6">
-                    <h2 class="text-lg font-semibold text-gray-800">Statistik Data pengajuan</h2>
+                    <h2 class="text-lg font-semibold text-gray-800">Statistik Data Pengajuan</h2>
                     <span class="text-gray-500 text-sm">6 Bulan Terakhir</span>
                 </div>
                 
                 <!-- Chart -->
-                <div class="h-64">
+                <div class="h-96">
                     <canvas id="statsChart"></canvas>
                 </div>
             </div>
@@ -80,6 +102,8 @@
         const userData = @json($monthlyStats['userStats']);
         const requestData = @json($monthlyStats['requestStats']);
         const documentData = @json($monthlyStats['documentStats']);
+        const acceptedData = @json($monthlyStats['acceptedStats']);
+        const rejectedData = @json($monthlyStats['rejectedStats']);
         
         // Create the chart
         const ctx = document.getElementById('statsChart').getContext('2d');
@@ -103,10 +127,24 @@
                         borderWidth: 1
                     },
                     {
-                        label: 'Dokumen Diterbitkan',
+                        label: 'Surat Diterbitkan',
                         data: documentData,
                         backgroundColor: 'rgba(16, 185, 129, 0.5)', // Green
                         borderColor: 'rgb(16, 185, 129)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Dokumen Diterima',
+                        data: acceptedData,
+                        backgroundColor: 'rgba(37, 99, 235, 0.5)', // Blue
+                        borderColor: 'rgb(37, 99, 235)',
+                        borderWidth: 1
+                    },
+                    {
+                        label: 'Dokumen Ditolak',
+                        data: rejectedData,
+                        backgroundColor: 'rgba(220, 38, 38, 0.5)', // Red
+                        borderColor: 'rgb(220, 38, 38)',
                         borderWidth: 1
                     }
                 ]
