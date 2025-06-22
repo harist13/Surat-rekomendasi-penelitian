@@ -227,7 +227,7 @@
 
                 <p class="leading-relaxed">
                     <span class="font-semibold">5. Revisi Dokumen (Jika diperlukan):</span><br>
-                    Jika terdapat kekurangan/dokumen perlu revisi, pemohon akan mendapat pemberitahuan melalui email/SMS. Lakukan perbaikan maksimal 3 hari kerja.
+                    Jika terdapat kekurangan/dokumen perlu revisi, pemohon akan mendapat pemberitahuan melalui email/SMS. Lakukan perbaikan maksimal 3 hari kerja setelah menerima pemberitahuan tersebut.
                 </p>
 
                 <p class="leading-relaxed">

@@ -148,7 +148,7 @@ class FormPengajuanController extends Controller
 
             $successMessage = $isResubmission 
                 ? "Pengajuan ulang berhasil dikirim dengan nomor pengajuan {$noPengajuan} Status pengajuan telah diubah kembali menjadi 'Diproses'." 
-                : "Pengajuan berhasil disimpan dengan nomor pengajuan {$noPengajuan} Simpan nomor pengajuan dengan baik agar bisa melacak status pengajuan.";
+                : "Pengajuan berhasil disimpan dengan nomor pengajuan {$noPengajuan} Simpan nomor pengajuan dengan baik agar bisa melacak status pengajuan. Staff akan melakukan verifikasi dokumen dalam 1-2 hari jam kerja setelah pengajuan masuk ke sistem.";
 
             return redirect()->route('pengajuanmahasiswa')->with('success', $successMessage);
         } catch (\Exception $e) {
@@ -306,7 +306,7 @@ class FormPengajuanController extends Controller
 
             $successMessage = $isResubmission 
                 ? "Pengajuan ulang berhasil dikirim dengan nomor pengajuan {$noPengajuan} Status pengajuan telah diubah kembali menjadi 'Diproses'." 
-                : "Pengajuan berhasil disimpan dengan nomor pengajuan {$noPengajuan} Simpan nomor pengajuan dengan baik agar bisa melacak status pengajuan.";
+                : "Pengajuan berhasil disimpan dengan nomor pengajuan {$noPengajuan} Simpan nomor pengajuan dengan baik agar bisa melacak status pengajuan. Staff akan melakukan verifikasi dokumen dalam 1-2 hari jam kerja setelah pengajuan masuk ke sistem.";
 
             return redirect()->route('pengajuannonmahasiswa')->with('success', $successMessage);
         } catch (\Exception $e) {
